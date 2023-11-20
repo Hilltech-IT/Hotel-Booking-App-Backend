@@ -27,6 +27,9 @@ class User(AbstractUser, AbstractBaseModel):
     date_of_birth = models.DateField(null=True)
     country = models.CharField(max_length=255, null=True)
     address = models.CharField(max_length=255, null=True)
+    token = models.CharField(null=True, max_length=255)
+    token_expiration_date = models.DateTimeField(null=True)
+    activation_date = models.DateTimeField(null=True)
 
 
     def __str__(self):

@@ -1,5 +1,8 @@
 from apps.users.models import User
-from apps.users.apis.serializers import RegisterSerializer, UserListSerializer, UserLoginSerializer
+from apps.users.apis.serializers import (
+    RegisterSerializer, UserListSerializer, UserLoginSerializer, 
+    ChangePasswordSerializer, ForgotPasswordSerializer
+)
 
 
 from django.utils import timezone
@@ -8,6 +11,7 @@ from rest_framework import generics, status
 from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
+from rest_framework.views import APIView
 
 
 class UserListAPIView(generics.ListAPIView):
@@ -55,3 +59,52 @@ class RegisterUserAPIView(generics.CreateAPIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.erros, status=status.HTTP_400_BAD_REQUEST)
+
+
+class UserRetrieveUpdateDeleteAPIView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserListSerializer
+
+    lookup_field = "pk"
+
+
+class ForgotPasswordAPIView(APIView):
+    serializer_class = ForgotPasswordSerializer
+    permission_classes = [
+        AllowAny,
+    ]
+
+    def get_serializer_class(self):
+        return self.serializer_class()
+
+    def post(self, request):
+        serializer = self.serializer_class(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        serializer.send_email()
+
+        return Response(
+            {"message": "Password reset link will be send to your email!"},
+            status=status.HTTP_200_OK,
+        )
+
+
+class ChangePasswordAPIView(APIView):
+    serializer_class = ChangePasswordSerializer
+    permission_classes = [
+        AllowAny,
+    ]
+
+    def get_serializer_class(self):
+        return self.serializer_class()
+
+    def post(self, request, token):
+        context = {"request": request, "token": token}
+        serializer = self.serializer_class(data=request.data, context=context)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(
+                {"message": "Password has been successfully changed"},
+                status=status.HTTP_201_CREATED,
+            )
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
