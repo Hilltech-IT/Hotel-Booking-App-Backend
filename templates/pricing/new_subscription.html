@@ -1,0 +1,55 @@
+<div class="modal fade" id="newSubscriptionModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5 text-center">Add A Subscription</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+            <form action="{% url 'create-subscription' %}" method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="modal-body">
+                <div class="mb-2">
+                  <label for="exampleInputPassword1" class="form-label">Customer/User</label>
+                  <select class="form-select" id="user_id" name="user_id">
+                    {% for user in users %}
+                        <option value="{{user.id}}">{{user.name}}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+                <div class="mb-2">
+                    <label for="exampleInputPassword1" class="form-label">Package</label>
+                    <select class="form-select" id="package_id" name="package_id">
+                        {% for package in packages %}
+                            <option value="{{package.id}}">{{package.name}}</option>
+                        {% endfor %}
+                    </select>
+                  </div>
+                  <div class="mb-2">
+                    <label for="exampleInputPassword1" class="form-label">Start Date</label>
+                    <input
+                      type="date"
+                      class="form-control"
+                      id="start_date"
+                      name="start_date"
+                      required
+                    />
+                  </div>
+                  <div class="mb-2">
+                    <label for="exampleInputPassword1" class="form-label">End Date</label>
+                    <input
+                      type="date"
+                      class="form-control"
+                      id="end_date"
+                      name="end_date"
+                      required
+                    />
+                  </div>
+                  
+                <div class="text-center mt-2">
+                  <button type="submit" class="btn btn-primary">Submit</button>
+                </div>
+              </div>
+              </form>
+      </div>
+    </div>
+  </div>

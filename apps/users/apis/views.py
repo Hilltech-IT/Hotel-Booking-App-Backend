@@ -1,17 +1,17 @@
-from apps.users.models import User
-from apps.users.apis.serializers import (
-    RegisterSerializer, UserListSerializer, UserLoginSerializer, 
-    ChangePasswordSerializer, ForgotPasswordSerializer
-)
-
-
 from django.utils import timezone
-from rest_framework.response import Response
 from rest_framework import generics, status
 from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
+from rest_framework.response import Response
 from rest_framework.views import APIView
+
+from apps.users.apis.serializers import (ChangePasswordSerializer,
+                                         ForgotPasswordSerializer,
+                                         RegisterSerializer,
+                                         UserListSerializer,
+                                         UserLoginSerializer)
+from apps.users.models import User
 
 
 class UserListAPIView(generics.ListAPIView):

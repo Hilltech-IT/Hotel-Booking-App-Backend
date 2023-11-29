@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="card m-2" style="width: 16rem; height: 150px;">
+        <div class="card-body">
+          <h5 class="card-title">Hotels</h5>
+          <hr/>
+          <p class="card-text">Hotels Count: {{hotels_count}}</p>
+          <a href="#"></a>
+        </div>
+      </div>
+      <div class="card m-2" style="width: 16rem; height: 150px;">
+       
+        <div class="card-body">
+          <h5 class="card-title">Customers</h5>
+          <hr/>
+          <p class="card-text">Customers Count: {{customers_count}}</p>
+        </div>
+      </div>
+      <div class="card m-2" style="width: 16rem; height: 150px;">
+        <div class="card-body">
+          <h5 class="card-title">Bookings</h5>
+          <hr/>
+          <p class="card-text">Bookings Count: {{bookings_count}}</p>
+         
+        </div>
+      </div>
+  </div>
+{% endblock %}
