@@ -34,13 +34,20 @@
               <td>{{subscription.status}}</td>
               <td>{{subscription.start_date}}</td>
               <td>{{subscription.end_date}}</td>
+
+              {% if subscription.status == "Active" %}
+              <td>
+                <a href="{% url 'deactivate-subscription' subscription.id %}" class="btn btn-info btn-sm">Deactivate</a>
+              </td>
+              <td>
+                <a href="{% url 'cancel-subscription' subscription.id %}" class="btn btn-warning btn-sm">Cancel</a>
+              </td>
+              {% else %}
+              <td>
+                <a href="{% url 'activate-subscription' subscription.id %}" class="btn btn-info btn-sm">Activate</a>
+              </td>
+              {% endif %}
               
-              <td>
-                <a href="#" class="btn btn-info btn-sm">Activate/Deactivate</a>
-              </td>
-              <td>
-                <a href="#" class="btn btn-warning btn-sm">Cancel</a>
-              </td>
               
             </tr>
    

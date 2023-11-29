@@ -90,11 +90,13 @@ def edit_pricing_package(request):
 def customer_pricing_packages(request, customer_id=None):
     packages = Pricing.objects.all()
 
+
     if request.method == "POST":
         package_id = request.POST.get("package_id")
 
         package = Pricing.objects.get(id=package_id)
         user = User.objects.get(id=customer_id)
+
 
         subscription = Subscription.objects.create(
             user = user,
@@ -104,9 +106,30 @@ def customer_pricing_packages(request, customer_id=None):
             end_date=seven_days_from_today if package.name == "Free Trial" else end_of_month
         )
 
-        return redirect("login")
+        return redirect("user-login")
+        
 
     context = {
         "packages": packages
     }
     return render(request, "service_providers/packages.html", context)
+
+
+def activate_subscription(request, subscription_id=None):
+    subscription = Subscription.objects.get(id=subscription_id)
+    subscription.status = "Active"
+    subscription.save()
+    return redirect("subscriptions")
+
+
+def deactivate_subscription(request, subscription_id=None):
+    subscription = Subscription.objects.get(id=subscription_id)
+    subscription.status = "Deactivated"
+    subscription.save()
+    return redirect("subscriptions")
+
+def cancel_subscription(request, subscription_id=None):
+    subscription = Subscription.objects.get(id=subscription_id)
+    subscription.status = "Cancelled"
+    subscription.save()
+    return redirect("subscriptions")

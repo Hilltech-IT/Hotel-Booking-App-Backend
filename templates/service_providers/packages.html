@@ -199,8 +199,12 @@
                 <li>Unlimited Listings</li>
               </ul>
             {% endif %}
+            <form method="POST">
+              {% csrf_token %}
+              <input type="number" hidden name="package_id" id="package_id" value="{{package.id}}" >
+              <button type="submit" class="w-100 btn btn-lg btn-outline-primary">Choose Package</button>
+            </form>
             
-            <button type="button" class="w-100 btn btn-lg btn-outline-primary">Choose</button>
           </div>
         </div>
       </div>

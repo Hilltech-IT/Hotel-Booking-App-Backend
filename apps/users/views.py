@@ -18,12 +18,12 @@ def user_login(request):
             login(request, user)
                 
             return redirect('home') 
-    return render(request, 'users/login.html')
+    return render(request, 'accounts/login.html')
 
 
 def user_logout(request):
     logout(request)
-    return redirect('login')
+    return redirect('user-login')
 
 
 def staff(request):
@@ -125,3 +125,8 @@ def onboard_service_provider(request):
         return redirect(f"/subscriptions/customer-pricing/{user.id}/")
 
     return render(request, "service_providers/onboarding.html")
+
+
+def service_providers(request):
+    providers = User.objects.filter(role="service_provider")
+    return render(request, "service_providers/providers.html", {"providers": providers})
