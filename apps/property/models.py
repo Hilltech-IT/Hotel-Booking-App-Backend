@@ -19,7 +19,7 @@ class Property(AbstractBaseModel):
     capacity = models.IntegerField(default=0)
     profile_image = models.ImageField(upload_to="property_images/")
 
-    def __init__(self):
+    def __str__(self):
         return self.name
 
 
