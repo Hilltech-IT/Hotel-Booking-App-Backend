@@ -4,3 +4,4 @@ pytest-django
 gunicorn
 pillow
 whitenoise
+django-cors-headers

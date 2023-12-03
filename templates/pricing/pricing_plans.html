@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col">
+        <h3>Pricing Packages</h3>
+    </div>
+    <div class="col">
+        <a class="btn btn-success" data-bs-toggle="modal" data-bs-target="#newPricingPackageModal">Add A Package</a>
+
+    </div>
+  
+</div>
+<hr/>
+      <div class="table-responsive small">
+        <table class="table">
+          <thead>
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">Name</th>
+              <th scope="col">Cost</th>
+              <th scope="col" colspan="3">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for package in packages %}
+            <tr>
+              <td>{{package.id}}</td>
+              <td>{{package.name}}</td>
+              <td>{{package.cost}}</td>
+              
+              <td><a class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editPricingPackageModal{{ package.id }}">
+                <i class="bi bi-pencil-square"></i>
+              </a></td>
+              <td><a class="btn btn-danger btn-sm">
+                <i class="bi bi-trash"></i>
+              </a></td>
+              
+            </tr>
+            {% include "pricing/edit_pricing_plan.html" %}
+   
+            {% endfor %}
+
+          </tbody>
+        </table>
+        <div>
+      </div>
+{% endblock content %}

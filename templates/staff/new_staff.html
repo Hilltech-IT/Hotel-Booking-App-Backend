@@ -1,0 +1,115 @@
+<div class="modal fade" id="newStaffModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5 text-center">Add A Staff Member</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+            <form action="{% url 'new-staff' %}" method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="modal-body">
+                <div class="mb-2">
+                  <label for="exampleInputPassword1" class="form-label">First Name</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="first_name"
+                    name="first_name"
+                    required
+                  />
+                </div>
+                <div class="mb-2">
+                    <label for="exampleInputPassword1" class="form-label">Last Name</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="last_name"
+                      name="last_name"
+                      required
+                    />
+                  </div>
+                 
+                  <div class="mb-2">
+                    <label for="exampleInputPassword1" class="form-label">Phone Number</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="phone_number"
+                      name="phone_number"
+                      required
+                    />
+                  </div>
+                  <div class="mb-2">
+                    <label for="exampleInputPassword1" class="form-label">Email</label>
+                    <input
+                      type="email"
+                      class="form-control"
+                      id="email"
+                      name="email"
+                      required
+                    />
+                  </div>
+                  <div class="mb-2">
+                    <label for="exampleInputPassword1" class="form-label">Username</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="username"
+                      name="username"
+                      required
+                    />
+                  </div>
+                  
+                  <div class="mb-2">
+                    <label for="exampleInputPassword1" class="form-label">City</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="city"
+                      name="city"
+                      required
+                    />
+                  </div>
+
+                  <div class="mb-2">
+                    <label for="exampleInputPassword1" class="form-label">Country</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="country"
+                      name="country"
+                      required
+                    />
+                  </div>
+                  
+                  <div class="mb-2">
+                    <label class="form-label">Gender</label>
+                    <select class="form-select" id="gender" name="gender">
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+    
+                      </select>
+                  </div>
+
+                  <div class="mb-2">
+                    <label class="form-label">Postion</label>
+                    <select class="form-select" id="position" name="position">
+                        <option value="CEO">Chief Executive Officer</option>
+                        <option value="CIO">Chief Information Officer</option>
+                        <option value="CTO">Chief Technology Officer</option>
+                        <option value="COO">Chief Operating Officer</option>
+                        <option value="CFO">Chief Finance Officer</option>
+                        <option value="DCP">Director Corporate And Business</option>
+                        <option value="DCSA">Director Client Services And Administration</option>
+                        
+                      </select>
+                  </div>
+         
+                <div class="text-center mt-2">
+                  <button type="submit" class="btn btn-primary">Submit</button>
+                </div>
+              </div>
+              </form>
+      </div>
+    </div>
+  </div>

@@ -1,15 +1,20 @@
-from django.urls import path
-from apps.property.apis.views import (
-    PropertyAPIView, PropertyRetrieveUpdateDeleteAPIView, PropertyImageAPIView,
-    PropertyRoomAPIView, PropertyRoomImageAPIView, PropertyRoomRetrieveUpdateDeleteAPIView,
+from django.urls import include, path
+from rest_framework.routers import DefaultRouter
 
-)
+from apps.property.apis.views import (PropertyImageViewSet,
+                                      PropertyModelViewSet,
+                                      PropertyRoomImageViewSet,
+                                      PropertyRoomViewSet,
+                                      ReviewAndRatingViewSet)
+
+router = DefaultRouter()
+router.register("property-listings", PropertyModelViewSet, basename="property-listings")
+router.register("property-images", PropertyImageViewSet, basename="property-images")
+router.register("rooms", PropertyRoomViewSet, basename="rooms")
+router.register("room-images", PropertyRoomImageViewSet, basename="room-images")
+router.register("reviews-and-ratings", ReviewAndRatingViewSet, basename="reviews-and-ratings")
+
 
 urlpatterns = [
-    path("", PropertyAPIView.as_view(), name="properties"),
-    path("<int:pk>/", PropertyRetrieveUpdateDeleteAPIView.as_view(), name="properties"),
-    path("rooms/", PropertyRoomAPIView.as_view(), name="rooms"),
-    path("rooms/<int:pk>/", PropertyRoomRetrieveUpdateDeleteAPIView.as_view(), name="rooms"),
-    path("property-images/", PropertyImageAPIView.as_view(), name="property-images"),
-    path("room-images/", PropertyRoomImageAPIView.as_view(), name="room-images"),
+    path("", include(router.urls)),
 ]

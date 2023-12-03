@@ -40,17 +40,21 @@ INSTALLED_APPS = [
 
     "rest_framework",
     "rest_framework.authtoken",
+    "corsheaders",
 
     "apps.core",
     "apps.users",
     "apps.payments",
     "apps.property",
     "apps.bookings",
+    "apps.subscriptions",
+    "apps.events",
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    "corsheaders.middleware.CorsMiddleware",
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -152,3 +156,8 @@ REST_FRAMEWORK = {
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
     "PAGE_SIZE": 10,
 }
+
+
+LOGOUT_REDIRECT_URL = "user-login"
+
+CORS_ALLOW_ALL_ORIGINS = True

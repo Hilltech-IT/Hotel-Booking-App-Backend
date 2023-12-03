@@ -1,0 +1,177 @@
+<div class="modal fade" id="editEventModal{{event.id}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5 text-center">Edit An Event</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+            <form action="{% url 'edit-event' %}" method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="modal-body">
+
+                <div class="mb-2">
+                    <input
+                        type="number"
+                        class="form-control"
+                        id="event_id"
+                        name="event_id"
+                        value="{{event.id}}"
+                        hidden
+                        required
+                    />
+                    </div>
+                
+                <div class="mb-2">
+                    <input
+                        type="number"
+                        class="form-control"
+                        id="owner_id"
+                        name="owner_id"
+                        value="{{event.owner.id}}"
+                        hidden
+                        required
+                    />
+                    </div>
+                    <div class="mb-2">
+                        <label for="exampleInputPassword1" class="form-label">Event Banner</label>
+                        <input
+                            type="file"
+                            class="form-control"
+                            id="event_banner"
+                            name="event_banner"
+                
+                        />
+                    </div>
+                <div class="mb-2">
+                    <label for="exampleInputPassword1" class="form-label">Event Title</label>
+                    <input
+                        type="text"
+                        class="form-control"
+                        id="title"
+                        name="title"
+                        value="{{event.title}}"
+                        
+                    />
+                </div>
+                <div class="mb-2">
+                    <label for="exampleInputPassword1" class="form-label">Event Date</label>
+                    <input
+                      type="date"
+                      class="form-control"
+                      id="event_date"
+                      name="event_date"
+                      value="{{event.event_date}}"
+                      
+                    />
+                  </div>
+                <div class="mb-2">
+                    <label for="exampleInputPassword1" class="form-label">Regular Ticket Price</label>
+                    <input
+                        type="number"
+                        class="form-control"
+                        id="regular_ticket"
+                        name="regular_ticket"
+                        value="{{event.regular_ticket_price}}"
+                        
+                    />
+                </div>
+                <div class="mb-2">
+                    <label for="exampleInputPassword1" class="form-label">VIP Ticket Price</label>
+                    <input
+                        type="number"
+                        class="form-control"
+                        id="vip_ticket"
+                        name="vip_ticket"
+                        value="{{event.vip_ticket_price}}"
+                        
+                    />
+                </div>
+                <div class="mb-2">
+                    <label for="exampleInputPassword1" class="form-label">VVIP Ticket Price</label>
+                    <input
+                        type="number"
+                        class="form-control"
+                        id="vvip_ticket"
+                        name="vvip_ticket"
+                        value="{{event.vvip_ticket_price}}"
+                        
+                    />
+                </div>
+                <div class="mb-2">
+                    <label for="exampleInputPassword1" class="form-label">Children Allowed</label>
+                    <select class="form-select" id="children_allowed" name="children_allowed" value="{{event.children_allowed}}">
+                      <option value="Yes">Yes</option>
+                      <option value="Yes">No</option>
+                    </select>
+                  </div>
+                <div class="mb-2">
+                    <label for="exampleInputPassword1" class="form-label">Children Ticket Price</label>
+                    <input
+                        type="number"
+                        class="form-control"
+                        id="children_ticket"
+                        name="children_ticket"
+                        value="{{event.children_ticket_price}}"
+                        
+                    />
+                </div>
+                <div class="mb-2">
+                    <label for="exampleInputPassword1" class="form-label">Age Limit</label>
+                    <input
+                        type="number"
+                        class="form-control"
+                        id="age_limit"
+                        name="age_limit"
+                        value="{{event.age_limit}}"
+                     
+                    />
+                </div>
+                <div class="mb-2">
+                    <label for="exampleInputPassword1" class="form-label">Event Location</label>
+                    <input
+                        type="text"
+                        class="form-control"
+                        id="location"
+                        name="location"
+                        value="{{event.location}}"
+                       
+                    />
+                </div>
+                <div class="mb-2">
+                    <label for="exampleInputPassword1" class="form-label">Payment Methods</label>
+                    <select class="form-select" id="payment_methods" name="payment_methods" value="{{event.payment_methods}}">
+                        <option value="Mpesa">Mpesa</option>
+                        <option value="Cash">Cash</option>
+                        <option value="Bank">Bank</option>
+                        <option value="Mpesa and Cash">Mpesa and Cash</option>
+                        <option value="Mpesa, Cash and Bank">Mpesa, Cash and Bank</option>
+                        
+                    </select>
+                </div>
+                <div class="mb-2">
+                    <label for="exampleInputPassword1" class="form-label">Total Tickets</label>
+                    <input
+                        type="number"
+                        class="form-control"
+                        id="total_tickets"
+                        name="total_tickets"
+                        value="{{event.total_tickets}}"
+                    />
+                </div>
+                <div class="mb-2">
+                    <label for="exampleInputPassword1" class="form-label">Description</label>
+                    <textarea id="description" name="description" rows="3" class="form-control" value="{{event.description}}">
+                        {{event.description}}
+                    </textarea>
+                </div>
+                 
+                 
+                  
+                <div class="text-center mt-2">
+                  <button type="submit" class="btn btn-primary">Submit</button>
+                </div>
+              </div>
+              </form>
+      </div>
+    </div>
+  </div>

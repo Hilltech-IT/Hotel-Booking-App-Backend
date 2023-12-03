@@ -1,4 +1,5 @@
 import os
+
 from django import setup
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "HotelBookingBackend.settings")
@@ -6,8 +7,8 @@ setup()
 
 
 import pytest
-
 from django.test import TestCase
+
 from apps.users.models import User
 
 

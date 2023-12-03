@@ -2,8 +2,14 @@ from django.db import models
 
 from apps.core.models import AbstractBaseModel
 
-
 # Create your models here.
+PROPERTY_TYPE_CHOICES = (
+    ("Hotel", "Hotel"),
+    ("AirBnB", "AirBnB"),
+    ("Lodge", "Lodge"),
+)
+
+
 class Property(AbstractBaseModel):
     owner = models.ForeignKey(
         "users.User", on_delete=models.SET_NULL, null=True)
@@ -11,7 +17,7 @@ class Property(AbstractBaseModel):
     location = models.CharField(max_length=255)
     city = models.CharField(max_length=255)
     country = models.CharField(max_length=255)
-    property_type = models.CharField(max_length=255)  # hotel, airbnb, lodge
+    property_type = models.CharField(max_length=255, choices=PROPERTY_TYPE_CHOICES)  # hotel, airbnb, lodge
     address = models.CharField(max_length=255)
     contact_number = models.CharField(max_length=255)
     email = models.EmailField(null=True)
@@ -37,6 +43,8 @@ class PropertyRoom(AbstractBaseModel):
 
     def __str__(self):
         return self.room_number
+
+
 
 
 class PropertyImage(AbstractBaseModel):
@@ -65,3 +73,4 @@ class ReviewAndRating(AbstractBaseModel):
 
     def __str__(self):
         return self.property.name
+

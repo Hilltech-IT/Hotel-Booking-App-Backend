@@ -1,0 +1,144 @@
+from django.core.paginator import Paginator
+from django.shortcuts import redirect, render
+
+from apps.events.models import Event, EventTicket
+from apps.users.models import User
+
+
+# Create your views here.
+def events(request):
+    events = Event.objects.all()
+
+    paginator = Paginator(events, 10)
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+    
+    context = {
+        "events": events,
+        "page_obj": page_obj
+    }
+    return render(request, "events/events.html", context)
+
+
+def new_event(request):
+    if request.method == "POST":
+        owner_id = request.POST.get("owner_id")
+        title = request.POST.get("title")
+        event_date = request.POST.get("event_date")
+        event_time = request.POST.get("event_time")
+        regular_ticket_price = request.POST.get("regular_ticket")
+        vip_ticket_price = request.POST.get("vip_ticket")
+        vvip_ticket_price = request.POST.get("vvip_ticket")
+        children_ticket_price = request.POST.get("children_ticket")
+        age_limit = request.POST.get("age_limit")
+        children_allowed = request.POST.get("children_allowed")
+        description = request.POST.get("description")
+        location = request.POST.get("location")
+        event_banner = request.POST.get("event_banner")
+        allowed_payment_methods = request.POST.get("payment_methods")
+        total_tickets = request.POST.get("total_tickets")
+
+
+        user = User.objects.get(id=owner_id)
+
+        Event.objects.create(
+            owner=user,
+            title=title,
+            event_date=event_date,
+            event_time=event_time,
+            regular_ticket_price=regular_ticket_price,
+            vip_ticket_price=vip_ticket_price,
+            vvip_ticket_price=vvip_ticket_price,
+            children_ticket_price=children_ticket_price,
+            age_limit=age_limit,
+            children_allowed=True if children_allowed == "Yes" else False,
+            description=description,
+            location=location,
+            event_banner=event_banner,
+            allowed_payment_methods=allowed_payment_methods,
+            total_tickets=total_tickets
+        )
+
+        return redirect("events")
+
+    return render(request, "events/new_event.html")
+
+
+def edit_event(request):
+    if request.method == "POST":
+        event_id = request.POST.get("event_id")
+        title = request.POST.get("title")
+        event_date = request.POST.get("event_date")
+        regular_ticket_price = request.POST.get("regular_ticket")
+        vip_ticket_price = request.POST.get("vip_ticket")
+        vvip_ticket_price = request.POST.get("vvip_ticket")
+        children_ticket_price = request.POST.get("children_ticket")
+        age_limit = request.POST.get("age_limit")
+        children_allowed = request.POST.get("children_allowed")
+        description = request.POST.get("description")
+        location = request.POST.get("location")
+        event_banner = request.POST.get("event_banner")
+        allowed_payment_methods = request.POST.get("payment_methods")
+        total_tickets = request.POST.get("total_tickets")
+
+        
+        event = Event.objects.get(id=event_id)
+        event.title=title if title else event.title
+        event.event_date=event_date if event_date else event.event_date
+        event.regular_ticket_price=regular_ticket_price if regular_ticket_price else event.regular_ticket_price
+        event.vip_ticket_price=vip_ticket_price if vip_ticket_price else event.vip_ticket_price
+        event.vvip_ticket_price=vvip_ticket_price if vvip_ticket_price else event.vvip_ticket_price
+        event.children_ticket_price=children_ticket_price if children_ticket_price else event.children_ticket_price
+        event.age_limit=age_limit if age_limit else event.age_limit
+        event.children_allowed= True if children_allowed == "Yes" else False
+        event.description=description if description else event.description
+        event.location=location if location else event.location
+        event.event_banner=event_banner if event_banner else event.event_banner
+        event.allowed_payment_methods=allowed_payment_methods if allowed_payment_methods else event.allowed_payment_methods
+        event.total_tickets=total_tickets if total_tickets else event.total_tickets
+        event.save()
+
+        return redirect("events")
+        
+
+    return render(request, "events/edit_event.html")
+
+
+def event_details(request, event_id=None):
+    event = Event.objects.get(id=event_id)
+    event_tickets = event.eventtickets.all()
+
+    paginator = Paginator(event_tickets, 10)
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+
+    context = {
+        "event": event,
+        "event_tickets": event_tickets,
+        "page_obj": page_obj
+    }
+
+    return render(request, "events/event_details.html", context)
+
+
+def event_tickets(request):
+    tickets = EventTicket.objects.all().order_by("-created")
+
+    paginator = Paginator(tickets, 10)
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+    
+    context = {
+        "tickets": tickets,
+        "page_obj": page_obj
+    }
+    return render(request, "events/tickets.html", context)
+
+
+def cancel_event_ticket(request):
+    if request.method == "POST":
+        ticket_id = request.POST.get("ticket_id")
+        ticket = EventTicket.objects.get(id=ticket_id)
+        ticket.ticket_status = "Cancelled"
+        ticket.save()
+        return redirect("event-tickets")
