@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <h3>Event Details</h3>
+    <hr/>
+    <div class="col">
+        <p>Title: {{event.title}}</p>
+        <p>Date: {{event.event_date}}, {{event.event_time}}</p>
+        <p>Location: {{event.location}}</p>
+    </div>
+    <div class="col">
+        <p>Total Tickets: {{event.total_tickets}}</p>
+        <p>Booked Tickets: {{event.booked_tickets}}</p>
+        <p>Pending Tickets: {{event.pending_tickets}}</p>
+    </div>
+</div>
+<hr/>
+<div class="row">
+    <h3>Event Tickets</h3>
+</div>
+
+<hr/>
+      <div class="table-responsive small">
+        <table class="table table-sm">
+          <thead>
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">Customer</th>
+              <th scope="col">Ticket Type</th>
+              <th scope="col">Amount Paid</th>
+              <th scope="col">Payment Method</th>
+              <th scope="col">Status</th>
+              <th scope="col" colspan="2">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for event_ticket in page_obj %}
+            <tr>
+              <td>{{event_ticket.id}}</td>
+              <td>{{event_ticket.user.name}}</td>
+              <td>{{event_ticket.ticket_type}}</td>
+              <td>{{event_ticket.amount_paid}}</td>
+              <td>{{event_ticket.payment_method}}</td>
+              <td>{{event_ticket.ticket_status}}</td>
+           
+              <td><a class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#cancelEventTicketModal{{ event.id }}">
+                <i class="bi bi-x-circle"></i>
+              </a></td>
+              <td><a href="#" class="btn btn-info btn-sm">Print</a></td>
+            </tr>
+            
+            {% include "events/cancel_ticket.html" %}
+            
+            {% endfor %}
+
+          </tbody>
+        </table>
+        <div>
+          <nav aria-label="Page navigation example">
+            <ul class="pagination justify-content-end">
+              {% if page_obj.has_previous %}   
+                <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a></li>
+              {% endif %}
+              <a class="page-link" href="#">{{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</a>
+              {% if page_obj.has_next %}    
+              <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a></li>
+              {% endif %}   
+            </ul>
+          </nav>
+        </div>
+      </div>
+{% endblock content %}

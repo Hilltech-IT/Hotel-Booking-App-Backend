@@ -1,13 +1,25 @@
-<div class="modal fade" id="newEventModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal fade" id="editEventModal{{event.id}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h1 class="modal-title fs-5 text-center">Add An Event</h1>
+          <h1 class="modal-title fs-5 text-center">Edit An Event</h1>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
-            <form action="{% url 'new-event' %}" method="POST" enctype="multipart/form-data">
+            <form action="{% url 'edit-event' %}" method="POST" enctype="multipart/form-data">
                 {% csrf_token %}
                 <div class="modal-body">
+
+                <div class="mb-2">
+                    <input
+                        type="number"
+                        class="form-control"
+                        id="event_id"
+                        name="event_id"
+                        value="{{event.id}}"
+                        hidden
+                        required
+                    />
+                    </div>
                 
                 <div class="mb-2">
                     <input
@@ -15,12 +27,11 @@
                         class="form-control"
                         id="owner_id"
                         name="owner_id"
-                        value="{{request.user.id}}"
+                        value="{{event.owner.id}}"
                         hidden
                         required
                     />
                     </div>
-
                     <div class="mb-2">
                         <label for="exampleInputPassword1" class="form-label">Event Banner</label>
                         <input
@@ -28,10 +39,9 @@
                             class="form-control"
                             id="event_banner"
                             name="event_banner"
-                            required
+                
                         />
                     </div>
-                
                 <div class="mb-2">
                     <label for="exampleInputPassword1" class="form-label">Event Title</label>
                     <input
@@ -39,7 +49,8 @@
                         class="form-control"
                         id="title"
                         name="title"
-                        required
+                        value="{{event.title}}"
+                        
                     />
                 </div>
                 <div class="mb-2">
@@ -49,17 +60,8 @@
                       class="form-control"
                       id="event_date"
                       name="event_date"
-                      required
-                    />
-                  </div>
-                  <div class="mb-2">
-                    <label for="exampleInputPassword1" class="form-label">Event Time</label>
-                    <input
-                      type="time"
-                      class="form-control"
-                      id="event_time"
-                      name="event_time"
-                      required
+                      value="{{event.event_date}}"
+                      
                     />
                   </div>
                 <div class="mb-2">
@@ -69,7 +71,8 @@
                         class="form-control"
                         id="regular_ticket"
                         name="regular_ticket"
-                        required
+                        value="{{event.regular_ticket_price}}"
+                        
                     />
                 </div>
                 <div class="mb-2">
@@ -79,7 +82,8 @@
                         class="form-control"
                         id="vip_ticket"
                         name="vip_ticket"
-                        required
+                        value="{{event.vip_ticket_price}}"
+                        
                     />
                 </div>
                 <div class="mb-2">
@@ -89,12 +93,13 @@
                         class="form-control"
                         id="vvip_ticket"
                         name="vvip_ticket"
-                        required
+                        value="{{event.vvip_ticket_price}}"
+                        
                     />
                 </div>
                 <div class="mb-2">
                     <label for="exampleInputPassword1" class="form-label">Children Allowed</label>
-                    <select class="form-select" id="children_allowed" name="children_allowed">
+                    <select class="form-select" id="children_allowed" name="children_allowed" value="{{event.children_allowed}}">
                       <option value="Yes">Yes</option>
                       <option value="Yes">No</option>
                     </select>
@@ -106,7 +111,8 @@
                         class="form-control"
                         id="children_ticket"
                         name="children_ticket"
-                        required
+                        value="{{event.children_ticket_price}}"
+                        
                     />
                 </div>
                 <div class="mb-2">
@@ -116,7 +122,8 @@
                         class="form-control"
                         id="age_limit"
                         name="age_limit"
-                        required
+                        value="{{event.age_limit}}"
+                     
                     />
                 </div>
                 <div class="mb-2">
@@ -126,12 +133,13 @@
                         class="form-control"
                         id="location"
                         name="location"
-                        required
+                        value="{{event.location}}"
+                       
                     />
                 </div>
                 <div class="mb-2">
                     <label for="exampleInputPassword1" class="form-label">Payment Methods</label>
-                    <select class="form-select" id="payment_methods" name="payment_methods">
+                    <select class="form-select" id="payment_methods" name="payment_methods" value="{{event.payment_methods}}">
                         <option value="Mpesa">Mpesa</option>
                         <option value="Cash">Cash</option>
                         <option value="Bank">Bank</option>
@@ -147,13 +155,13 @@
                         class="form-control"
                         id="total_tickets"
                         name="total_tickets"
-                        required
+                        value="{{event.total_tickets}}"
                     />
                 </div>
                 <div class="mb-2">
                     <label for="exampleInputPassword1" class="form-label">Description</label>
-                    <textarea id="description" name="description" rows="3" class="form-control">
-
+                    <textarea id="description" name="description" rows="3" class="form-control" value="{{event.description}}">
+                        {{event.description}}
                     </textarea>
                 </div>
                  

@@ -1,0 +1,35 @@
+<div class="modal fade" id="deleteEventModal{{event_ticket.id}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5 text-center">Cancel Event Ticket</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+            <form action="{% url 'cancel-event-ticket' %}" method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="modal-body">
+                <div class="mb-2">
+                    <p>Are you sure to cancel {{event_ticket.user.name}}'s ticket for {{event_ticket.event}}?</p>
+                </div>
+                <div class="mb-2">
+                    <input
+                      type="number"
+                      class="form-control"
+                      id="ticket_id"
+                      name="ticket_id"
+                      value="{{event_ticket.id}}"
+                      readonly
+                      hidden
+                      required
+                    />
+                  </div>
+                 
+                <div class="text-center mt-2">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No, Close</button>
+                    <button type="submit" class="btn btn-danger">Yes, Delete</button>
+                </div>
+              </div>
+              </form>
+      </div>
+    </div>
+  </div>

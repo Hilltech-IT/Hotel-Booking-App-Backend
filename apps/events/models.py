@@ -27,7 +27,8 @@ class Event(AbstractBaseModel):
     owner = models.ForeignKey(
         "users.User", on_delete=models.CASCADE, related_name="userevents")
     title = models.CharField(max_length=500)
-    event_date = models.DateTimeField()
+    event_date = models.DateField(null=True)
+    event_time = models.TimeField(null=True)
     regular_ticket_price = models.DecimalField(max_digits=20, decimal_places=2)
     vip_ticket_price = models.DecimalField(max_digits=20, decimal_places=2)
     vvip_ticket_price = models.DecimalField(max_digits=20, decimal_places=2)
@@ -44,18 +45,22 @@ class Event(AbstractBaseModel):
     def __str__(self):
         return self.title
 
+    @property
+    def booked_tickets(self):
+        return self.eventtickets.all().count()
+
+    @property
+    def pending_tickets(self):
+        return self.total_tickets - self.eventtickets.all().count()
+
 
 class EventTicket(AbstractBaseModel):
-    user = models.ForeignKey(
-        "users.User", on_delete=models.CASCADE, related_name="usereventtickets")
-    event = models.ForeignKey(
-        Event, on_delete=models.CASCADE, related_name="eventtickets")
+    user = models.ForeignKey("users.User", on_delete=models.CASCADE, related_name="usereventtickets")
+    event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name="eventtickets")
     ticket_type = models.CharField(max_length=255, choices=TICKET_TYPE_CHOICES)
     amount_paid = models.DecimalField(max_digits=20, decimal_places=2)
-    payment_method = models.CharField(
-        max_length=255, choices=PAYMENT_METHOD_CHOICES)
-    ticket_status = models.CharField(
-        max_length=255, choices=TICKET_STATUS_CHOICES)
+    payment_method = models.CharField(max_length=255, choices=PAYMENT_METHOD_CHOICES)
+    ticket_status = models.CharField(max_length=255, choices=TICKET_STATUS_CHOICES)
 
     def __str__(self):
         return f"{self.user.username} has purchased a {self.ticket_type} for {self.event.title}"
