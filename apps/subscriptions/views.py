@@ -90,7 +90,6 @@ def edit_pricing_package(request):
 def customer_pricing_packages(request, customer_id=None):
     packages = Pricing.objects.all()
 
-
     if request.method == "POST":
         package_id = request.POST.get("package_id")
 
