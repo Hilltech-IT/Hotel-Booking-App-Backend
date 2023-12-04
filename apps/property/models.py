@@ -11,13 +11,12 @@ PROPERTY_TYPE_CHOICES = (
 
 
 class Property(AbstractBaseModel):
-    owner = models.ForeignKey(
-        "users.User", on_delete=models.SET_NULL, null=True)
+    owner = models.ForeignKey("users.User", on_delete=models.SET_NULL, null=True)
     name = models.CharField(max_length=255)
     location = models.CharField(max_length=255)
     city = models.CharField(max_length=255)
     country = models.CharField(max_length=255)
-    property_type = models.CharField(max_length=255, choices=PROPERTY_TYPE_CHOICES)  # hotel, airbnb, lodge
+    property_type = models.CharField(max_length=255, choices=PROPERTY_TYPE_CHOICES) 
     address = models.CharField(max_length=255)
     contact_number = models.CharField(max_length=255)
     email = models.EmailField(null=True)
@@ -48,8 +47,7 @@ class PropertyRoom(AbstractBaseModel):
 
 
 class PropertyImage(AbstractBaseModel):
-    property = models.ForeignKey(
-        Property, on_delete=models.CASCADE, related_name="propertyimages")
+    property = models.ForeignKey(Property, on_delete=models.CASCADE, related_name="propertyimages")
     image = models.ImageField(upload_to="property_images/")
 
     def __str__(self):
@@ -57,8 +55,7 @@ class PropertyImage(AbstractBaseModel):
 
 
 class PropertyRoomImage(AbstractBaseModel):
-    room = models.ForeignKey(
-        PropertyRoom, on_delete=models.CASCADE, related_name="roomimages")
+    room = models.ForeignKey(PropertyRoom, on_delete=models.CASCADE, related_name="roomimages")
     image = models.ImageField(upload_to="room_images/")
 
     def __str__(self):

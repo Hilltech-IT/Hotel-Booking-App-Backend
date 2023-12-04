@@ -1,10 +1,16 @@
 from django.shortcuts import render
+
 from apps.property.models import Property, PropertyRoom
+from apps.users.models import User
+
+
 # Create your views here.
 def properties(request):
     properties = Property.objects.all()
+    users = User.objects.filter(role="customer")
     context = {
-        "properties": properties
+        "properties": properties,
+        "users": users
     }
 
     return render(request, "properties/hotels.html", context)

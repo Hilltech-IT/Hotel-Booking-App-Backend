@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col">
+        <h3>HOTELS</h3>
+    </div>
+    <div class="col">
+        <a class="btn btn-success" data-bs-toggle="modal" data-bs-target="#newPopertyModal">Add A Hotel</a>
+    </div>
+  
+</div>
+<hr/>
+      <div class="table-responsive small">
+        <table class="table">
+          <thead>
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">Name</th>
+              <th scope="col">Owner</th>
+              <th scope="col">Price</th>
+              <th scope="col">Address</th>
+              <th scope="col">City</th>
+              <th scope="col" colspan="2">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for property in properties %}
+            <tr>
+              <td>{{property.id}}</td>
+              <td>{{property.name}}</td>
+              <td>{{property.owner}}</td>
+              <td>{{property.cost}}</td>
+              <td>{{property.address}}</td>
+              <td>{{property.city}}, {{property.country}}</td>
+              
+              <td><a class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editPopertyModal{{ property.id }}">
+                <i class="bi bi-pencil-square"></i>
+              </a></td>
+              <td><a class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deletePropertyModal{{ property.id }}">
+                <i class="bi bi-trash"></i>
+              </a></td>
+              
+            </tr>
+            {% include "properties/edit_property.html" %}
+            {% include "properties/delete_property.html" %}
+   
+            {% endfor %}
+
+          </tbody>
+        </table>
+        <div>
+      </div>
+{% endblock content %}
