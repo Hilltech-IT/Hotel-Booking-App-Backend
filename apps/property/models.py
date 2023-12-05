@@ -9,6 +9,30 @@ PROPERTY_TYPE_CHOICES = (
     ("Lodge", "Lodge"),
 )
 
+ROOM_TYPES = (
+    ('Single', 'Single'),
+    ('Double', 'Double'),
+    ('Suite', 'Suite'),
+)
+
+BED_TYPES = (
+    ('Single Bed', 'Single Bed'),
+    ('Double Bed', 'Double Bed'),
+    ('King Size Bed', 'King Size Bed'),
+)
+
+VIEW_CHOICES = (
+    ('City View', 'City View'),
+    ('Sea View', 'Sea View'),
+    ('Garden View', 'Garden View'),
+    
+)
+
+ROOM_STATUS_CHOICES = (
+    ("Available", "Available"),
+    ("Reserved", "Reserved"),
+)
+
 
 class Property(AbstractBaseModel):
     owner = models.ForeignKey("users.User", on_delete=models.SET_NULL, null=True)
@@ -31,17 +55,26 @@ class Property(AbstractBaseModel):
 class PropertyRoom(AbstractBaseModel):
     property = models.ForeignKey(
         Property, on_delete=models.CASCADE, related_name="propertyrooms")
-    room_number = models.CharField(max_length=255)
-    amenities = models.JSONField(default=list)
-    room_type = models.CharField(max_length=255)
-    capacity = models.IntegerField(default=1)
-    number_of_beds = models.IntegerField(default=0)
-    number_of_bathrooms = models.IntegerField(default=0)
-    is_booked = models.BooleanField(default=False)
-    profile_image = models.ImageField(upload_to="room_images/")
+   
+
+    room_number = models.CharField(max_length=255, unique=True)
+    room_type = models.CharField(max_length=255, choices=ROOM_TYPES, null=True)
+    occupancy_capacity = models.PositiveIntegerField(null=True)
+    bed_type = models.CharField(max_length=255, choices=BED_TYPES, null=True)
+    amenities = models.TextField(null=True)
+    view = models.CharField(max_length=255, choices=VIEW_CHOICES, blank=True, null=True)
+    smoking_room = models.BooleanField(default=False)
+    accessibility_features = models.BooleanField(default=False)
+    floor_level = models.PositiveIntegerField(null=True)
+    rate = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    check_in_time = models.TimeField(null=True)
+    check_out_time = models.TimeField(null=True)
+    available = models.BooleanField(default=True)
+    status = models.CharField(max_length=255, choices=ROOM_STATUS_CHOICES, default='Available')  # Available, Reserved, Canceled, etc
+    
 
     def __str__(self):
-        return self.room_number
+        return f"Room {self.room_number} - {self.room_type}"
 
 
 
@@ -71,3 +104,47 @@ class ReviewAndRating(AbstractBaseModel):
     def __str__(self):
         return self.property.name
 
+
+class Room(models.Model):
+    ROOM_TYPES = (
+        ('Single', 'Single'),
+        ('Double', 'Double'),
+        ('Suite', 'Suite'),
+    )
+
+    BED_TYPES = (
+        ('Single Bed', 'Single Bed'),
+        ('Double Bed', 'Double Bed'),
+        ('King Size Bed', 'King Size Bed'),
+    )
+
+    VIEW_CHOICES = (
+        ('City View', 'City View'),
+        ('Sea View', 'Sea View'),
+        ('Garden View', 'Garden View'),
+        
+    )
+
+    ROOM_STATUS_CHOICES = (
+        ("Available", "Available"),
+        ("Reserved", "Reserved"),
+    )
+
+    room_number = models.CharField(max_length=255, unique=True)
+    room_type = models.CharField(max_length=255, choices=ROOM_TYPES)
+    occupancy_capacity = models.PositiveIntegerField()
+    bed_type = models.CharField(max_length=255, choices=BED_TYPES)
+    amenities = models.TextField()
+    view = models.CharField(max_length=255, choices=VIEW_CHOICES, blank=True, null=True)
+    smoking_room = models.BooleanField(default=False)
+    accessibility_features = models.BooleanField(default=False)
+    floor_level = models.PositiveIntegerField()
+    rate = models.DecimalField(max_digits=10, decimal_places=2)
+    check_in_time = models.TimeField(null=True)
+    check_out_time = models.TimeField(null=True)
+    available = models.BooleanField(default=True)
+    status = models.CharField(max_length=255, choices=ROOM_STATUS_CHOICES, default='Available')  # Available, Reserved, Canceled, etc
+    
+
+    def __str__(self):
+        return f"Room {self.room_number} - {self.room_type}"

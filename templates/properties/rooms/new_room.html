@@ -1,0 +1,185 @@
+<div class="modal fade" id="newRoomModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5 text-center">New Room</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+            <form action="{% url 'new-room' %}" method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="modal-body">
+
+                <div class="row mb-3">
+                    <div class="col">
+                        <label for="exampleInputPassword1" class="form-label">Room Number</label>
+                        <input
+                            type="number"
+                            class="form-control"
+                            id="room_number"
+                            name="room_number"
+                            required
+                        />
+                    </div>
+                    <div class="col">
+                        <label for="exampleInputPassword1" class="form-label">Smooking Room</label>
+                        <select class="form-select" id="smooking_room" name="smooking_room">
+                            <option value="Yes">Available</option>
+                            <option value="No">Not Available</option>
+                            
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col">
+                        <label for="exampleInputPassword1" class="form-label">Property ID</label>
+                        <input
+                        type="number"
+                        class="form-control"
+                        id="property_id"
+                        name="property_id"
+                        value="{{property.id}}"
+                        required
+                    />
+                    </div>
+                    <div class="col">
+                        <label for="exampleInputPassword1" class="form-label">Room Type</label>
+                        <select class="form-select" id="room_type" name="room_type">
+                            <option value="Single">Single Room</option>
+                            <option value="Double">Double Room</option>
+                            <option value="Suite">Suite</option>
+
+                        </select>
+                    </div>
+                    </div>
+                
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label for="exampleInputPassword1" class="form-label">Bed Type</label>
+                        <select class="form-select" id="bed_type" name="bed_type">
+                            <option value="Single Bed">Single Bed</option>
+                            <option value="Double Bed">Double Bed</option>
+                            <option value="King Size Bed">King Size Bed</option>
+
+                        </select>
+                        </div>
+                        <div class="col">
+                            <label for="exampleInputPassword1" class="form-label">Room View</label>
+                            <select class="form-select" id="view" name="view">
+                                <option value="City View">City View</option>
+                                <option value="Sea View">Sea View</option>
+                                <option value="Garden View">Garden View</option>
+    
+                            </select>
+                        </div>
+                    </div>
+
+                <div class="row mb-3">
+                    <div class="col">
+                        <label for="exampleInputPassword1" class="form-label">Address</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="address"
+                      name="address"
+                      required
+                    />
+                    </div>
+                    <div class="col">
+                        <label for="exampleInputPassword1" class="form-label">City</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="city"
+                      name="city"
+                      required
+                    />
+                    </div>
+                    <div class="col">
+                        <label for="exampleInputPassword1" class="form-label">Country</label>
+                    <input
+                        type="text"
+                        class="form-control"
+                        id="country"
+                        name="country"
+                        required
+                    />
+                    </div>
+                </div>
+              
+            
+            <div class="row mb-3">
+                <div class="col">
+                    <label for="exampleInputPassword1" class="form-label">Floor Number</label>
+                    <input
+                        type="number"
+                        class="form-control"
+                        id="floor_level"
+                        name="floor_level"
+                        required
+                    />
+                </div>
+                <div class="col">
+                    <label for="exampleInputPassword1" class="form-label">Cost/Rate</label>
+                    <input
+                        type="number"
+                        class="form-control"
+                        id="rate"
+                        name="rate"
+                        required
+                    />
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col">
+                    <label for="exampleInputPassword1" class="form-label">Check-In Time</label>
+                    <input
+                        type="time"
+                        class="form-control"
+                        id="check_in_time"
+                        name="check_in_time"
+                        required
+                    />
+                </div>
+                <div class="col">
+                    <label for="exampleInputPassword1" class="form-label">Check-Out Time</label>
+                    <input
+                        type="time"
+                        class="form-control"
+                        id="check_out_time"
+                        name="check_out_time"
+                        required
+                    />
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col">
+                    <label for="exampleInputPassword1" class="form-label">Room Capacity</label>
+                    <input
+                        type="number"
+                        class="form-control"
+                        id="capacity"
+                        name="capacity"
+                        required
+                    />
+                </div>
+            </div>
+ 
+            <div class="row">
+                <div class="col">
+                    <label for="exampleInputPassword1" class="form-label">Room Amenities</label>
+                    <textarea id="amenities" name="amenities" rows="3" class="form-control">
+
+                    </textarea>
+                </div>
+            </div>
+                      
+                <div class="text-center mt-2">
+                  <button type="submit" class="btn btn-primary">Submit</button>
+                </div>
+              </div>
+              </form>
+      </div>
+    </div>
+  </div>
