@@ -17,7 +17,7 @@
               <th scope="col">Amount Paid</th>
               <th scope="col">Payment Method</th>
               <th scope="col">Status</th>
-              <th scope="col" colspan="2">Actions</th>
+              <th scope="col" colspan="3">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -30,14 +30,20 @@
               <td>{{event_ticket.amount_paid}}</td>
               <td>{{event_ticket.payment_method}}</td>
               <td>{{event_ticket.ticket_status}}</td>
-           
-              <td><a class="btn btn-danger btn-sm">
-                <i class="bi bi-x-circle"></i>
+
+              <td><a class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#eventTicketPaymentModal{{event_ticket.id}}">
+                Pay
               </a></td>
-              <td><a href="#" class="btn btn-info btn-sm">Print</a></td>
+           
+              <td><a class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#cancelEventTicketModal{{ event.id }}">
+                Cancel
+              </a></td>
+              <td><a href="{% url 'print-ticket' event_ticket.id %}" class="btn btn-info btn-sm">Print</a></td>
             </tr>
-            
-            
+          
+            {% include "events/ticket_payment_options.html" %}
+            {% include "events/cancel_ticket.html" %}
+          
             {% endfor %}
 
           </tbody>

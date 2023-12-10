@@ -227,3 +227,14 @@ def cancel_event_ticket(request):
         ticket.ticket_status = "Cancelled"
         ticket.save()
         return redirect("event-tickets")
+
+
+def print_event_ticket(request, ticket_id=None):
+    ticket = EventTicket.objects.get(id=ticket_id)
+    tickt_components = ticket.ticketcomponents.all()
+
+    context = {
+        "ticket": ticket,
+        "ticket_components": tickt_components
+    }
+    return render(request, "events/event_ticket.html", context)

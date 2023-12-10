@@ -74,7 +74,7 @@ class EventTicket(AbstractBaseModel):
 
 
 class EventTicketComponent(AbstractBaseModel):
-    ticket = models.ForeignKey(EventTicket, on_delete=models.CASCADE)
+    ticket = models.ForeignKey(EventTicket, on_delete=models.CASCADE, related_name="ticketcomponents")
     ticket_type = models.CharField(max_length=255, choices=TICKET_TYPE_CHOICES)
     number_of_tickets = models.IntegerField(default=1)
 
