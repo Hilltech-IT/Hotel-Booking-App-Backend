@@ -3,6 +3,7 @@ from decimal import Decimal
 from django.shortcuts import redirect, render
 
 from apps.events.models import Event, EventTicket
+from apps.payments.models import Payment
 
 
 # Create your views here.
@@ -25,6 +26,14 @@ def process_event_ticket_payment(request, ticket_id=None):
             ticket.ticket_status = "Pending Payment"
             ticket.payment_method = payment_method
             ticket.save()
+
+        payment = Payment.objects.create(
+            ticket=ticket,
+            paid_by=ticket.user,
+            paid_to=ticket.event.owner,
+            payment_reason="Ticket Booking",
+            amount=amount
+        )
 
         print(f"Event Ticket ID: {event_ticket_id}, Ticket ID: {ticket_id}")
         return redirect("/events/tickets/")
