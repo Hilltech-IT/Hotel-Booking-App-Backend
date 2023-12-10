@@ -1,13 +1,20 @@
+from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.shortcuts import redirect, render
 
-from apps.events.models import Event, EventTicket
+from apps.events.models import Event, EventTicket, EventTicketComponent
 from apps.users.models import User
 
 
 # Create your views here.
+@login_required(login_url="/users/user-login/")
 def events(request):
+    user = request.user
     events = Event.objects.all()
+
+    if user.role == "service_provider":
+        events = Event.objects.filter(owner=user)
+
 
     paginator = Paginator(events, 10)
     page_number = request.GET.get("page")
@@ -108,6 +115,7 @@ def event_details(request, event_id=None):
     event = Event.objects.get(id=event_id)
     event_tickets = event.eventtickets.all()
 
+
     paginator = Paginator(event_tickets, 10)
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
@@ -133,6 +141,83 @@ def event_tickets(request):
         "page_obj": page_obj
     }
     return render(request, "events/tickets.html", context)
+
+
+def new_event_ticket(request):
+    if request.method == "POST":
+        event_id = request.POST.get("event_id")
+        
+        regular_ticket = int(request.POST.get("regular_ticket"))
+        vip_ticket = int(request.POST.get("vip_ticket"))
+        vvip_ticket = int(request.POST.get("vvip_ticket"))
+        payment_method = request.POST.get("payment_method")
+
+        email = request.POST.get("email")
+        first_name = request.POST.get("first_name")
+        last_name = request.POST.get("last_name")
+        phone_number = request.POST.get("phone_number")
+
+        user = User.objects.filter(email=email).first()
+
+        if not user:
+            user = User.objects.create(
+                email=email,
+                first_name=first_name,
+                last_name=last_name,
+                username=email,
+                phone_number=phone_number,
+                role="customer"
+            )
+
+        event = Event.objects.get(id=event_id)
+
+        ticket_type = "Single"
+
+        if regular_ticket and vip_ticket or regular_ticket and vvip_ticket or vip_ticket and vvip_ticket:
+            ticket_type = "Multiple"
+
+        regular_tickets_charge = event.regular_ticket_price * regular_ticket
+        vip_tickets_charge = event.vip_ticket_price * vip_ticket
+        vvip_tickets_charge = event.vvip_ticket_price * vvip_ticket
+
+        amount_expected = regular_tickets_charge + vip_tickets_charge + vvip_tickets_charge
+
+
+        ticket = EventTicket.objects.create(
+            user=user,
+            event=event,
+            amount_expected=amount_expected,
+            ticket_type=ticket_type,
+            amount_paid=-abs(amount_expected),
+            payment_method=payment_method,
+            ticket_status="Pending Payment"
+        )
+
+        if regular_ticket:
+            EventTicketComponent.objects.create(
+                ticket=ticket,
+                ticket_type="Regular",
+                number_of_tickets=regular_ticket
+            )
+
+        if vip_ticket:
+            EventTicketComponent.objects.create(
+                ticket=ticket,
+                ticket_type="VIP",
+                number_of_tickets=vip_ticket
+            )
+
+        if vvip_ticket:
+            EventTicketComponent.objects.create(
+                ticket=ticket,
+                ticket_type="VVIP",
+                number_of_tickets=vvip_ticket
+            )
+
+        return redirect(f"/events/events/{event.id}/")
+
+
+    return render(request, "events/new_event_ticket.html")
 
 
 def cancel_event_ticket(request):

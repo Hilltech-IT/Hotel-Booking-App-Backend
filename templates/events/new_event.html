@@ -32,27 +32,32 @@
                         />
                     </div>
                 
-                <div class="mb-2">
-                    <label for="exampleInputPassword1" class="form-label">Event Title</label>
-                    <input
-                        type="text"
-                        class="form-control"
-                        id="title"
-                        name="title"
-                        required
-                    />
+
+                <div class="row mt-3">
+                    <div class="col">
+                        <label for="exampleInputPassword1" class="form-label">Event Title</label>
+                        <input
+                            type="text"
+                            class="form-control"
+                            id="title"
+                            name="title"
+                            required
+                        />
+                    </div>
+                    <div class="col">
+                        <label for="exampleInputPassword1" class="form-label">Event Date</label>
+                        <input
+                          type="date"
+                          class="form-control"
+                          id="event_date"
+                          name="event_date"
+                          required
+                        />
+                    </div>
                 </div>
-                <div class="mb-2">
-                    <label for="exampleInputPassword1" class="form-label">Event Date</label>
-                    <input
-                      type="date"
-                      class="form-control"
-                      id="event_date"
-                      name="event_date"
-                      required
-                    />
-                  </div>
-                  <div class="mb-2">
+
+               <div class="row mt-3">
+                <div class="col">
                     <label for="exampleInputPassword1" class="form-label">Event Time</label>
                     <input
                       type="time"
@@ -61,8 +66,8 @@
                       name="event_time"
                       required
                     />
-                  </div>
-                <div class="mb-2">
+                </div>
+                <div class="col">
                     <label for="exampleInputPassword1" class="form-label">Regular Ticket Price</label>
                     <input
                         type="number"
@@ -72,18 +77,21 @@
                         required
                     />
                 </div>
-                <div class="mb-2">
-                    <label for="exampleInputPassword1" class="form-label">VIP Ticket Price</label>
-                    <input
-                        type="number"
-                        class="form-control"
-                        id="vip_ticket"
-                        name="vip_ticket"
-                        required
-                    />
-                </div>
-                <div class="mb-2">
-                    <label for="exampleInputPassword1" class="form-label">VVIP Ticket Price</label>
+               </div>
+
+                <div class="row mt-3">
+                    <div class="col">
+                        <label for="exampleInputPassword1" class="form-label">VIP Ticket Price</label>
+                        <input
+                            type="number"
+                            class="form-control"
+                            id="vip_ticket"
+                            name="vip_ticket"
+                            required
+                        />
+                    </div>
+                    <div class="col">
+                        <label for="exampleInputPassword1" class="form-label">VVIP Ticket Price</label>
                     <input
                         type="number"
                         class="form-control"
@@ -91,16 +99,19 @@
                         name="vvip_ticket"
                         required
                     />
+                    </div>
                 </div>
-                <div class="mb-2">
-                    <label for="exampleInputPassword1" class="form-label">Children Allowed</label>
+
+                <div class="row mt-3">
+                    <div class="col">
+                        <label for="exampleInputPassword1" class="form-label">Children Allowed</label>
                     <select class="form-select" id="children_allowed" name="children_allowed">
                       <option value="Yes">Yes</option>
                       <option value="Yes">No</option>
                     </select>
-                  </div>
-                <div class="mb-2">
-                    <label for="exampleInputPassword1" class="form-label">Children Ticket Price</label>
+                    </div>
+                    <div class="col">
+                        <label for="exampleInputPassword1" class="form-label">Children Ticket Price</label>
                     <input
                         type="number"
                         class="form-control"
@@ -108,8 +119,11 @@
                         name="children_ticket"
                         required
                     />
+                    </div>
                 </div>
-                <div class="mb-2">
+
+               <div class="row mt-3">
+                <div class="col">
                     <label for="exampleInputPassword1" class="form-label">Age Limit</label>
                     <input
                         type="number"
@@ -119,7 +133,7 @@
                         required
                     />
                 </div>
-                <div class="mb-2">
+                <div class="col">
                     <label for="exampleInputPassword1" class="form-label">Event Location</label>
                     <input
                         type="text"
@@ -129,7 +143,10 @@
                         required
                     />
                 </div>
-                <div class="mb-2">
+               </div> 
+               
+               <div class="row mt-3">
+                <div class="col">
                     <label for="exampleInputPassword1" class="form-label">Payment Methods</label>
                     <select class="form-select" id="payment_methods" name="payment_methods">
                         <option value="Mpesa">Mpesa</option>
@@ -140,7 +157,7 @@
                         
                     </select>
                 </div>
-                <div class="mb-2">
+                <div class="col">
                     <label for="exampleInputPassword1" class="form-label">Total Tickets</label>
                     <input
                         type="number"
@@ -150,6 +167,9 @@
                         required
                     />
                 </div>
+               </div>
+                
+                
                 <div class="mb-2">
                     <label for="exampleInputPassword1" class="form-label">Description</label>
                     <textarea id="description" name="description" rows="3" class="form-control">

@@ -4,11 +4,13 @@ from apps.core.models import AbstractBaseModel
 
 # Create your models here.
 PAYMENT_REASON_CHOICES = (
-    ("Booking", "Booking"),
+    ("Room Booking", "Room Booking"),
+    ("Ticket Booking", "Ticket Booking"),
     ("Subscription", "Subscription"),
 )
 
 class Payment(AbstractBaseModel):
+    ticket = models.ForeignKey("events.EventTicket", related_name="eventsticketspayments", on_delete=models.SET_NULL, null=True)
     paid_by = models.ForeignKey("users.User", on_delete=models.PROTECT, related_name="customerpayments")
     paid_to = models.ForeignKey("users.User", on_delete=models.PROTECT, related_name="collections")
     payment_reason = models.CharField(max_length=255, choices=PAYMENT_REASON_CHOICES)

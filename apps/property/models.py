@@ -51,12 +51,18 @@ class Property(AbstractBaseModel):
     def __str__(self):
         return self.name
 
+    @property
+    def booked_rooms(self):
+        return self.propertyrooms.filter(status="Reserved").count()
+
+    @property
+    def available_rooms(self):
+        return self.propertyrooms.filter(status="Available").count()
+
 
 class PropertyRoom(AbstractBaseModel):
     property = models.ForeignKey(
         Property, on_delete=models.CASCADE, related_name="propertyrooms")
-   
-
     room_number = models.CharField(max_length=255, unique=True)
     room_type = models.CharField(max_length=255, choices=ROOM_TYPES, null=True)
     occupancy_capacity = models.PositiveIntegerField(null=True)

@@ -17,9 +17,14 @@
 </div>
 <hr/>
 <div class="row">
-    <h3>Event Tickets</h3>
+    <div class="col">
+      <h3>Event Tickets</h3>
+    </div>
+    <div class="col">
+      <a class="btn btn-success" data-bs-toggle="modal" data-bs-target="#newEventTicketModal{{event.id}}">Book Ticket</a>
+    </div>
 </div>
-
+{% include "events/new_ticket.html" %}
 <hr/>
       <div class="table-responsive small">
         <table class="table table-sm">
