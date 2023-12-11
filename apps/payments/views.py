@@ -1,5 +1,6 @@
 from decimal import Decimal
 
+from django.core.paginator import Paginator
 from django.shortcuts import redirect, render
 
 from apps.events.models import Event, EventTicket
@@ -7,6 +8,19 @@ from apps.payments.models import Payment
 
 
 # Create your views here.
+def payments(request):
+    payments = Payment.objects.all().order_by("-created")
+
+    paginator = Paginator(payments, 10)
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+
+    context = {
+        "payments": payments,
+        "page_obj": page_obj
+    }
+    return render(request, "payments/payments.html", context)
+
 def process_event_ticket_payment(request, ticket_id=None):
     ticket = EventTicket.objects.get(id=ticket_id)
 

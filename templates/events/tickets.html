@@ -35,7 +35,7 @@
                 Pay
               </a></td>
            
-              <td><a class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#cancelEventTicketModal{{ event.id }}">
+              <td><a class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#cancelEventTicketModal{{ event_ticket.id }}">
                 Cancel
               </a></td>
               <td><a href="{% url 'print-ticket' event_ticket.id %}" class="btn btn-info btn-sm">Print</a></td>

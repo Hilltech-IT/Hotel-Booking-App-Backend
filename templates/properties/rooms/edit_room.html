@@ -1,25 +1,52 @@
-<div class="modal fade" id="editRoomModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal fade" id="editRoomModal{{room.id}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
           <h1 class="modal-title fs-5 text-center">Edit Room</h1>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
-            <form action="{% url 'new-room' %}" method="POST" enctype="multipart/form-data">
+            <form action="{% url 'edit-room' %}" method="POST" enctype="multipart/form-data">
                 {% csrf_token %}
                 <div class="modal-body">
-
-                <div class="row mb-4">
+                
+                <div class="row">
                     <div class="col">
-                        <label for="exampleInputPassword1" class="form-label">Property ID</label>
                         <input
                         type="number"
                         class="form-control"
                         id="property_id"
                         name="property_id"
                         value="{{property.id}}"
+                        readonly
+                        hidden
                         required
                     />
+                    </div>
+                    <div class="col">
+                        <input
+                        type="number"
+                        class="form-control"
+                        id="room_id"
+                        name="room_id"
+                        value="{{room.id}}"
+                        readonly
+                        hidden
+                        required
+                    />
+                    </div>
+                </div>
+
+                <div class="row mb-4">
+                    <div class="col">
+                        <label for="exampleInputPassword1" class="form-label">Room Number</label>
+                        <input
+                            type="number"
+                            class="form-control"
+                            id="room_number"
+                            name="room_number"
+                            value="{{room.room_number}}"
+                            required
+                        />
                     </div>
                     <div class="col">
                         <label for="exampleInputPassword1" class="form-label">Room Type</label>
@@ -53,41 +80,9 @@
                         </div>
                     </div>
 
-                <div class="row mb-4">
-                    <div class="col">
-                        <label for="exampleInputPassword1" class="form-label">Address</label>
-                    <input
-                      type="text"
-                      class="form-control"
-                      id="address"
-                      name="address"
-                      required
-                    />
-                    </div>
-                    <div class="col">
-                        <label for="exampleInputPassword1" class="form-label">City</label>
-                    <input
-                      type="text"
-                      class="form-control"
-                      id="city"
-                      name="city"
-                      required
-                    />
-                    </div>
-                    <div class="col">
-                        <label for="exampleInputPassword1" class="form-label">Country</label>
-                    <input
-                        type="text"
-                        class="form-control"
-                        id="country"
-                        name="country"
-                        required
-                    />
-                    </div>
-                </div>
               
-            
-            <div class="row">
+              
+            <div class="row mb-4">
                 <div class="col">
                     <label for="exampleInputPassword1" class="form-label">Floor Number</label>
                     <input
@@ -95,6 +90,7 @@
                         class="form-control"
                         id="floor_level"
                         name="floor_level"
+                        value="{{room.floor_level}}"
                         required
                     />
                 </div>
@@ -105,11 +101,12 @@
                         class="form-control"
                         id="rate"
                         name="rate"
+                        value="{{room.rate}}"
                         required
                     />
                 </div>
             </div>
-            <div class="row">
+            <div class="row mb-4">
                 <div class="col">
                     <label for="exampleInputPassword1" class="form-label">Check-In Time</label>
                     <input
@@ -117,7 +114,8 @@
                         class="form-control"
                         id="check_in_time"
                         name="check_in_time"
-                        required
+                        value="{{room.check_in_time}}"
+                        
                     />
                 </div>
                 <div class="col">
@@ -127,8 +125,40 @@
                         class="form-control"
                         id="check_out_time"
                         name="check_out_time"
+                        value="{{room.check_out_time}}"
+                        
+                    />
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col">
+                    <label for="exampleInputPassword1" class="form-label">Smooking Room</label>
+                    <select class="form-select" id="smooking_room" name="smooking_room">
+                        <option value="Yes">Available</option>
+                        <option value="No">Not Available</option>
+                        
+                    </select>
+                </div>
+                <div class="col">
+                    <label for="exampleInputPassword1" class="form-label">Room Capacity</label>
+                    <input
+                        type="number"
+                        class="form-control"
+                        id="capacity"
+                        name="capacity"
+                        value="{{room.occupancy_capacity}}"
                         required
                     />
+                </div>
+            </div>
+
+            <div class="row mb-4">
+                <div class="col">
+                    <label for="exampleInputPassword1" class="form-label">Room Amenities</label>
+                    <textarea id="amenities" name="amenities" rows="3" class="form-control">
+                        {{room.amenities}}
+                    </textarea>
                 </div>
             </div>
             
