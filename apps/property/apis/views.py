@@ -30,6 +30,11 @@ class PropertyRoomViewSet(ModelViewSet):
     queryset = PropertyRoom.objects.all()
     serializer_class = PropertyRoomSerializer
 
+    def get_queryset(self):
+        
+
+        return super().get_queryset()
+
 
 class PropertyRoomImageViewSet(ModelViewSet):
     queryset = PropertyRoomImage.objects.all()

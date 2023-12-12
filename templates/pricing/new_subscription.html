@@ -10,11 +10,23 @@
                 <div class="modal-body">
                 <div class="mb-2">
                   <label for="exampleInputPassword1" class="form-label">Customer/User</label>
+                  {% if request.user.role == "service_provider" %}
+                  <input
+                  type="number"
+                  class="form-control"
+                  id="user_id"
+                  name="user_id"
+                  value="{{request.user.id}}"
+                  hidden
+                  required
+                />
+                  {% else %}
                   <select class="form-select" id="user_id" name="user_id">
                     {% for user in users %}
                         <option value="{{user.id}}">{{user.name}}</option>
                     {% endfor %}
                   </select>
+                  {% endif %}
                 </div>
                 <div class="mb-2">
                     <label for="exampleInputPassword1" class="form-label">Package</label>

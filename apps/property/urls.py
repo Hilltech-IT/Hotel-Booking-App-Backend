@@ -6,6 +6,9 @@ from apps.property.apis.views import (PropertyImageViewSet,
                                       PropertyRoomImageViewSet,
                                       PropertyRoomViewSet,
                                       ReviewAndRatingViewSet)
+from apps.property.views import (delete_room, edit_property, edit_room,
+                                 new_property, new_room, properties,
+                                 property_details)
 
 router = DefaultRouter()
 router.register("property-listings", PropertyModelViewSet, basename="property-listings")
@@ -16,5 +19,14 @@ router.register("reviews-and-ratings", ReviewAndRatingViewSet, basename="reviews
 
 
 urlpatterns = [
-    path("", include(router.urls)),
+    path("api/", include(router.urls)),
+    path("", properties, name="properties"),
+    path("new-property/", new_property, name="new-property"),
+    path("property/<int:property_id>/", property_details, name="property-details"),
+    path("edit-property/", edit_property, name="edit-property"),
+
+    ## Rooms
+    path("new-room/", new_room, name="new-room"),
+    path("edit-room/", edit_room, name="edit-room"),
+    path("delete-room/", delete_room, name="delete-room"),
 ]

@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <h3>Property Details</h3>
+    <hr/>
+    <div class="col">
+        <p>Name: {{property.name}}</p>
+        <p>Date Posted: {{property.created}}</p>
+    </div>
+    <div class="col">
+        <p>Booked Rooms: {{property.booked_rooms}}</p>
+        <p>Available Rooms: {{property.available_rooms}}</p>
+    </div>
+</div>
+<hr/>
+<div class="row">
+    <div class="col">
+        <h3>Hotel Rooms</h3>
+    </div>
+    <div class="col">
+        <a class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newRoomModal">New Hotel Room</a>
+    </div>
+    
+</div>
+
+<hr/>
+      <div class="table-responsive small">
+        <table class="table table-sm">
+          <thead>
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">Room No:</th>
+              <th scope="col">Room Type</th>
+              <th scope="col">Capacity</th>
+              <th scope="col">Bed Type</th>
+              <th scope="col">Status</th>
+              <th scope="col" colspan="2">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for room in rooms %}
+            <tr>
+              <td>{{room.id}}</td>
+              <td>{{room.room_number}}</td>
+              <td>{{room.room_type}}</td>
+              <td>{{room.occupancy_capacity}}</td>
+              <td>{{room.bed_type}}</td>
+              <td>{{room.status}}</td>
+           
+              <td><a class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editRoomModal{{ room.id }}">
+                <i class="bi bi-pencil-square"></i>
+              </a></td>
+              <td><a href="#" class="btn btn-info btn-sm">
+                <i class="bi bi-trash"></i>
+              </a></td>
+            </tr>
+            
+            {% include "properties/rooms/edit_room.html" %}
+            
+            {% endfor %}
+
+          </tbody>
+        </table>
+        <div>
+          <nav aria-label="Page navigation example">
+            <ul class="pagination justify-content-end">
+              {% if page_obj.has_previous %}   
+                <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a></li>
+              {% endif %}
+              <a class="page-link" href="#">{{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</a>
+              {% if page_obj.has_next %}    
+              <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a></li>
+              {% endif %}   
+            </ul>
+          </nav>
+        </div>
+      </div>
+{% endblock content %}

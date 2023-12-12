@@ -14,6 +14,7 @@ seven_days_from_today = date_today + timedelta(days=7)
 def subscriptions(request):
     subscriptions = Subscription.objects.all().order_by("-created")
     packages = Pricing.objects.all()
+    users = User.objects.filter(role="service_provider")
 
     paginator = Paginator(subscriptions, 10)
     page_number = request.GET.get("page")
@@ -22,13 +23,15 @@ def subscriptions(request):
     context = {
         "subscriptions": subscriptions,
         "page_obj": page_obj,
-        "packages": packages
+        "packages": packages,
+        "users": users
     }
 
     return render(request, "pricing/subscriptions.html", context)
 
 
 def create_subscription(request):
+    users = User.objects.all()
     if request.method == "POST":
         user_id = request.POST.get("user_id")
         package_id = request.POST.get("package_id")
@@ -47,7 +50,7 @@ def create_subscription(request):
 
         return redirect("subscriptions")
 
-    return render(request, "pricing/new_subscription.html")
+    return render(request, "pricing/new_subscription.html", {"users": users})
 
 
 def pricing_packages(request):

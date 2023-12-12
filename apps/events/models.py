@@ -20,6 +20,12 @@ TICKET_STATUS_CHOICES = (
     ("Active", "Active"),
     ("Cancelled", "Cancelled"),
     ("Redeemed", "Redeemed"),
+    ("Pending Payment", "Pending Payment"),
+)
+
+EVENT_TICKET_TYPE_CHOICES = (
+    ("Single", "Single"),
+    ("Multiple", "Multiple"),
 )
 
 
@@ -57,10 +63,20 @@ class Event(AbstractBaseModel):
 class EventTicket(AbstractBaseModel):
     user = models.ForeignKey("users.User", on_delete=models.CASCADE, related_name="usereventtickets")
     event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name="eventtickets")
-    ticket_type = models.CharField(max_length=255, choices=TICKET_TYPE_CHOICES)
-    amount_paid = models.DecimalField(max_digits=20, decimal_places=2)
-    payment_method = models.CharField(max_length=255, choices=PAYMENT_METHOD_CHOICES)
+    ticket_type = models.CharField(max_length=255, choices=EVENT_TICKET_TYPE_CHOICES)
+    amount_expected = models.DecimalField(max_digits=20, decimal_places=2, null=True)
+    amount_paid = models.DecimalField(max_digits=20, decimal_places=2, null=True)
+    payment_method = models.CharField(max_length=255, choices=PAYMENT_METHOD_CHOICES, null=True)
     ticket_status = models.CharField(max_length=255, choices=TICKET_STATUS_CHOICES)
 
     def __str__(self):
         return f"{self.user.username} has purchased a {self.ticket_type} for {self.event.title}"
+
+
+class EventTicketComponent(AbstractBaseModel):
+    ticket = models.ForeignKey(EventTicket, on_delete=models.CASCADE, related_name="ticketcomponents")
+    ticket_type = models.CharField(max_length=255, choices=TICKET_TYPE_CHOICES)
+    number_of_tickets = models.IntegerField(default=1)
+
+    def __str__(self):
+        return self.ticket_type
