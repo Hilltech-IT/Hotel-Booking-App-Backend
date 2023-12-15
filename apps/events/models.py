@@ -72,6 +72,10 @@ class EventTicket(AbstractBaseModel):
     def __str__(self):
         return f"{self.user.username} has purchased a {self.ticket_type} for {self.event.title}"
 
+    @property
+    def is_fully_paid(self):
+        return True if self.amount_paid == self.amount_expected else False
+
 
 class EventTicketComponent(AbstractBaseModel):
     ticket = models.ForeignKey(EventTicket, on_delete=models.CASCADE, related_name="ticketcomponents")

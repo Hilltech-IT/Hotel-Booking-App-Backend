@@ -4,9 +4,9 @@ from apps.users.apis.views import (ChangePasswordAPIView,
                                    ForgotPasswordAPIView, RegisterUserAPIView,
                                    UserListAPIView, UserLoginAPIView,
                                    UserRetrieveUpdateDeleteAPIView)
-from apps.users.views import (edit_staff, new_staff, onboard_service_provider,
-                              service_providers, staff, user_login,
-                              user_logout)
+from apps.users.views import (edit_service_provider, edit_staff, new_staff,
+                              onboard_service_provider, service_providers,
+                              staff, user_login, user_logout)
 
 urlpatterns = [
     ## Main APP URLS
@@ -20,6 +20,7 @@ urlpatterns = [
     # Service Providers
     path("onboarding/", onboard_service_provider, name="onboarding"),
     path("service-providers/", service_providers, name="service-providers"),
+    path("edit-service-provider/", edit_service_provider, name="edit-service-provider"),
     ## API URLS
     path("", UserListAPIView.as_view(), name="users"),
     path("<int:pk>/", UserRetrieveUpdateDeleteAPIView.as_view(), name="users"),
