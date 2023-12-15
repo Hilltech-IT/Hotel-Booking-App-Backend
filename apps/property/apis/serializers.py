@@ -5,9 +5,22 @@ from apps.property.models import (Property, PropertyImage, PropertyRoom,
 
 
 class PropertySerializer(serializers.ModelSerializer):
+    single_rooms = serializers.SerializerMethodField()
+    double_rooms = serializers.SerializerMethodField()
+    suite_rooms = serializers.SerializerMethodField()
+
     class Meta:
         model = Property
         fields = "__all__"
+
+    def get_single_rooms(self, obj):
+        return obj.propertyrooms.filter(room_type="Single").count()
+
+    def get_double_rooms(self, obj):
+        return obj.propertyrooms.filter(room_type="Double").count()
+
+    def get_suite_rooms(self, obj):
+        return obj.propertyrooms.filter(room_type="Suite").count()
 
 
 class PropertyRoomSerializer(serializers.ModelSerializer):

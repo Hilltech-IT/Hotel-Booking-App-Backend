@@ -51,6 +51,7 @@ class Property(AbstractBaseModel):
     def __str__(self):
         return self.name
 
+
     @property
     def booked_rooms(self):
         return self.propertyrooms.filter(status="Reserved").count()
@@ -61,17 +62,13 @@ class Property(AbstractBaseModel):
 
 
 class PropertyRoom(AbstractBaseModel):
-    property = models.ForeignKey(
-        Property, on_delete=models.CASCADE, related_name="propertyrooms")
-    room_number = models.CharField(max_length=255, unique=True)
+    property = models.ForeignKey(Property, on_delete=models.CASCADE, related_name="propertyrooms")
     room_type = models.CharField(max_length=255, choices=ROOM_TYPES, null=True)
     occupancy_capacity = models.PositiveIntegerField(null=True)
-    bed_type = models.CharField(max_length=255, choices=BED_TYPES, null=True)
     amenities = models.TextField(null=True)
     view = models.CharField(max_length=255, choices=VIEW_CHOICES, blank=True, null=True)
     smoking_room = models.BooleanField(default=False)
     accessibility_features = models.BooleanField(default=False)
-    floor_level = models.PositiveIntegerField(null=True)
     rate = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     check_in_time = models.TimeField(null=True)
     check_out_time = models.TimeField(null=True)
