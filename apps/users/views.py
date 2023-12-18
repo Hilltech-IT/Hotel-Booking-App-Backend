@@ -28,8 +28,13 @@ def user_logout(request):
 
 def staff(request):
     staff = User.objects.filter(role="admin")
+    paginator = Paginator(staff, 10)
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+
     context = {
-        "users": staff
+        "users": staff,
+        "page_obj": page_obj
     }
     return render(request, "staff/staff.html", context)
 
@@ -160,4 +165,21 @@ def edit_service_provider(request):
 
 def service_providers(request):
     providers = User.objects.filter(role="service_provider")
-    return render(request, "service_providers/providers.html", {"providers": providers})
+    paginator = Paginator(providers, 10)
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+    return render(request, "service_providers/providers.html", {"providers": providers, "page_obj": page_obj})
+
+
+def customers(request):
+    customers = User.objects.filter(role__in=["Customer", "customer"])
+
+    paginator = Paginator(customers, 10)
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+
+    context = {
+        "customers": customers,
+        "page_obj": page_obj
+    }
+    return render(request, "accounts/customers.html", context)
