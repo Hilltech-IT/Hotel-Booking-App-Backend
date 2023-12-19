@@ -64,6 +64,7 @@ class Property(AbstractBaseModel):
 class PropertyRoom(AbstractBaseModel):
     property = models.ForeignKey(Property, on_delete=models.CASCADE, related_name="propertyrooms")
     room_type = models.CharField(max_length=255, choices=ROOM_TYPES, null=True)
+    rooms_number = models.IntegerField(default=0)
     rooms_count = models.IntegerField(default=0)
     occupancy_capacity = models.PositiveIntegerField(null=True)
     amenities = models.JSONField(default=list)

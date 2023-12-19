@@ -1,9 +1,12 @@
-from apps.bookings.models import RoomBooking
-from rest_framework.viewsets import ModelViewSet
 from rest_framework import generics, status
-from rest_framework.response import Response
-from apps.bookings.apis.serializers import RoomBookingSerializer, BookARoomSerializer
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.viewsets import ModelViewSet
+
+from apps.bookings.apis.serializers import (BookARoomSerializer,
+                                            RoomBookingSerializer)
+from apps.bookings.models import RoomBooking
+
 
 class RoomBookingAPIView(generics.ListAPIView):
     queryset = RoomBooking.objects.all()

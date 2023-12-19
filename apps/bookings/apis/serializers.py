@@ -1,5 +1,7 @@
 from rest_framework import serializers
+
 from apps.bookings.models import RoomBooking
+
 
 class RoomBookingSerializer(serializers.ModelSerializer):
     class Meta:
@@ -13,3 +15,4 @@ class BookARoomSerializer(serializers.Serializer):
     booked_from = serializers.DateField()
     booked_to = serializers.DateField()
     user = serializers.IntegerField()
+    days_booked = serializers.IntegerField()
