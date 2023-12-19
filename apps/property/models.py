@@ -76,6 +76,7 @@ class PropertyRoom(AbstractBaseModel):
     available = models.BooleanField(default=True)
     status = models.CharField(max_length=255, choices=ROOM_STATUS_CHOICES, default='Available')  # Available, Reserved, Canceled, etc
     booked = models.IntegerField(default=0)
+    charge_per_night = models.DecimalField(max_digits=100, decimal_places=2, default=0)
 
 
     def __str__(self):
