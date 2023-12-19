@@ -1,5 +1,7 @@
 from decimal import Decimal
 
+from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
 from django.shortcuts import redirect, render
 
 from apps.property.models import Property, PropertyRoom
@@ -7,28 +9,37 @@ from apps.users.models import User
 
 
 # Create your views here.
+@login_required(login_url="/users/user-login/")
 def properties(request):
+    user = request.user
     properties = Property.objects.all()
+    if not user.is_superuser:
+        properties = Property.objects.filter(owner=user)
     users = User.objects.filter(role="customer")
+
+    paginator = Paginator(properties, 10)
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
     context = {
         "properties": properties,
-        "users": users
+        "users": users,
+        "page_obj": page_obj
     }
 
     return render(request, "properties/hotels.html", context)
 
-
+@login_required(login_url="/users/user-login/")
 def new_property(request):
     return render(request, "properties/new_property.html")
 
-
+@login_required(login_url="/users/user-login/")
 def edit_property(request):
     if request.method == "POST":
         pass
 
     return render(request, "properties/edit_property.html")
 
-
+@login_required(login_url="/users/user-login/")
 def property_details(request, property_id=None):
     property = Property.objects.get(id=property_id)
     rooms = property.propertyrooms.all()
@@ -41,6 +52,7 @@ def property_details(request, property_id=None):
 
 
 ### ROOMS ####
+@login_required(login_url="/users/user-login/")
 def new_room(request):
     if request.method == "POST":
         property_id = request.POST.get("property_id")
@@ -69,7 +81,7 @@ def new_room(request):
     return render(request, "properties/rooms/new_room.html")
 
 
-
+@login_required(login_url="/users/user-login/")
 def edit_room(request):
     if request.method == "POST":
         property_id = request.POST.get("property_id")
@@ -100,6 +112,6 @@ def edit_room(request):
 
     return render(request, "properties/rooms/edit_room.html")
 
-
+@login_required(login_url="/users/user-login/")
 def delete_room(request):
     return render(request, "properties/rooms/delete_room.html")

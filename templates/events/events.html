@@ -43,13 +43,14 @@
               <td><a class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editEventModal{{ event.id }}">
                 <i class="bi bi-pencil-square"></i>
               </a></td>
-              <td><a class="btn btn-danger btn-sm">
+              <td><a class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteEventModal{{ event.id }}">
                 <i class="bi bi-trash"></i>
               </a></td>
               
             </tr>
             
             {% include "events/edit_event.html" %}
+            {% include "events/delete_event.html" %}
 
             {% endfor %}
 

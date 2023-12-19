@@ -25,6 +25,7 @@ class PropertyModelViewSet(ModelViewSet):
     permission_classes = [IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
 
 
+
 class PropertyImageViewSet(ModelViewSet):
     queryset = PropertyImage.objects.all()
     serializer_class = PropertyImageSerializer

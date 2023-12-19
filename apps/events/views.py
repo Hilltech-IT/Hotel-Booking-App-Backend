@@ -143,6 +143,16 @@ def event_tickets(request):
     return render(request, "events/tickets.html", context)
 
 
+def delete_event(request):
+    if request.method == "POST":
+        event_id = int(request.POST.get("event_id"))
+        event = Event.objects.get(id=event_id)
+        event.delete()
+        return redirect("events")
+
+    return render(request, "events/delete_event.html")
+
+
 def new_event_ticket(request):
     if request.method == "POST":
         event_id = request.POST.get("event_id")
@@ -227,6 +237,9 @@ def cancel_event_ticket(request):
         ticket.ticket_status = "Cancelled"
         ticket.save()
         return redirect("event-tickets")
+
+
+
 
 
 def print_event_ticket(request, ticket_id=None):

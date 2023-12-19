@@ -48,10 +48,14 @@
               <td>{{event_ticket.amount_paid}}</td>
               <td>{{event_ticket.payment_method}}</td>
               <td>{{event_ticket.ticket_status}}</td>
-              
+              {% if event_ticket.is_fully_paid == True %}
+              <td></td>
+              {% else %}
               <td><a class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#eventTicketPaymentModal{{event_ticket.id}}">
                 Pay
               </a></td>
+              {% endif %}
+
               <td><a class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#cancelEventTicketModal{{ event.id }}">
                 Cancel
               </a></td>

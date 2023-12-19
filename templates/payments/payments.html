@@ -13,6 +13,7 @@
           <thead>
             <tr>
               <th scope="col">#</th>
+              <th scope="col">Date</th>
               <th scope="col">Paid To.</th>
               <th scope="col">Paid By.</th>
               <th scope="col">Amount</th>
@@ -24,6 +25,7 @@
             {% for payment in page_obj %}
             <tr>
               <td>{{payment.id}}</td>
+              <td>{{payment.created}}</td>
               <td>{{payment.paid_to}}</td>
               <td>{{payment.paid_by}}</td>
               <td>{{payment.amount}}</td>

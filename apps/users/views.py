@@ -28,8 +28,13 @@ def user_logout(request):
 
 def staff(request):
     staff = User.objects.filter(role="admin")
+    paginator = Paginator(staff, 10)
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+
     context = {
-        "users": staff
+        "users": staff,
+        "page_obj": page_obj
     }
     return render(request, "staff/staff.html", context)
 
@@ -127,6 +132,54 @@ def onboard_service_provider(request):
     return render(request, "service_providers/onboarding.html")
 
 
+def edit_service_provider(request):
+    if request.method == "POST":
+        user_id = int(request.POST.get("user_id"))
+        email = request.POST.get("email")
+        username = request.POST.get("username")
+        first_name = request.POST.get("first_name")
+        last_name = request.POST.get("last_name")
+        phone_number = request.POST.get("phone_number")
+        gender = request.POST.get("gender")
+        id_number = request.POST.get("id_number")
+        address = request.POST.get("address")
+        city = request.POST.get("city")
+        country = request.POST.get("country")
+
+        user = User.objects.get(id=user_id)
+        user.first_name=first_name
+        user.last_name=last_name
+        user.username=username
+        user.email=email
+        user.phone_number=phone_number
+        user.gender=gender
+        user.id_number=id_number
+        user.address=address 
+        user.city=city
+        user.country=country
+        user.save()
+        return redirect("service-providers")
+
+    return render(request, "service_providers/edit_service_provider.html")
+
+
 def service_providers(request):
     providers = User.objects.filter(role="service_provider")
-    return render(request, "service_providers/providers.html", {"providers": providers})
+    paginator = Paginator(providers, 10)
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+    return render(request, "service_providers/providers.html", {"providers": providers, "page_obj": page_obj})
+
+
+def customers(request):
+    customers = User.objects.filter(role__in=["Customer", "customer"])
+
+    paginator = Paginator(customers, 10)
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+
+    context = {
+        "customers": customers,
+        "page_obj": page_obj
+    }
+    return render(request, "accounts/customers.html", context)

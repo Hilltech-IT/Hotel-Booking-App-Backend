@@ -1,5 +1,6 @@
 from decimal import Decimal
 
+from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.shortcuts import redirect, render
 
@@ -8,8 +9,13 @@ from apps.payments.models import Payment
 
 
 # Create your views here.
+@login_required(login_url="/users/user-login/")
 def payments(request):
+    user = request.user
     payments = Payment.objects.all().order_by("-created")
+
+    if not user.is_superuser:
+        payments = Payment.objects.filter(paid_to=user)
 
     paginator = Paginator(payments, 10)
     page_number = request.GET.get("page")

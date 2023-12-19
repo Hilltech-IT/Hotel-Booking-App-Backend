@@ -32,12 +32,13 @@
               <td><a class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editPricingPackageModal{{ package.id }}">
                 <i class="bi bi-pencil-square"></i>
               </a></td>
-              <td><a class="btn btn-danger btn-sm">
+              <td><a class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deletePricingPackageModal{{ package.id }}">
                 <i class="bi bi-trash"></i>
               </a></td>
               
             </tr>
             {% include "pricing/edit_pricing_plan.html" %}
+            {% include "pricing/delete_pricing_package.html" %}
    
             {% endfor %}
 
