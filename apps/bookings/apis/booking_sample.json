@@ -1,9 +1,9 @@
 [
     {
         "room": 1,
-        "room_type": "Suite",
         "booked_from": "2023-12-23",
         "booked_to": "2023-12-31",
+        "days_booked": 7,
         "amount_paid": 5000,
         "user": 5
     }
