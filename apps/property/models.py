@@ -81,7 +81,7 @@ class PropertyRoom(AbstractBaseModel):
 
 
     def __str__(self):
-        return f"Room {self.room_number} - {self.room_type}"
+        return f"Room {str(self.id)}- {self.room_type}"
 
 
 

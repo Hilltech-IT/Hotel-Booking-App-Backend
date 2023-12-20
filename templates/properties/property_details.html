@@ -21,6 +21,7 @@
     <div class="col">
         <a class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newRoomModal">New Hotel Room</a>
     </div>
+   
     
 </div>
 
@@ -32,8 +33,10 @@
               <th scope="col">#</th>
               <th scope="col">Room Type</th>
               <th scope="col">Capacity</th>
-              <th scope="col">Status</th>
-              <th scope="col" colspan="2">Actions</th>
+              <th scope="col">Total Rooms</th>
+              <th scope="col">Booked Rooms</th>
+              <th scope="col">Available Rooms</th>
+              <th scope="col" colspan="3">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -41,19 +44,26 @@
             <tr>
               <td>{{room.id}}</td>
               <td>{{room.room_type}}</td>
+              <td>{{room.rooms_number}}</td>
+              <td>{{room.booked}}</td>
               <td>{{room.occupancy_capacity}}</td>
-              <td>{{room.status}}</td>
+              <td>{{room.rooms_count}}</td>
            
               <td><a class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editRoomModal{{ room.id }}">
                 <i class="bi bi-pencil-square"></i>
               </a></td>
-              <td><a href="#" class="btn btn-info btn-sm">
+              <td>
+                <a class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#bookRoomModal{{room.id}}">
+                  <i class="bi bi-journal-check"></i>
+                </a>
+              </td>
+              <td><a href="#" class="btn btn-danger btn-sm">
                 <i class="bi bi-trash"></i>
               </a></td>
             </tr>
             
             {% include "properties/rooms/edit_room.html" %}
-            
+            {% include "booking/book_room.html" %}
             {% endfor %}
 
           </tbody>

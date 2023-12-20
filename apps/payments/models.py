@@ -11,6 +11,7 @@ PAYMENT_REASON_CHOICES = (
 
 class Payment(AbstractBaseModel):
     ticket = models.ForeignKey("events.EventTicket", related_name="eventsticketspayments", on_delete=models.SET_NULL, null=True)
+    room = models.ForeignKey("property.PropertyRoom", on_delete=models.SET_NULL, null=True, related_name="roombookingpayments")
     paid_by = models.ForeignKey("users.User", on_delete=models.PROTECT, related_name="customerpayments")
     paid_to = models.ForeignKey("users.User", on_delete=models.PROTECT, related_name="collections")
     payment_reason = models.CharField(max_length=255, choices=PAYMENT_REASON_CHOICES)

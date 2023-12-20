@@ -6,6 +6,7 @@ from rest_framework.viewsets import ModelViewSet
 from apps.bookings.apis.serializers import (BookARoomSerializer,
                                             RoomBookingSerializer)
 from apps.bookings.models import RoomBooking
+from apps.bookings.process_booking import RoomBookingMixin
 
 
 class RoomBookingAPIView(generics.ListAPIView):
@@ -31,5 +32,7 @@ class BookARoomAPIView(generics.CreateAPIView):
         serializer = self.serializer_class(data=data)
 
         if serializer.is_valid(raise_exception=True):
+            booking_mixin = RoomBookingMixin(booking_data=data)
+            booking_mixin.run()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
