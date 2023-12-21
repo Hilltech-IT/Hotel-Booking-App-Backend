@@ -6,3 +6,4 @@ pillow
 whitenoise
 django-cors-headers
 django-filter
+requests
