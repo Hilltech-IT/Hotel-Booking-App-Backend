@@ -24,7 +24,7 @@
     </div>
    
     <div class="col-4">
-        <a class="btn btn-primary">Book Room</a>
+        <a href="{% url 'properties' %}" class="btn btn-primary">Book Room</a>
     </div>
   
 </div>
@@ -60,13 +60,16 @@
                 </a>
               </td>
               <td>
-                <a class="btn btn-success btn-sm">
+                {% if booking.amount_paid == booking.amount_expected %}
+                {% else %}
+                <a class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#payBookingModal{{ booking.id }}">
                     <i class="bi bi-currency-dollar"></i>
                 </a>
+                {% endif %}
               </td>
               
             </tr>
-   
+            {% include "booking/pay_booking.html" %}
             {% endfor %}
 
           </tbody>

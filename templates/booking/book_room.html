@@ -5,7 +5,7 @@
           <h1 class="modal-title fs-5 text-center">Reserve A Room</h1>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
-            <form action="#" method="POST" enctype="multipart/form-data">
+            <form action="{% url 'reserve-room' %}" method="POST" enctype="multipart/form-data">
                 {% csrf_token %}
                 <div class="modal-body">
                 <div class="row">
@@ -30,7 +30,7 @@
                           />
                         </div>
                 </div>
-                <div class="row mt-3">
+                <div class="row mt-2">
                     <div class="col">
                         <label for="exampleInputPassword1" class="form-label">Phone Number</label>
                         <input
@@ -52,7 +52,7 @@
                         />
                       </div>
                 </div>
-                <div class="row mt-3">
+                <div class="row mt-2">
                     <div class="col">
                         <label for="exampleInputPassword1" class="form-label">ID Number</label>
                         <input
@@ -72,9 +72,9 @@
                           </select>
                       </div>
                 </div>
-                <h4 class="text-center">Room Details</h4>
+                <h4 class="text-center mt-2">Room Details</h4>
                 <hr>
-                <div class="row mt-3">
+                <div class="row mt-2">
                     <div class="col">
                         <label for="exampleInputPassword1" class="form-label">Room</label>
                         <input
@@ -82,7 +82,7 @@
                           class="form-control"
                           id="room"
                           name="room"
-                          value="{{room.room_type}}"
+                          value="{{room.id}}"
                           readonly
                           required
                         />
@@ -100,16 +100,16 @@
                         />
                       </div>
                 </div>
-                <div class="row mt-3">
+                <div class="row mt-2">
                     <div class="col">
                         <label for="exampleInputPassword1" class="form-label">Checkin Date</label>
                         <input
                           type="date"
                           class="form-control"
-                          id="book_from"
-                          name="book_from"
+                          id="booked_from"
+                          name="booked_from"
                           required
-                          oninput="calculateTotal()"
+                          
                         />
                       </div>
                       <div class="col">
@@ -117,53 +117,19 @@
                         <input
                           type="date"
                           class="form-control"
-                          id="book_to"
-                          name="book_to"
+                          id="booked_to"
+                          name="booked_to"
                           required
-                          oninput="calculateTotal()"
+                          
                         />
                       </div>
                 </div>
-                <div class="row mt-3">
+                <div class="row mt-2">
                     <div class="input-group mb-3">
                         <span class="input-group-text">Rooms to Reserve: </span>
-                        <input type="number" class="form-control" id="rooms_booked" name="rooms_booked" min="0" max="{{room.rooms_count}}" value="0" oninput="calculateTotal()" >
+                        <input type="number" class="form-control" id="rooms_booked" name="rooms_booked" min="0" max="{{room.rooms_count}}">
                         <span class="input-group-text">x {{room.charge_per_night}}</span>
                       </div>
-                  </div>
-
-                  <div class="row mt-3">
-                    <div class="col">
-                        <label for="exampleInputPassword1" class="form-label">Days Booked</label>
-                        <input
-                          type="number"
-                          class="form-control"
-                          id="days_booked"
-                          name="days_booked"
-                          readonly
-                          required
-                        />
-                      </div>
-                      <div class="col">
-                        <label for="exampleInputPassword1" class="form-label">Total Cost</label>
-                        <input
-                          type="number"
-                          class="form-control"
-                          id="total_cost"
-                          name="total_cost"
-                          readonly
-                          required
-                        />
-                      </div>
-                </div>
-                
-                  <div class="row mt-3">
-                    <div class="col">
-                      <label for="totalAmount">Total Amount:</label>
-                  </div>
-                  <div class="col">
-                      <span id="totalAmount">0</span>
-                  </div>
                   </div>
 
                 <div class="text-center mt-2">
@@ -179,10 +145,19 @@
 <script>
     function calculateTotal() {
         // Get the values of regular and VIP tickets
-        var checkinDate = new Date(document.getElementById('book_from').value);
-        var checkoutDate = new Date (document.getElementById('book_to').value);
+        var rawCheckinDate = document.getElementById("booked_from").value;
+        var rawCheckoutDate = document.getElementById("booked_to").value;
+
+        console.log(`Checkin Date: ${rawCheckinDate}, Checkout Date: ${rawCheckoutDate}`)
+
+
+        /*var checkinDate = new Date(document.getElementById('booked_from').value);
+        var checkoutDate = new Date (document.getElementById('booked_to').value);
         var roomsCount = document.getElementById('rooms_booked').value;
         const chargePerNight = "{{room.charge_per_night}}"
+        const roomId = "{{room.id}}"
+
+        var bookingFeeURL = "/bookings/calculate-booking-fee/?room=2&days_booked=4"
 
         var bookedDays = 0
         var totalAmount = 0
@@ -192,6 +167,15 @@
           // Convert the difference to days
           bookedDays = differenceInMilliseconds / (1000 * 60 * 60 * 24);
           totalAmount = bookedDays * chargePerNight * roomsCount
+
+          const get_booking_fee = async () => {
+            const response = await fetch(`/bookings/calculate-booking-fee/?room=${roomId}&days_booked=${bookedDays}`, {"method": "GET"})
+            const data = await response.json()
+            console.log(data)
+          }
+
+          get_booking_fee();
+
         }
         
 
@@ -212,10 +196,12 @@
         document.getElementById('totalAmount').innerText = totalAmount;
         document.getElementById('total_cost').value = totalAmount;
         document.getElementById('days_booked').value = bookedDays;
+        */
     }
 
     // Set your ticket prices here
     //var regularTicketPrice = 50;
     //var vipTicketPrice = 100;
     //var vvipTicketPrice = 150;
+
 </script>

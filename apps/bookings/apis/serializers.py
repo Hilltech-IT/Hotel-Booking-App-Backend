@@ -17,3 +17,8 @@ class BookARoomSerializer(serializers.Serializer):
     user = serializers.IntegerField()
     days_booked = serializers.IntegerField()
     rooms_booked = serializers.IntegerField()
+
+
+class BookingFeeCalculationSerializer(serializers.Serializer):
+    room = serializers.IntegerField()
+    days_booked = serializers.IntegerField()
