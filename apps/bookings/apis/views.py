@@ -3,23 +3,40 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
+from datetime import datetime
+from decimal import Decimal
 
 from apps.bookings.apis.serializers import (BookARoomSerializer,
                                             BookingFeeCalculationSerializer,
                                             RoomBookingSerializer)
 from apps.bookings.models import RoomBooking
 from apps.bookings.process_booking import RoomBookingMixin
+from apps.property.models import PropertyRoom
 
 
 class BookingFeeCalculationAPIView(APIView):
     
     def get(self, request, *args, **kwargs):
         room_id = self.request.query_params.get("room")
-        days_booked = self.request.query_params.get("days_booked")
+        rooms_booked = self.request.query_params.get("rooms_booked")
+        checkin_date_str = self.request.query_params.get("checkin_date")
+        checkout_date_str = self.request.query_params.get("checkout_date")
+
+        # Convert date strings to datetime objects
+        checkin_date = datetime.strptime(checkin_date_str, "%Y-%m-%d")
+        checkout_date = datetime.strptime(checkout_date_str, "%Y-%m-%d")
+
+        days_booked = (checkout_date - checkin_date).days
+
+        room_checked = PropertyRoom.objects.get(id=room_id)
+        
+        booking_charge = Decimal(room_checked.rate) * Decimal(days_booked) * Decimal(rooms_booked)
 
         return Response({
             "room_id": room_id,
-            "days_booked": days_booked
+            "rooms_booked": rooms_booked,
+            "days_booked": days_booked,
+            "total_amount": int(booking_charge)
         }, status=status.HTTP_200_OK)
 
 
