@@ -86,3 +86,27 @@ def hotel_booking_payment(request):
         return redirect("bookings")
 
     return render(request, "booking/pay_booking.html")
+
+
+def process_flutterwave_payment(request):
+    status = request.GET.get('status')
+    tx_ref = request.GET.get('tx_ref')
+    transaction_id = request.GET.get('transaction_id')
+
+    if status.lower() == "successful":
+        booking = RoomBooking.objects.get(tx_ref=tx_ref)
+        booking.amount_paid = booking.amount_expected
+        booking.transaction_id = transaction_id
+        booking.save()
+
+    else:
+        print("Payment failed!!!!!!!!!")
+
+    context = {
+        "payment_status": status,
+        "tx_ref": tx_ref,
+        "transaction_id": transaction_id
+    }
+    print(context)
+
+    return render(request, "payments/confirm_payment.html", context)

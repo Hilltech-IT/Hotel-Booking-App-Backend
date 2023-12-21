@@ -9,4 +9,6 @@ class PropertyRoomAdmin(admin.ModelAdmin):
     list_display = ["id", "property", "room_type", "rooms_number", "rooms_count", "booked", "rate"]
 
 
-admin.site.register(Property)
+@admin.register(Property)
+class PropertyAdmin(admin.ModelAdmin):
+    list_display = ["name", "property_type", "contact_number", "email", "address", "city", "country"]

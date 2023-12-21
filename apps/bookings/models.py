@@ -17,4 +17,9 @@ class RoomBooking(AbstractBaseModel):
     days_booked = models.IntegerField(default=0)
     fully_paid = models.BooleanField(default=False)
     rooms_booked = models.IntegerField(default=1)
+    payment_link = models.URLField(null=True)
+    tx_ref = models.CharField(max_length=255, null=True)
+    transaction_id = models.CharField(max_length=255, null=True)
     
+    def __str__(self):
+        return str(self.id)

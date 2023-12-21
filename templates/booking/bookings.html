@@ -40,7 +40,7 @@
               <th scope="col">Checkout Date</th>
               <th scope="col">Amount Expected</th>
               <th scope="col">Amount Paid</th>
-              <th scope="col" colspan="2"></th>
+              <th scope="col" colspan="3"></th>
               
             </tr>
           </thead>
@@ -66,6 +66,9 @@
                     <i class="bi bi-currency-dollar"></i>
                 </a>
                 {% endif %}
+              </td>
+              <td>
+                <a href="{{booking.payment_link}}" class="btn btn-warning btn-sm">Pay</a>
               </td>
               
             </tr>

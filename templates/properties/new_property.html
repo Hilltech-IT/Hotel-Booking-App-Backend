@@ -44,8 +44,8 @@
                             required
                         />
                     </div>
-                
-                <div class="mb-2">
+                <div class="row mt-2">
+                  <div class="col">
                     <label for="exampleInputPassword1" class="form-label">Name</label>
                     <input
                         type="text"
@@ -55,7 +55,40 @@
                         required
                     />
                 </div>
-                <div class="mb-2">
+                <div class="col">
+                  <label for="exampleInputPassword1" class="form-label">Property Type</label>
+                  <select class="form-select" id="property_type" name="property_type">
+                    <option value="Hotel">Hotel</option>
+                    <option value="AirBnB">AirBnB</option>
+                    <option value="Lodge">Lodge</option>
+                  </select>
+                </div>
+                </div>
+                
+                <div class="row mt-2">
+                <div class="col">
+                  <label for="exampleInputPassword1" class="form-label">Email</label>
+                  <input
+                    type="email"
+                    class="form-control"
+                    id="email"
+                    name="email"
+                    required
+                  />
+                </div>
+                <div class="col">
+                  <label for="exampleInputPassword1" class="form-label">Contact Number</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="contact_number"
+                    name="contact_number"
+                    required
+                  />
+                </div>
+              </div>
+              <div class="row mt-2">
+                <div class="col">
                     <label for="exampleInputPassword1" class="form-label">Address</label>
                     <input
                       type="text"
@@ -65,7 +98,7 @@
                       required
                     />
                   </div>
-                  <div class="mb-2">
+                  <div class="col">
                     <label for="exampleInputPassword1" class="form-label">City</label>
                     <input
                       type="text"
@@ -75,7 +108,7 @@
                       required
                     />
                   </div>
-                <div class="mb-2">
+                <div class="col">
                     <label for="exampleInputPassword1" class="form-label">Country</label>
                     <input
                         type="text"
@@ -85,28 +118,7 @@
                         required
                     />
                 </div>
-                <div class="mb-2">
-                    <label for="exampleInputPassword1" class="form-label">Cost</label>
-                    <input
-                        type="number"
-                        class="form-control"
-                        id="cost"
-                        name="cost"
-                        required
-                    />
-                </div>
-                <div class="mb-2">
-                    <label for="exampleInputPassword1" class="form-label">Capacity</label>
-                    <input
-                        type="number"
-                        class="form-control"
-                        id="capacity"
-                        name="capacity"
-                        required
-                    />
-                </div>
-                       
-                      
+              </div>
                 <div class="text-center mt-2">
                   <button type="submit" class="btn btn-primary">Submit</button>
                 </div>

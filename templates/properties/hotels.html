@@ -36,7 +36,6 @@
               <th scope="col">#</th>
               <th scope="col">Name</th>
               <th scope="col">Owner</th>
-              <th scope="col">Price</th>
               <th scope="col">Address</th>
               <th scope="col">City</th>
               <th scope="col" colspan="3">Actions</th>
@@ -48,7 +47,6 @@
               <td>{{property.id}}</td>
               <td>{{property.name}}</td>
               <td>{{property.owner}}</td>
-              <td>{{property.cost}}</td>
               <td>{{property.address}}</td>
               <td>{{property.city}}, {{property.country}}</td>
               <td><a href="{% url 'property-details' property.id %}" class="btn btn-info btn-sm">

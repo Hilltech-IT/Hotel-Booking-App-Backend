@@ -48,8 +48,10 @@ def new_property(request):
         address = request.POST.get("address")
         city = request.POST.get("city")
         country = request.POST.get("country")
-        cost = request.POST.get("cost")
-        capacity = request.POST.get("capacity")
+        email = request.POST.get("email")
+        contact_number = request.POST.get("contact_number")
+        property_type = request.POST.get("property_type")
+        
 
         property = Property.objects.create(
             owner_id=owner_id,
@@ -58,8 +60,9 @@ def new_property(request):
             address=address,
             city=city,
             country=country,
-            cost=cost,
-            capacity=capacity
+            email=email,
+            contact_number=contact_number,
+            property_type=property_type
         )
         return redirect("properties")
 
@@ -69,22 +72,25 @@ def new_property(request):
 def edit_property(request):
     if request.method == "POST":
         property_id = request.POST.get("property_id")
-        profile_image = request.FILES["profile_image"]
+        profile_image = request.FILES.get("profile_image")
         name = request.POST.get("name")
         address = request.POST.get("address")
         city = request.POST.get("city")
         country = request.POST.get("country")
-        cost = request.POST.get("cost")
-        capacity = request.POST.get("capacity")
 
+        email = request.POST.get("email")
+        contact_number = request.POST.get("contact_number")
+        property_type = request.POST.get("property_type")
+       
         property = Property.objects.get(id=property_id)
         property.profile_image = profile_image if profile_image else property.profile_image
         property.name = name
         property.address = address
         property.city = city
         property.country = country
-        property.cost = cost
-        property.capacity = capacity
+        property.email = email 
+        property.contact_number = contact_number
+        property.property_type = property_type
         property.save()
         return redirect(f"/properties/property/{property_id}/")
 

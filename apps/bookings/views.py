@@ -8,6 +8,7 @@ from django.shortcuts import redirect, render
 from apps.bookings.models import RoomBooking
 from apps.property.models import PropertyRoom
 from apps.users.models import User
+from apps.payments.flutterwave import FlutterwavePaymentProcessMixin
 
 
 # Create your views here.
@@ -57,8 +58,18 @@ def reserve_hotel_room(request):
         booked_room.save()
 
         user = User.objects.filter(email=email).first()
+        user_by_username = User.objects.filter(username=username).first()
+        amount_expected=Decimal(rooms_booked) * Decimal(charge_per_night) * Decimal(daysBooked)
 
         if user:
+            user.phone_number = phone_number
+            user.gender = gender
+            user.first_name = first_name
+            user.last_name = last_name
+            user.id_number = id_number
+            user.save()
+        elif user_by_username:
+            user = user_by_username
             user.phone_number = phone_number
             user.gender = gender
             user.first_name = first_name
@@ -88,8 +99,10 @@ def reserve_hotel_room(request):
             days_booked = daysBooked,
             rooms_booked=rooms_booked,
             amount_paid=0,
-            amount_expected=Decimal(rooms_booked) * Decimal(charge_per_night) * Decimal(daysBooked)
+            amount_expected=amount_expected
         )
+        booking.tx_ref=f"{user.id}{booking.id}"
+        booking.save()
         
         booking_obj = {
             "email": email,
@@ -108,7 +121,22 @@ def reserve_hotel_room(request):
             "days_booked": daysBooked
         }
 
-        print(booking_obj)
+        amount_to_pay = int(amount_expected)
+
+        try:
+            payment_mixin = FlutterwavePaymentProcessMixin(
+                customer_id=user.id,
+                name=f"{user.first_name} {user.last_name}",
+                phone_number=user.phone_number,
+                email=user.email,
+                tx_ref=f"{user.id}{booking.id}",
+                amount=int(amount_expected),
+                currency="KES",
+                booking_id=booking.id
+            )
+            payment_mixin.run()
+        except Exception as e:
+            raise e
         return redirect("bookings")
 
     return render(request, "booking/book_room.html")
