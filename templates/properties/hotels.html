@@ -6,8 +6,26 @@
         <h3>HOTELS</h3>
     </div>
     <div class="col">
+      <form method="POST">
+          {% csrf_token %}
+          <div class="input-group mb-3">
+            <div class="row">
+              <div class="col-8">
+                <input type="text" class="form-control" id="search_text" name="search_text" placeholder="Name ..." >
+              </div>
+              <div class="col-4">
+                <button class="btn btn-success">Search</button>
+              </div>
+            </div>
+            
+          </div>
+          
+        </form>
+  </div>
+    <div class="col">
         <a class="btn btn-success" data-bs-toggle="modal" data-bs-target="#newPopertyModal">Add A Hotel</a>
     </div>
+    
   
 </div>
 <hr/>
@@ -18,7 +36,6 @@
               <th scope="col">#</th>
               <th scope="col">Name</th>
               <th scope="col">Owner</th>
-              <th scope="col">Price</th>
               <th scope="col">Address</th>
               <th scope="col">City</th>
               <th scope="col" colspan="3">Actions</th>
@@ -30,7 +47,6 @@
               <td>{{property.id}}</td>
               <td>{{property.name}}</td>
               <td>{{property.owner}}</td>
-              <td>{{property.cost}}</td>
               <td>{{property.address}}</td>
               <td>{{property.city}}, {{property.country}}</td>
               <td><a href="{% url 'property-details' property.id %}" class="btn btn-info btn-sm">

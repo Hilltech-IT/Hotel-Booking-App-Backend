@@ -11,8 +11,14 @@ class RoomBookingSerializer(serializers.ModelSerializer):
 
 class BookARoomSerializer(serializers.Serializer):
     room = serializers.IntegerField()
-    amount_paid = serializers.DecimalField(max_digits=100, decimal_places=2)
+    amount_expected = serializers.DecimalField(max_digits=100, decimal_places=2)
     booked_from = serializers.DateField()
     booked_to = serializers.DateField()
     user = serializers.IntegerField()
+    days_booked = serializers.IntegerField()
+    rooms_booked = serializers.IntegerField()
+
+
+class BookingFeeCalculationSerializer(serializers.Serializer):
+    room = serializers.IntegerField()
     days_booked = serializers.IntegerField()

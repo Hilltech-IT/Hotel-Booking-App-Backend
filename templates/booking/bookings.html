@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-4">
+        <h3>Room Bookings</h3>
+    </div>
+    <div class="col-4">
+        <form method="POST">
+            {% csrf_token %}
+            <div class="input-group mb-3">
+              <div class="row">
+                <div class="col-8">
+                  <input type="text" class="form-control" id="reg_number" name="reg_number" placeholder="ID Number" >
+                </div>
+                <div class="col-4">
+                  <button class="btn btn-success">Search</button>
+                </div>
+              </div>
+              
+            </div>
+            
+          </form>
+    </div>
+   
+    <div class="col-4">
+        <a href="{% url 'properties' %}" class="btn btn-primary">Book Room</a>
+    </div>
+  
+</div>
+<hr/>
+      <div class="table-responsive small">
+        <table class="table">
+          <thead>
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">Customer</th>
+              <th scope="col">Room Booked</th>
+              <th scope="col">Checkin Date</th>
+              <th scope="col">Checkout Date</th>
+              <th scope="col">Amount Expected</th>
+              <th scope="col">Amount Paid</th>
+              <th scope="col" colspan="3"></th>
+              
+            </tr>
+          </thead>
+          <tbody>
+            {% for booking in page_obj %}
+            <tr>
+              <td>{{booking.id}}</td>
+              <td>{{booking.user.name}}</td>
+              <td>{{booking.room.property.name}} - {{booking.room.room_type}}</td>
+              <td>{{booking.booked_from}}</td>
+              <td>{{booking.booked_to}}</td>
+              <td>{{booking.amount_expected}}</td>
+              <td>{{booking.amount_paid}}</td>
+              <td>
+                <a class="btn btn-primary btn-sm">
+                    <i class="bi bi-pencil-square"></i>
+                </a>
+              </td>
+              <td>
+                {% if booking.amount_paid == booking.amount_expected %}
+                {% else %}
+                <a class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#payBookingModal{{ booking.id }}">
+                    <i class="bi bi-currency-dollar"></i>
+                </a>
+                {% endif %}
+              </td>
+              <td>
+                <a href="{{booking.payment_link}}" class="btn btn-warning btn-sm">Pay</a>
+              </td>
+              
+            </tr>
+            {% include "booking/pay_booking.html" %}
+            {% endfor %}
+
+          </tbody>
+        </table>
+        <div>
+          <nav aria-label="Page navigation example">
+            <ul class="pagination justify-content-end">
+              {% if page_obj.has_previous %}   
+                <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a></li>
+              {% endif %}
+              <a class="page-link" href="#">{{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</a>
+              {% if page_obj.has_next %}    
+              <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a></li>
+              {% endif %}   
+            </ul>
+          </nav>
+        </div>
+      </div>
+{% endblock content %}

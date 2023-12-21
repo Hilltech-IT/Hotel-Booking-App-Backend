@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.shortcuts import redirect, render
 
+from apps.bookings.models import RoomBooking
 from apps.events.models import Event, EventTicket
 from apps.payments.models import Payment
 
@@ -60,3 +61,52 @@ def process_event_ticket_payment(request, ticket_id=None):
     
     return render(request, "events/ticket_payment_options.html")
     
+
+def hotel_booking_payment(request):
+    if request.method == "POST":
+        booking_id = request.POST.get("booking")
+        amount = Decimal(request.POST.get("amount"))
+        payment_method = request.POST.get("payment_method")
+
+        booking = RoomBooking.objects.get(id=booking_id)
+        booking.amount_paid += amount
+        booking.save()
+
+        booking.fully_paid = True if booking.amount_expected == booking.amount_paid else False
+        booking.save()
+
+        payment = Payment.objects.create(
+            room=booking.room,
+            paid_by=booking.user,
+            paid_to=booking.room.property.owner,
+            payment_reason = "Room Booking",
+            amount=amount
+        )
+
+        return redirect("bookings")
+
+    return render(request, "booking/pay_booking.html")
+
+
+def process_flutterwave_payment(request):
+    status = request.GET.get('status')
+    tx_ref = request.GET.get('tx_ref')
+    transaction_id = request.GET.get('transaction_id')
+
+    if status.lower() == "successful":
+        booking = RoomBooking.objects.get(tx_ref=tx_ref)
+        booking.amount_paid = booking.amount_expected
+        booking.transaction_id = transaction_id
+        booking.save()
+
+    else:
+        print("Payment failed!!!!!!!!!")
+
+    context = {
+        "payment_status": status,
+        "tx_ref": tx_ref,
+        "transaction_id": transaction_id
+    }
+    print(context)
+
+    return render(request, "payments/confirm_payment.html", context)
