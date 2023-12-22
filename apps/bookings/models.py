@@ -20,6 +20,7 @@ class RoomBooking(AbstractBaseModel):
     payment_link = models.URLField(null=True)
     tx_ref = models.CharField(max_length=255, null=True)
     transaction_id = models.CharField(max_length=255, null=True)
+    is_over = models.BooleanField(default=False)
     
     def __str__(self):
         return str(self.id)
