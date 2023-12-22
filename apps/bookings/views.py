@@ -6,9 +6,9 @@ from django.db import transaction
 from django.shortcuts import redirect, render
 
 from apps.bookings.models import RoomBooking
+from apps.payments.flutterwave import FlutterwavePaymentProcessMixin
 from apps.property.models import PropertyRoom
 from apps.users.models import User
-from apps.payments.flutterwave import FlutterwavePaymentProcessMixin
 
 
 # Create your views here.
@@ -24,6 +24,26 @@ def bookings(request):
         "page_obj": page_obj
     }
     return render(request, "booking/bookings.html", context)
+
+
+def make_booked_rooms_available(request):
+    if request.method == "POST":
+        booking_id = request.POST.get("booking_id")
+        booking = RoomBooking.objects.get(id=booking_id)
+
+        room_booked = PropertyRoom.objects.get(id=booking.room.id)
+        room_booked.rooms_count += booking.rooms_booked
+        room_booked.booked -= booking.rooms_booked
+        room_booked.save()
+
+        booking.is_over = True
+        booking.save()
+
+        return redirect("bookings")
+
+
+    return render(request, "booking/make_rooms_free.html")
+
 
 @transaction.atomic
 def reserve_hotel_room(request):
