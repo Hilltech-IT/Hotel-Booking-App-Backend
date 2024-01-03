@@ -24,9 +24,14 @@ class PropertySerializer(serializers.ModelSerializer):
 
 
 class PropertyRoomSerializer(serializers.ModelSerializer):
+    rooms_count = serializers.SerializerMethodField()
     class Meta:
         model = PropertyRoom
         fields = "__all__"
+
+    
+    def get_rooms_count(self, obj):
+        return obj.rooms_number - obj.booked
 
 
 class PropertyImageSerializer(serializers.ModelSerializer):

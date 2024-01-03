@@ -74,8 +74,6 @@ def reserve_hotel_room(request):
         booked_room.booked += int(rooms_booked)
         booked_room.save()
 
-        booked_room.rooms_count = booked_room.rooms_number - booked_room.booked
-        booked_room.save()
 
         user = User.objects.filter(email=email).first()
         user_by_username = User.objects.filter(username=username).first()
