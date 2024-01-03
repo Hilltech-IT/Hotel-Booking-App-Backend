@@ -3,6 +3,7 @@ from django.core.paginator import Paginator
 from django.shortcuts import redirect, render
 
 from apps.events.models import Event, EventTicket, EventTicketComponent
+from apps.payments.flutterwave import FlutterwavePaymentProcessMixin
 from apps.users.models import User
 
 
@@ -203,6 +204,10 @@ def new_event_ticket(request):
             ticket_status="Pending Payment"
         )
 
+        tx_ref = f"ticket_{user.id}_{ticket.id}"
+        ticket.tx_ref = tx_ref
+        ticket.save()
+
         if regular_ticket:
             EventTicketComponent.objects.create(
                 ticket=ticket,
@@ -224,6 +229,22 @@ def new_event_ticket(request):
                 number_of_tickets=vvip_ticket
             )
 
+        try:
+            payment_mixin = FlutterwavePaymentProcessMixin(
+                customer_id=user.id,
+                name=f"{user.first_name} {user.last_name}",
+                phone_number=user.phone_number,
+                email=user.email,
+                tx_ref=tx_ref,
+                amount=int(amount_expected),
+                currency="KES",
+                booking_id=ticket.id,
+                payment_type="ticket"
+            )
+            payment_mixin.run()
+        except Exception as e:
+            raise e
+
         return redirect(f"/events/events/{event.id}/")
 
 
@@ -237,9 +258,6 @@ def cancel_event_ticket(request):
         ticket.ticket_status = "Cancelled"
         ticket.save()
         return redirect("event-tickets")
-
-
-
 
 
 def print_event_ticket(request, ticket_id=None):

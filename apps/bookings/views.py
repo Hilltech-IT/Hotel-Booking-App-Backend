@@ -13,7 +13,7 @@ from apps.users.models import User
 
 # Create your views here.
 def bookings(request):
-    bookings = RoomBooking.objects.all()
+    bookings = RoomBooking.objects.all().order_by("-created")
 
     paginator = Paginator(bookings, 10)
     page_number = request.GET.get("page")
@@ -119,7 +119,8 @@ def reserve_hotel_room(request):
             amount_paid=0,
             amount_expected=amount_expected
         )
-        booking.tx_ref=f"{user.id}{booking.id}"
+        tx_ref=f"room_{user.id}_{booking.id}"
+        booking.tx_ref = tx_ref
         booking.save()
         
         booking_obj = {
@@ -147,10 +148,11 @@ def reserve_hotel_room(request):
                 name=f"{user.first_name} {user.last_name}",
                 phone_number=user.phone_number,
                 email=user.email,
-                tx_ref=f"{user.id}{booking.id}",
+                tx_ref=tx_ref,
                 amount=int(amount_expected),
                 currency="KES",
-                booking_id=booking.id
+                booking_id=booking.id,
+                payment_type="room"
             )
             payment_mixin.run()
         except Exception as e:

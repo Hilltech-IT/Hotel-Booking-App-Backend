@@ -94,10 +94,41 @@ def process_flutterwave_payment(request):
     transaction_id = request.GET.get('transaction_id')
 
     if status.lower() == "successful":
-        booking = RoomBooking.objects.get(tx_ref=tx_ref)
-        booking.amount_paid = booking.amount_expected
-        booking.transaction_id = transaction_id
-        booking.save()
+
+        if tx_ref.startswith("ticket_"):
+            ticket = EventTicket.objects.get(tx_ref=tx_ref)
+            ticket.amount_paid = ticket.amount_expected
+            ticket.transaction_id = transaction_id
+            ticket.ticket_status = "Paid"
+            ticket.save()
+
+            payment = Payment.objects.create(
+                ticket=ticket,
+                paid_by=ticket.user,
+                paid_to=ticket.event.owner,
+                payment_reason="Ticket Booking",
+                amount=ticket.amount_expected,
+                payment_link=ticket.payment_link,
+                tx_ref=tx_ref,
+                transaction_id=transaction_id
+            )
+
+        elif tx_ref.startswith("room_"):
+            booking = RoomBooking.objects.get(tx_ref=tx_ref)
+            booking.amount_paid = booking.amount_expected
+            booking.transaction_id = transaction_id
+            booking.save()
+
+            payment = Payment.objects.create(
+                room=booking.room,
+                paid_by=booking.user,
+                paid_to=booking.room.property.owner,
+                payment_reason="Room Booking",
+                amount=booking.amount_expected,
+                payment_link=booking.payment_link,
+                tx_ref=tx_ref,
+                transaction_id=transaction_id
+            )
 
     else:
         print("Payment failed!!!!!!!!!")
