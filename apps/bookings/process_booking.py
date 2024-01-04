@@ -50,8 +50,8 @@ class RoomBookingMixin(object):
                 days_booked=days_booked,
                 rooms_booked=rooms_booked
             )
-
-            booking.tx_ref=f"{user.id}{booking.id}"
+            tx_ref=f"room_{user.id}_{booking.id}"
+            booking.tx_ref=tx_ref
             room_booked.save()
             booking.save()
 
@@ -60,10 +60,11 @@ class RoomBookingMixin(object):
                 name=f"{user.first_name} {user.last_name}",
                 phone_number=user.phone_number,
                 email=user.email,
-                tx_ref=f"{user.id}{booking.id}",
+                tx_ref=tx_ref,
                 amount=int(amount_expected),
                 currency="KES",
-                booking_id=booking.id
+                booking_id=booking.id,
+                payment_type="room"
             )
             payment_mixin.run()
         
