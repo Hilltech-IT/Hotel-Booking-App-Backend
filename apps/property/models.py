@@ -65,7 +65,6 @@ class PropertyRoom(AbstractBaseModel):
     property = models.ForeignKey(Property, on_delete=models.CASCADE, related_name="propertyrooms")
     room_type = models.CharField(max_length=255, choices=ROOM_TYPES, null=True)
     rooms_number = models.IntegerField(default=0)
-    rooms_count = models.IntegerField(default=0)
     occupancy_capacity = models.PositiveIntegerField(null=True)
     amenities = models.JSONField(default=list)
     view = models.CharField(max_length=255, choices=VIEW_CHOICES, blank=True, null=True)
@@ -83,6 +82,9 @@ class PropertyRoom(AbstractBaseModel):
     def __str__(self):
         return f"Room {str(self.id)}- {self.room_type}"
 
+    
+    def rooms_count(self):
+        return self.rooms_number - self.booked
 
 
 

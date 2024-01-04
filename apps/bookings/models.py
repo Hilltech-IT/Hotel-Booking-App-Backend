@@ -8,7 +8,7 @@ from apps.users.models import User
 
 # Create your models here.
 class RoomBooking(AbstractBaseModel):
-    user = models.ForeignKey("users.User", on_delete=models.CASCADE)
+    user = models.ForeignKey("users.User", on_delete=models.CASCADE, related_name="customerbookings")
     room = models.ForeignKey("property.PropertyRoom", on_delete=models.SET_NULL, null=True)
     booked_from = models.DateField()
     booked_to = models.DateField()

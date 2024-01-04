@@ -68,6 +68,9 @@ class EventTicket(AbstractBaseModel):
     amount_paid = models.DecimalField(max_digits=20, decimal_places=2, null=True)
     payment_method = models.CharField(max_length=255, choices=PAYMENT_METHOD_CHOICES, null=True)
     ticket_status = models.CharField(max_length=255, choices=TICKET_STATUS_CHOICES)
+    payment_link = models.URLField(max_length=500, null=True)
+    tx_ref = models.CharField(max_length=255, null=True)
+    transaction_id = models.CharField(max_length=255, null=True)
 
     def __str__(self):
         return f"{self.user.username} has purchased a {self.ticket_type} for {self.event.title}"

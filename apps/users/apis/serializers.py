@@ -1,20 +1,33 @@
-from apps.users.models import User
+from datetime import datetime
+
+from django.contrib.auth import authenticate
+from django.utils import timezone
 from rest_framework import serializers
 from rest_framework.authtoken.serializers import AuthTokenSerializer
 from rest_framework.exceptions import AuthenticationFailed
-from django.contrib.auth import authenticate
 
-from datetime import datetime
-from django.utils import timezone
+from apps.bookings.apis.serializers import RoomBookingSerializer
+from apps.users.models import User
 from apps.users.utils import generate_unique_key
 
+
 class UserListSerializer(serializers.ModelSerializer):
+    bookings = serializers.SerializerMethodField()
+    payments = serializers.SerializerMethodField()
     class Meta:
         model = User
         fields = [
             "id", "username", "email", "first_name", "last_name", "id_number", "role", "phone_number", "gender",
-            "date_of_birth", "address", "country"
+            "date_of_birth", "address", "country", "bookings", "payments"
         ]
+
+    def get_bookings(self, obj):
+        data = obj.customerbookings.all()
+        serializer = RoomBookingSerializer(instance=data, many=True)
+        return serializer.data
+
+    def get_payments(self, obj):
+        return obj.customerpayments.values()
 
 
 

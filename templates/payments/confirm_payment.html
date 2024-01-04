@@ -13,6 +13,7 @@
             <div class="col">
                 {% if payment_status == "successful" %}
                 <p>You successfully paid for you booking, check your email/sms</p>
+                <a href="{% url 'home' %}" class="btn btn-success">Go Home</a>
             {% else %}
             <p>You payment failed, retry or conduct support!</p>
             {% endif %}
