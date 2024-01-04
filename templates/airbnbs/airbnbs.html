@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col">
+        <h3>AIRBNB LISTINGS</h3>
+    </div>
+    <div class="col">
+      <form method="POST">
+          {% csrf_token %}
+          <div class="input-group mb-3">
+            <div class="row">
+              <div class="col-8">
+                <input type="text" class="form-control" id="search_text" name="search_text" placeholder="Name ..." >
+              </div>
+              <div class="col-4">
+                <button class="btn btn-success">Search</button>
+              </div>
+            </div>
+            
+          </div>
+          
+        </form>
+  </div>
+    <div class="col">
+        <a class="btn btn-success" data-bs-toggle="modal" data-bs-target="#newAirBnBModal">New AirBnB</a>
+    </div>
+    
+  
+</div>
+<hr/>
+      <div class="table-responsive small">
+        <table class="table">
+          <thead>
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">Name</th>
+              <th scope="col">Owner</th>
+              <th scope="col">Address</th>
+              <th scope="col">City</th>
+              <th scope="col" colspan="3">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for property in page_obj %}
+            <tr>
+              <td>{{property.id}}</td>
+              <td>{{property.name}}</td>
+              <td>{{property.owner}}</td>
+              <td>{{property.address}}</td>
+              <td>{{property.city}}, {{property.country}}</td>
+              <td><a href="{% url 'property-details' property.id %}" class="btn btn-info btn-sm">
+                <i class="bi bi-eye"></i>
+              </a></td>
+              <td><a class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editPopertyModal{{ property.id }}">
+                <i class="bi bi-pencil-square"></i>
+              </a></td>
+              <td><a class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deletePropertyModal{{ property.id }}">
+                <i class="bi bi-trash"></i>
+              </a></td>
+              
+            </tr>
+            {% include "properties/edit_property.html" %}
+            {% include "properties/delete_property.html" %}
+   
+            {% endfor %}
+
+          </tbody>
+        </table>
+        <div>
+      </div>
+{% endblock content %}

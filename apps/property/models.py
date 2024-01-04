@@ -44,7 +44,8 @@ class Property(AbstractBaseModel):
     address = models.CharField(max_length=255)
     contact_number = models.CharField(max_length=255)
     email = models.EmailField(null=True)
-    #cost = models.DecimalField(max_digits=100, decimal_places=2)
+    cost = models.DecimalField(max_digits=100, decimal_places=2, default=0)
+    number_of_rooms = models.IntegerField(default=0)
     #capacity = models.IntegerField(default=0)
     profile_image = models.ImageField(upload_to="property_images/")
 

@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.shortcuts import redirect, render
 
-from apps.bookings.models import RoomBooking
+from apps.bookings.models import BnBBooking, RoomBooking
 from apps.events.models import Event, EventTicket
 from apps.payments.models import Payment
 
@@ -126,6 +126,22 @@ def process_flutterwave_payment(request):
                 payment_reason="Room Booking",
                 amount=booking.amount_expected,
                 payment_link=booking.payment_link,
+                tx_ref=tx_ref,
+                transaction_id=transaction_id
+            )
+        elif tx_ref.startswith("bnb_"):
+            bnb_booking = BnBBooking.objects.get(tx_ref=tx_ref)
+            bnb_booking.amount_paid = bnb_booking.amount_expected
+            bnb_booking.transaction_id = transaction_id
+            bnb_booking.save()
+
+            payment = Payment.objects.create(
+                bnb_booking=bnb_booking,
+                paid_by=bnb_booking.user,
+                paid_to=bnb_booking.airbnb.owner,
+                payment_reason="AirBnB Booking",
+                amount_paid=bnb_booking.amount_expected,
+                payment_link=bnb_booking.payment_link,
                 tx_ref=tx_ref,
                 transaction_id=transaction_id
             )

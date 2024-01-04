@@ -18,6 +18,15 @@ class UserListAPIView(generics.ListAPIView):
     queryset = User.objects.all()
     serializer_class = UserListSerializer
 
+    permission_classes = [IsAuthenticated]
+
+
+    def get(self, request, *args, **kwargs):
+        user = request.user
+        user_data = self.queryset.get(id=user.id)
+        print(user_data)
+        serializer = self.serializer_class(instance=user_data, many=False)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 class UserLoginAPIView(ObtainAuthToken):
     serializer_class = UserLoginSerializer

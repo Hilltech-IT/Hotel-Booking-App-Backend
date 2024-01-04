@@ -5,11 +5,13 @@ from apps.core.models import AbstractBaseModel
 # Create your models here.
 PAYMENT_REASON_CHOICES = (
     ("Room Booking", "Room Booking"),
+    ("AirBnB Booking", "AirBnB Booking"),
     ("Ticket Booking", "Ticket Booking"),
     ("Subscription", "Subscription"),
 )
 
 class Payment(AbstractBaseModel):
+    bnb_booking = models.ForeignKey("bookings.BnBBooking", related_name="bnbbookingpayments", on_delete=models.SET_NULL, null=True)
     ticket = models.ForeignKey("events.EventTicket", related_name="eventsticketspayments", on_delete=models.SET_NULL, null=True)
     room = models.ForeignKey("property.PropertyRoom", on_delete=models.SET_NULL, null=True, related_name="roombookingpayments")
     paid_by = models.ForeignKey("users.User", on_delete=models.PROTECT, related_name="customerpayments")

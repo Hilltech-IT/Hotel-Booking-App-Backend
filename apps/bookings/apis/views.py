@@ -7,10 +7,12 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 
-from apps.bookings.apis.serializers import (BookARoomSerializer,
+from apps.bookings.apis.serializers import (BookAirBnBSerializer,
+                                            BookARoomSerializer,
                                             BookingFeeCalculationSerializer,
                                             RoomBookingSerializer)
 from apps.bookings.models import RoomBooking
+from apps.bookings.process_airbnb_booking import AirBnBBookingMixin
 from apps.bookings.process_booking import RoomBookingMixin
 from apps.property.models import PropertyRoom
 
@@ -65,6 +67,21 @@ class BookARoomAPIView(generics.CreateAPIView):
 
         if serializer.is_valid(raise_exception=True):
             booking_mixin = RoomBookingMixin(booking_data=data)
+            booking_mixin.run()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+class BookAirBnBAPIView(generics.CreateAPIView):
+    serializer_class = BookAirBnBSerializer
+
+    def post(self, request, *args, **kwargs):
+        data = request.data
+        serializer = self.serializer_class(data=data)
+
+        if serializer.is_valid(raise_exception=True):
+            booking_mixin = AirBnBBookingMixin(booking_data=data)
             booking_mixin.run()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
