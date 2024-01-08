@@ -3,7 +3,7 @@
 {% block content %}
 <div class="row">
     <div class="col">
-        <h3>HOTELS</h3>
+        <h3>AIRBNB LISTINGS</h3>
     </div>
     <div class="col">
       <form method="POST">
@@ -23,7 +23,7 @@
         </form>
   </div>
     <div class="col">
-        <a class="btn btn-success" data-bs-toggle="modal" data-bs-target="#newPopertyModal">Add A Hotel</a>
+        <a class="btn btn-success" data-bs-toggle="modal" data-bs-target="#newAirBnBModal">New AirBnB</a>
     </div>
     
   
@@ -49,9 +49,11 @@
               <td>{{property.owner}}</td>
               <td>{{property.address}}</td>
               <td>{{property.city}}, {{property.country}}</td>
-              <td><a href="{% url 'property-details' property.id %}" class="btn btn-info btn-sm">
-                <i class="bi bi-eye"></i>
-              </a></td>
+              <td>
+                <a class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#bookAirBnBModal{{property.id}}">
+                  <i class="bi bi-journal-check"></i>
+                </a>
+              </td>
               <td><a class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editPopertyModal{{ property.id }}">
                 <i class="bi bi-pencil-square"></i>
               </a></td>
@@ -62,6 +64,7 @@
             </tr>
             {% include "properties/edit_property.html" %}
             {% include "properties/delete_property.html" %}
+            {% include "airbnbs/book_airbnb.html" %}
    
             {% endfor %}
 

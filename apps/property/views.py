@@ -39,6 +39,36 @@ def properties(request):
 
     return render(request, "properties/hotels.html", context)
 
+
+@login_required(login_url="/users/user-login/")
+def bnb_properties(request):
+    user = request.user
+    properties = Property.objects.filter(property_type="AirBnB")
+
+    if request.method == "POST":
+        search_text = request.POST.get("search_text")
+
+        properties = Property.objects.filter(
+            Q(name__icontains=search_text) | 
+            Q(city__icontains=search_text) |
+            Q(country__icontains=search_text)
+        ).filter(property_type="AirBnB")
+
+    if not user.is_superuser:
+        properties = Property.objects.filter(owner=user)
+    users = User.objects.filter(role="customer")
+
+    paginator = Paginator(properties, 10)
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+    context = {
+        "properties": properties,
+        "users": users,
+        "page_obj": page_obj
+    }
+
+    return render(request, "airbnbs/airbnbs.html", context)
+
 @login_required(login_url="/users/user-login/")
 def new_property(request):
     if request.method == "POST":
@@ -51,6 +81,7 @@ def new_property(request):
         email = request.POST.get("email")
         contact_number = request.POST.get("contact_number")
         property_type = request.POST.get("property_type")
+        cost_per_night = request.POST.get("cost_per_night")
         
 
         property = Property.objects.create(
@@ -62,8 +93,13 @@ def new_property(request):
             country=country,
             email=email,
             contact_number=contact_number,
-            property_type=property_type
+            property_type=property_type,
+            cost=cost_per_night
         )
+
+        if property_type == "AirBnB":
+            return redirect("airbnbs")
+
         return redirect("properties")
 
     return render(request, "properties/new_property.html")
@@ -81,6 +117,7 @@ def edit_property(request):
         email = request.POST.get("email")
         contact_number = request.POST.get("contact_number")
         property_type = request.POST.get("property_type")
+        cost_per_night = request.POST.get("cost_per_night")
        
         property = Property.objects.get(id=property_id)
         property.profile_image = profile_image if profile_image else property.profile_image
@@ -91,7 +128,12 @@ def edit_property(request):
         property.email = email 
         property.contact_number = contact_number
         property.property_type = property_type
+        property.cost = cost_per_night
         property.save()
+
+        if property_type == "AirBnB":
+            return redirect("airbnbs")
+
         return redirect(f"/properties/property/{property_id}/")
 
     return render(request, "properties/edit_property.html")

@@ -1,8 +1,8 @@
-<div class="modal fade" id="payBookingModal{{booking.id}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal fade" id="payBnBBookingModal{{booking.id}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h1 class="modal-title fs-5 text-center">Pay Hotel Rooking</h1>
+          <h1 class="modal-title fs-5 text-center">Pay AirBnB Rooking</h1>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
             <form action="{% url 'pay-hotel-booking' %}" method="POST" enctype="multipart/form-data">
@@ -19,12 +19,11 @@
                         class="form-control"
                         id="amount"
                         name="amount"
-                    
                         required
                     />
                     </div>
                 
-                <div class="mb-2">
+                <div class="mb-3">
                     <input
                         type="number"
                         class="form-control"
@@ -35,18 +34,18 @@
                         required
                     />
                     </div>
-                    <div class="mb-2">
-                      <label for="exampleInputPassword1" class="form-label">Booking Type</label>
-                        <input
-                            type="text"
-                            class="form-control"
-                            id="booking_type"
-                            name="booking_type"
-                            required
-                            value="Hotel"
-                            readonly
-                        />
-                        </div>
+                    <div class="mb-3">
+                        <label for="exampleInputPassword1" class="form-label">Booking Type</label>
+                          <input
+                              type="text"
+                              class="form-control"
+                              id="booking_type"
+                              name="booking_type"
+                              required
+                              value="AirBnB"
+                              readonly
+                          />
+                          </div>
                 
                 <div class="text-center mt-2">
                   <button type="submit" class="btn btn-primary">Submit</button>

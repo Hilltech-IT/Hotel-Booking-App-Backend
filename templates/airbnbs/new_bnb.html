@@ -1,16 +1,25 @@
-<div class="modal fade" id="editPopertyModal{{property.id}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal fade" id="newAirBnBModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h1 class="modal-title fs-5 text-center">Edit Property</h1>
+          <h1 class="modal-title fs-5 text-center">New AirBnB</h1>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
-            <form action="{% url 'edit-property' %}" method="POST" enctype="multipart/form-data">
+            <form action="{% url 'new-property' %}" method="POST" enctype="multipart/form-data">
                 {% csrf_token %}
                 <div class="modal-body">
                 
                 <div class="mb-2">
-                   
+                    {% if request.user.is_superuser %}
+                    <div class="mb-2">
+                        <label for="exampleInputPassword1" class="form-label">Property Owner</label>
+                        <select class="form-select" id="owner_id" name="owner_id">
+                          {% for user in users %}
+                            <option value="{{user.id}}">{{user.name}}</option>
+                          {% endfor %}
+                        </select>
+                      </div>
+                      {% else %}
                     <input
                         type="number"
                         class="form-control"
@@ -21,21 +30,8 @@
                         required
                     />
                   
+                    {% endif %}
                     </div>
-
-                    <div class="mb-2">
-                   
-                      <input
-                          type="number"
-                          class="form-control"
-                          id="property_id"
-                          name="property_id"
-                          value="{{property.id}}"
-                          hidden
-                          required
-                      />
-                    
-                      </div>
 
                     <div class="mb-2">
                         <label for="exampleInputPassword1" class="form-label">Cover Image</label>
@@ -44,7 +40,7 @@
                             class="form-control"
                             id="profile_image"
                             name="profile_image"
-                            
+                            required
                         />
                     </div>
                 <div class="row mt-2">
@@ -55,33 +51,24 @@
                         class="form-control"
                         id="name"
                         name="name"
-                        value="{{property.name}}"
                         required
                     />
                 </div>
                 <div class="col">
                   <label for="exampleInputPassword1" class="form-label">Property Type</label>
-                  {% if property.property_type == "AirBnB" %}
+                  
                   <input
                     type="text"
                     class="form-control"
                     id="property_type"
                     name="property_type"
-                    value="{{property.property_type}}"
-                    readonly
+                    value="AirBnB"
                     required
                 />
-                  {% else %}
-                  <select class="form-select" id="property_type" name="property_type" value="{{property.property_type}}">
-                    <option value="Hotel">Hotel</option>
-                    <option value="AirBnB">AirBnB</option>
-                    <option value="Lodge">Lodge</option>
-                  </select>
-                  {% endif %}
                 </div>
                 </div>
+                
                 <div class="row mt-2">
-
                 <div class="col">
                   <label for="exampleInputPassword1" class="form-label">Email</label>
                   <input
@@ -89,7 +76,6 @@
                     class="form-control"
                     id="email"
                     name="email"
-                    value="{{property.email}}"
                     required
                   />
                 </div>
@@ -100,7 +86,6 @@
                     class="form-control"
                     id="contact_number"
                     name="contact_number"
-                    value="{{property.contact_number}}"
                     required
                   />
                 </div>
@@ -113,7 +98,6 @@
                       class="form-control"
                       id="address"
                       name="address"
-                      value="{{property.address}}"
                       required
                     />
                   </div>
@@ -124,7 +108,6 @@
                       class="form-control"
                       id="city"
                       name="city"
-                      value="{{property.city}}"
                       required
                     />
                   </div>
@@ -135,13 +118,10 @@
                         class="form-control"
                         id="country"
                         name="country"
-                        value="{{property.country}}"
                         required
                     />
                 </div>
               </div>
-
-              {% if property.property_type == "AirBnB" %}
               <div class="row mt-3">
                 <div class="col">
                   <label for="exampleInputPassword1" class="form-label">Cost per Night</label>
@@ -150,13 +130,10 @@
                       class="form-control"
                       id="cost_per_night"
                       name="cost_per_night"
-                      value="{{property.cost}}"
                       required
                   />
                 </div>
               </div>
-              {% endif %}
-                          
                 <div class="text-center mt-2">
                   <button type="submit" class="btn btn-primary">Submit</button>
                 </div>

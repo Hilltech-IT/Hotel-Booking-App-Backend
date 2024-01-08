@@ -11,4 +11,4 @@ class PropertyRoomAdmin(admin.ModelAdmin):
 
 @admin.register(Property)
 class PropertyAdmin(admin.ModelAdmin):
-    list_display = ["name", "property_type", "contact_number", "email", "address", "city", "country"]
+    list_display = ["name", "property_type", "contact_number", "email", "cost", "property_address"]

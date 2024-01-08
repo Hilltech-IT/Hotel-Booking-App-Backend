@@ -3,7 +3,7 @@
 {% block content %}
 <div class="row">
     <div class="col-4">
-        <h3>Room Bookings</h3>
+        <h3>AirBnB Bookings</h3>
     </div>
     <div class="col-4">
         <form method="POST">
@@ -23,10 +23,6 @@
           </form>
     </div>
    
-    <div class="col-4">
-        <a href="{% url 'properties' %}" class="btn btn-primary">Book Room</a>
-    </div>
-  
 </div>
 <hr/>
       <div class="table-responsive small">
@@ -49,7 +45,7 @@
             <tr>
               <td>{{booking.id}}</td>
               <td>{{booking.user.name}}</td>
-              <td>{{booking.room.property.name}} - {{booking.room.room_type}}</td>
+              <td>{{booking.airbnb.name}}</td>
               <td>{{booking.booked_from}}</td>
               <td>{{booking.booked_to}}</td>
               <td>{{booking.amount_expected}}</td>
@@ -62,7 +58,7 @@
               <td>
                 {% if booking.amount_paid == booking.amount_expected %}
                 {% else %}
-                <a class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#payBookingModal{{ booking.id }}">
+                <a class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#payBnBBookingModal{{ booking.id }}">
                     <i class="bi bi-currency-dollar"></i>
                 </a>
                 {% endif %}
@@ -72,7 +68,7 @@
               </td>
               
             </tr>
-            {% include "booking/pay_booking.html" %}
+            {% include "airbnbs/pay_airbnb_booking.html" %}
             {% endfor %}
 
           </tbody>
