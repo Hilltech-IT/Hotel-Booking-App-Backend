@@ -81,6 +81,7 @@ def new_property(request):
         email = request.POST.get("email")
         contact_number = request.POST.get("contact_number")
         property_type = request.POST.get("property_type")
+        cost_per_night = request.POST.get("cost_per_night")
         
 
         property = Property.objects.create(
@@ -92,7 +93,8 @@ def new_property(request):
             country=country,
             email=email,
             contact_number=contact_number,
-            property_type=property_type
+            property_type=property_type,
+            cost=cost_per_night
         )
 
         if property_type == "AirBnB":
@@ -115,6 +117,7 @@ def edit_property(request):
         email = request.POST.get("email")
         contact_number = request.POST.get("contact_number")
         property_type = request.POST.get("property_type")
+        cost_per_night = request.POST.get("cost_per_night")
        
         property = Property.objects.get(id=property_id)
         property.profile_image = profile_image if profile_image else property.profile_image
@@ -125,6 +128,7 @@ def edit_property(request):
         property.email = email 
         property.contact_number = contact_number
         property.property_type = property_type
+        property.cost = cost_per_night
         property.save()
 
         if property_type == "AirBnB":

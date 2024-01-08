@@ -1,7 +1,8 @@
 from django.urls import path
 
 from apps.payments.views import (hotel_booking_payment, payments,
-                                 process_event_ticket_payment, process_flutterwave_payment)
+                                 process_event_ticket_payment,
+                                 process_flutterwave_payment)
 
 urlpatterns = [
     path("", payments, name="payments"),

@@ -61,11 +61,23 @@
                 </div>
                 <div class="col">
                   <label for="exampleInputPassword1" class="form-label">Property Type</label>
+                  {% if property.property_type == "AirBnB" %}
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="property_type"
+                    name="property_type"
+                    value="{{property.property_type}}"
+                    readonly
+                    required
+                />
+                  {% else %}
                   <select class="form-select" id="property_type" name="property_type" value="{{property.property_type}}">
                     <option value="Hotel">Hotel</option>
                     <option value="AirBnB">AirBnB</option>
                     <option value="Lodge">Lodge</option>
                   </select>
+                  {% endif %}
                 </div>
                 </div>
                 <div class="row mt-2">
@@ -128,6 +140,22 @@
                     />
                 </div>
               </div>
+
+              {% if property.property_type == "AirBnB" %}
+              <div class="row mt-3">
+                <div class="col">
+                  <label for="exampleInputPassword1" class="form-label">Cost per Night</label>
+                  <input
+                      type="number"
+                      class="form-control"
+                      id="cost_per_night"
+                      name="cost_per_night"
+                      value="{{property.cost}}"
+                      required
+                  />
+                </div>
+              </div>
+              {% endif %}
                           
                 <div class="text-center mt-2">
                   <button type="submit" class="btn btn-primary">Submit</button>

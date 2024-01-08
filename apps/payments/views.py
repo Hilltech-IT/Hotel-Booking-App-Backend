@@ -67,23 +67,39 @@ def hotel_booking_payment(request):
         booking_id = request.POST.get("booking")
         amount = Decimal(request.POST.get("amount"))
         payment_method = request.POST.get("payment_method")
+        booking_type = request.POST.get("booking_type")
 
-        booking = RoomBooking.objects.get(id=booking_id)
-        booking.amount_paid += amount
-        booking.save()
+        if booking_type.lower() == "airbnb":
+            bnb_booking = BnBBooking.objects.get(id=id)
+            bnb_booking.amount_paid += amount
+            bnb_booking.save()
 
-        booking.fully_paid = True if booking.amount_expected == booking.amount_paid else False
-        booking.save()
+            payment = Payment.objects.create(
+                bnb_booking=bnb_booking,
+                paid_by=bnb_booking.user,
+                paid_to=bnb_booking.room.property.owner,
+                payment_reason="AirBnB Booking",
+                amount=amount
+            )
+            return redirect("airbnb-bookings")
 
-        payment = Payment.objects.create(
-            room=booking.room,
-            paid_by=booking.user,
-            paid_to=booking.room.property.owner,
-            payment_reason = "Room Booking",
-            amount=amount
-        )
+        elif booking_type.lower() == "hotel":
+            booking = RoomBooking.objects.get(id=booking_id)
+            booking.amount_paid += amount
+            booking.save()
 
-        return redirect("bookings")
+            booking.fully_paid = True if booking.amount_expected == booking.amount_paid else False
+            booking.save()
+
+            payment = Payment.objects.create(
+                room=booking.room,
+                paid_by=booking.user,
+                paid_to=booking.room.property.owner,
+                payment_reason="Room Booking",
+                amount=amount
+            )
+
+            return redirect("bookings")
 
     return render(request, "booking/pay_booking.html")
 
