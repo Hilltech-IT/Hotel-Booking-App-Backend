@@ -70,14 +70,14 @@ def hotel_booking_payment(request):
         booking_type = request.POST.get("booking_type")
 
         if booking_type.lower() == "airbnb":
-            bnb_booking = BnBBooking.objects.get(id=id)
+            bnb_booking = BnBBooking.objects.get(id=booking_id)
             bnb_booking.amount_paid += amount
             bnb_booking.save()
 
             payment = Payment.objects.create(
                 bnb_booking=bnb_booking,
                 paid_by=bnb_booking.user,
-                paid_to=bnb_booking.room.property.owner,
+                paid_to=bnb_booking.airbnb.owner,
                 payment_reason="AirBnB Booking",
                 amount=amount
             )
