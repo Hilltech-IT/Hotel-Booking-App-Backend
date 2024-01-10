@@ -6,10 +6,12 @@ from django.db import transaction
 from django.shortcuts import redirect, render
 
 from apps.bookings.models import BnBBooking, RoomBooking
+from apps.bookings.tasks import create_payment_link_task
 from apps.payments.flutterwave import FlutterwavePaymentProcessMixin
 from apps.property.models import Property, PropertyRoom
 from apps.users.models import User
 
+date_today = datetime.now().date()
 
 # Create your views here.
 def bookings(request):
@@ -143,6 +145,18 @@ def reserve_hotel_room(request):
         amount_to_pay = int(amount_expected)
 
         try:
+            name = f"{user.first_name} {user.last_name}"
+            create_payment_link_task(
+                customer_id=user.id, 
+                name=name,
+                phone_number=user.phone_number,
+                email=user.email,
+                tx_ref=tx_ref,
+                amount_expected=amount_to_pay,
+                booking_id=booking.id,
+                payment_type="room"
+            )
+            """
             payment_mixin = FlutterwavePaymentProcessMixin(
                 customer_id=user.id,
                 name=f"{user.first_name} {user.last_name}",
@@ -155,6 +169,7 @@ def reserve_hotel_room(request):
                 payment_type="room"
             )
             payment_mixin.run()
+            """
         except Exception as e:
             raise e
         return redirect("bookings")
@@ -246,6 +261,63 @@ def book_airbnb(request):
         tx_ref = f"bnb_{user.id}_{bnb_booking.id}"
         bnb_booking.tx_ref=tx_ref
         bnb_booking.save()
+
+        amount_to_pay = int(amount_expected)
+
+        try:
+            name = f"{user.first_name} {user.last_name}"
+            create_payment_link_task(
+                customer_id=user.id, 
+                name=name,
+                phone_number=user.phone_number,
+                email=user.email,
+                tx_ref=tx_ref,
+                amount_expected=amount_to_pay,
+                booking_id=bnb_booking.id,
+                payment_type="bnb"
+            )
+            """
+            payment_mixin = FlutterwavePaymentProcessMixin(
+                customer_id=user.id,
+                name=f"{user.first_name} {user.last_name}",
+                phone_number=user.phone_number,
+                email=user.email,
+                tx_ref=tx_ref,
+                amount=int(amount_expected),
+                currency="KES",
+                booking_id=booking.id,
+                payment_type="room"
+            )
+            payment_mixin.run()
+            """
+        except Exception as e:
+            raise e
+
         return redirect("airbnb-bookings")
 
     return render(request, "airbnbs/book_airbnb.html")
+
+
+def edit_airbnb_booking(request):
+    if request.method == "POST":
+        booking_id = request.POST.get("booking_id")
+        status = request.POST.get("status")
+        booking_type = request.POST.get("booking_type")
+
+        if booking_type.lower() == "hotel":
+            booking = RoomBooking.objects.get(id=booking_id)
+            booking.status = status
+            booking.save()
+            return redirect("bookings")
+        elif booking_type.lower() == "airbnb":
+            booking = BnBBooking.objects.get(id=booking_id)
+            booking.status = status
+            booking.save()
+
+            return redirect("airbnb-bookings")
+
+    return render(request, "airbnbs/edit_airbnb_booking.html")
+    
+
+def clear_complete_bookings(request):
+    bookings = RoomBooking.objects.all()

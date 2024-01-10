@@ -7,3 +7,4 @@ whitenoise
 django-cors-headers
 django-filter
 requests
+celery

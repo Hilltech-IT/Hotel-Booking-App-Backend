@@ -5,7 +5,12 @@ from apps.payments.models import Payment
 from apps.property.models import PropertyRoom
 from apps.users.models import User
 
-
+BOOKING_STATUS_CHOICES = (
+    ("Pending Payment", "Pending Payment"),
+    ("Completed", "Completed"),
+    ("Cancelled", "Cancelled"),
+    ("Paying", "Paying"),
+)
 # Create your models here.
 class RoomBooking(AbstractBaseModel):
     user = models.ForeignKey("users.User", on_delete=models.CASCADE, related_name="customerbookings")
@@ -21,6 +26,7 @@ class RoomBooking(AbstractBaseModel):
     tx_ref = models.CharField(max_length=255, null=True)
     transaction_id = models.CharField(max_length=255, null=True)
     is_over = models.BooleanField(default=False)
+    status = models.CharField(max_length=255, null=True, default="Pending Payment", choices=BOOKING_STATUS_CHOICES)
     
     def __str__(self):
         return str(self.id)
@@ -42,6 +48,7 @@ class BnBBooking(AbstractBaseModel):
     tx_ref = models.CharField(max_length=255, null=True)
     transaction_id = models.CharField(max_length=255, null=True)
     is_over = models.BooleanField(default=False)
+    status = models.CharField(max_length=255, null=True, default="Pending Payment", choices=BOOKING_STATUS_CHOICES)
     
     def __str__(self):
         return str(self.id)
