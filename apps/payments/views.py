@@ -133,6 +133,7 @@ def process_flutterwave_payment(request):
             booking = RoomBooking.objects.get(tx_ref=tx_ref)
             booking.amount_paid = booking.amount_expected
             booking.transaction_id = transaction_id
+            booking.status="Completed"
             booking.save()
 
             payment = Payment.objects.create(
@@ -143,12 +144,13 @@ def process_flutterwave_payment(request):
                 amount=booking.amount_expected,
                 payment_link=booking.payment_link,
                 tx_ref=tx_ref,
-                transaction_id=transaction_id
+                transaction_id=transaction_id,
             )
         elif tx_ref.startswith("bnb_"):
             bnb_booking = BnBBooking.objects.get(tx_ref=tx_ref)
             bnb_booking.amount_paid = bnb_booking.amount_expected
             bnb_booking.transaction_id = transaction_id
+            bnb_booking.status="Completed"
             bnb_booking.save()
 
             payment = Payment.objects.create(
@@ -156,7 +158,7 @@ def process_flutterwave_payment(request):
                 paid_by=bnb_booking.user,
                 paid_to=bnb_booking.airbnb.owner,
                 payment_reason="AirBnB Booking",
-                amount_paid=bnb_booking.amount_expected,
+                amount=bnb_booking.amount_expected,
                 payment_link=bnb_booking.payment_link,
                 tx_ref=tx_ref,
                 transaction_id=transaction_id

@@ -40,6 +40,7 @@
               <th scope="col">Checkout Date</th>
               <th scope="col">Amount Expected</th>
               <th scope="col">Amount Paid</th>
+              <th scope="col">Status</th>
               <th scope="col" colspan="3"></th>
               
             </tr>
@@ -54,8 +55,9 @@
               <td>{{booking.booked_to}}</td>
               <td>{{booking.amount_expected}}</td>
               <td>{{booking.amount_paid}}</td>
+              <td>{{booking.status}}</td>
               <td>
-                <a class="btn btn-primary btn-sm">
+                <a class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editBookingModal{{ booking.id }}">
                     <i class="bi bi-pencil-square"></i>
                 </a>
               </td>
@@ -65,14 +67,16 @@
                 <a class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#payBookingModal{{ booking.id }}">
                     <i class="bi bi-currency-dollar"></i>
                 </a>
+                {% if booking.payment_link %}
+                <a href="{{booking.payment_link}}" class="btn btn-warning btn-sm">Pay Online</a>
+                {% endif %}
                 {% endif %}
               </td>
-              <td>
-                <a href="{{booking.payment_link}}" class="btn btn-warning btn-sm">Pay</a>
-              </td>
+              
               
             </tr>
             {% include "booking/pay_booking.html" %}
+            {% include "booking/edit_booking.html" %}
             {% endfor %}
 
           </tbody>

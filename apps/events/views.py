@@ -2,6 +2,7 @@ from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.shortcuts import redirect, render
 
+from apps.bookings.tasks import create_payment_link_task
 from apps.events.models import Event, EventTicket, EventTicketComponent
 from apps.payments.flutterwave import FlutterwavePaymentProcessMixin
 from apps.users.models import User
@@ -228,8 +229,20 @@ def new_event_ticket(request):
                 ticket_type="VVIP",
                 number_of_tickets=vvip_ticket
             )
-
+        amount_to_pay = int(amount_expected)
         try:
+            name = f"{user.first_name} {user.last_name}"
+            create_payment_link_task(
+                customer_id=user.id, 
+                name=name,
+                phone_number=user.phone_number,
+                email=user.email,
+                tx_ref=tx_ref,
+                amount_expected=amount_to_pay,
+                booking_id=ticket.id,
+                payment_type="ticket"
+            )
+            """
             payment_mixin = FlutterwavePaymentProcessMixin(
                 customer_id=user.id,
                 name=f"{user.first_name} {user.last_name}",
@@ -242,6 +255,7 @@ def new_event_ticket(request):
                 payment_type="ticket"
             )
             payment_mixin.run()
+            """
         except Exception as e:
             raise e
 
