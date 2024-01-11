@@ -8,7 +8,8 @@
             <form action="{% url 'new-staff' %}" method="POST" enctype="multipart/form-data">
                 {% csrf_token %}
                 <div class="modal-body">
-                <div class="mb-2">
+                  <div class="row mb-3">
+                <div class="col">
                   <label for="exampleInputPassword1" class="form-label">First Name</label>
                   <input
                     type="text"
@@ -18,7 +19,7 @@
                     required
                   />
                 </div>
-                <div class="mb-2">
+                <div class="col">
                     <label for="exampleInputPassword1" class="form-label">Last Name</label>
                     <input
                       type="text"
@@ -28,8 +29,10 @@
                       required
                     />
                   </div>
+                </div>
                  
-                  <div class="mb-2">
+                <div class="row mb-3">
+                  <div class="col">
                     <label for="exampleInputPassword1" class="form-label">Phone Number</label>
                     <input
                       type="text"
@@ -39,7 +42,7 @@
                       required
                     />
                   </div>
-                  <div class="mb-2">
+                  <div class="col">
                     <label for="exampleInputPassword1" class="form-label">Email</label>
                     <input
                       type="email"
@@ -49,7 +52,10 @@
                       required
                     />
                   </div>
-                  <div class="mb-2">
+                </div>
+
+                <div class="row mb-3">
+                  <div class="col">
                     <label for="exampleInputPassword1" class="form-label">Username</label>
                     <input
                       type="text"
@@ -60,7 +66,7 @@
                     />
                   </div>
                   
-                  <div class="mb-2">
+                  <div class="col">
                     <label for="exampleInputPassword1" class="form-label">City</label>
                     <input
                       type="text"
@@ -70,8 +76,10 @@
                       required
                     />
                   </div>
+                </div>
 
-                  <div class="mb-2">
+                <div class="row mb-3">
+                  <div class="col">
                     <label for="exampleInputPassword1" class="form-label">Country</label>
                     <input
                       type="text"
@@ -82,7 +90,7 @@
                     />
                   </div>
                   
-                  <div class="mb-2">
+                  <div class="col">
                     <label class="form-label">Gender</label>
                     <select class="form-select" id="gender" name="gender">
                         <option value="Male">Male</option>
@@ -90,6 +98,7 @@
     
                       </select>
                   </div>
+                </div>
 
                   <div class="mb-2">
                     <label class="form-label">Postion</label>
