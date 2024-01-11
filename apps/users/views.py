@@ -4,6 +4,7 @@ from django.core.paginator import Paginator
 from django.db import transaction
 from django.shortcuts import redirect, render
 
+from apps.notifications.tasks import welcome_new_user_task
 from apps.subscriptions.models import Pricing
 from apps.users.models import User
 
@@ -63,6 +64,18 @@ def new_staff(request):
             city=city,
             country=country
         )
+
+        try:
+            context_data = {
+                "name": f"{first_name} {last_name}",
+                "email": email,
+                "phone_number": phone_number,
+                "subject": "Welcome to Wonder Wise"
+            }
+            welcome_new_user_task.delay(context_data=context_data, email=email)
+        except Exception as e:
+            raise e
+
         return redirect("staff")
 
     return render(request, "staff/new_staff.html")

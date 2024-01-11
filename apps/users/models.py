@@ -55,3 +55,5 @@ class User(AbstractUser, AbstractBaseModel):
 def create_user_token(sender, instance, created, **kwargs):
     if created:
         token = Token.objects.create(user=instance)
+        instance.token = token.key
+        instance.save()

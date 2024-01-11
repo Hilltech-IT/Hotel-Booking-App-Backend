@@ -7,6 +7,8 @@ from rest_framework.authtoken.serializers import AuthTokenSerializer
 from rest_framework.exceptions import AuthenticationFailed
 
 from apps.bookings.apis.serializers import RoomBookingSerializer
+from apps.core.validators import check_valid_password
+from apps.notifications.utils import reset_mail
 from apps.users.models import User
 from apps.users.utils import generate_unique_key
 
@@ -96,6 +98,13 @@ class ChangePasswordSerializer(serializers.Serializer):
             self.user.activation_date = datetime.date.today()
         self.user.is_active = True
         self.user.save()
+    
+    def validate(self, data):
+
+        self.check_valid_token()
+        check_valid_password(data, user=self.user)
+
+        return data
 
     def check_valid_token(self):
         try:
@@ -103,21 +112,25 @@ class ChangePasswordSerializer(serializers.Serializer):
         except User.DoesNotExist:
             raise serializers.ValidationError("Token is not valid.")
         fields = "__all__"
+    
 
 
 class ForgotPasswordSerializer(serializers.Serializer):
     user = None
     email = serializers.EmailField()
 
-    
     def send_email(self):
         self.user.token = generate_unique_key(self.user.email)
         self.user.token_expiration_date = timezone.now() + timezone.timedelta(hours=24)
+        self.user.IS_UPDATE = True
         self.user.save()
+        reset_mail(self.user)
 
     def validate_email(self, value):
         try:
             self.user = User.objects.get(email=value)
         except User.DoesNotExist:
             raise serializers.ValidationError("No user found with provided email!")
+
+    
     

@@ -2,7 +2,8 @@ import os
 
 from celery import Celery
 
-BROKER_URL = "amqps://kxdmmrcy:EGdGPUno6zXvkRlqyL6wRb2s3FTGlS1s@hummingbird.rmq.cloudamqp.com/kxdmmrcy"
+#BROKER_URL = "amqps://kxdmmrcy:EGdGPUno6zXvkRlqyL6wRb2s3FTGlS1s@hummingbird.rmq.cloudamqp.com/kxdmmrcy"
+BROKER_URL = "amqps://rluzmvaq:aFibmXkn5MoAYoOR79NL-OBgVw4BLHKX@hummingbird.rmq.cloudamqp.com/rluzmvaq"
 # Set the default Django settings module for the 'celery' program.
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'HotelBookingBackend.settings')
 
@@ -18,5 +19,6 @@ app.config_from_object('django.conf:settings', namespace='CELERY')
 app.autodiscover_tasks()
 
 app.conf.beat_schedule = {
-    "run-every-2-seconds": {"task": "check_if_celery_works", "schedule": 60},
+    "run-every-5-seconds": {"task": "test_email_sending_task", "schedule": 5},
+    "run-every-60-seconds": {"task": "check_if_celery_works", "schedule": 60},
 }

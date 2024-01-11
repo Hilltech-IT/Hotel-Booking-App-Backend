@@ -112,7 +112,7 @@ class ChangePasswordAPIView(APIView):
         context = {"request": request, "token": token}
         serializer = self.serializer_class(data=request.data, context=context)
         if serializer.is_valid():
-            serializer.save()
+            serializer.save(serializer.validated_data)
             return Response(
                 {"message": "Password has been successfully changed"},
                 status=status.HTTP_201_CREATED,

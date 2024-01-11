@@ -27,6 +27,8 @@ class RoomBooking(AbstractBaseModel):
     transaction_id = models.CharField(max_length=255, null=True)
     is_over = models.BooleanField(default=False)
     status = models.CharField(max_length=255, null=True, default="Pending Payment", choices=BOOKING_STATUS_CHOICES)
+    payment_notif_send = models.BooleanField(default=False)
+    notif_send = models.BooleanField(default=False)
     
     def __str__(self):
         return str(self.id)
@@ -49,6 +51,8 @@ class BnBBooking(AbstractBaseModel):
     transaction_id = models.CharField(max_length=255, null=True)
     is_over = models.BooleanField(default=False)
     status = models.CharField(max_length=255, null=True, default="Pending Payment", choices=BOOKING_STATUS_CHOICES)
+    payment_notif_send = models.BooleanField(default=False)
+    notif_send = models.BooleanField(default=False)
     
     def __str__(self):
         return str(self.id)
