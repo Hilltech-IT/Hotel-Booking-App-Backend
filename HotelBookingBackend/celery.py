@@ -18,5 +18,5 @@ app.config_from_object('django.conf:settings', namespace='CELERY')
 app.autodiscover_tasks()
 
 app.conf.beat_schedule = {
-    "run-every-2-seconds": {"task": "check_if_celery_works", "schedule": 3},
+    "run-every-2-seconds": {"task": "check_if_celery_works", "schedule": 60},
 }
