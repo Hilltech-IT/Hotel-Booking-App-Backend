@@ -13,7 +13,7 @@ from apps.users.models import User
 @login_required(login_url="/users/user-login/")
 def properties(request):
     user = request.user
-    properties = Property.objects.all()
+    properties = Property.objects.all().order_by("-created")
 
     if request.method == "POST":
         search_text = request.POST.get("search_text")
@@ -82,6 +82,9 @@ def new_property(request):
         contact_number = request.POST.get("contact_number")
         property_type = request.POST.get("property_type")
         cost_per_night = request.POST.get("cost_per_night")
+
+        if cost_per_night:
+            cost_per_night = Decimal(cost_per_night)
         
 
         property = Property.objects.create(

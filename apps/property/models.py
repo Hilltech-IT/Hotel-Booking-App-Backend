@@ -35,6 +35,12 @@ ROOM_STATUS_CHOICES = (
 )
 
 
+APPROVAL_CHOICES = (
+    ("Pending", "Pending"),
+    ("Approved", "Approved"),
+    ("Declined", "Declined"),
+)
+
 class Property(AbstractBaseModel):
     owner = models.ForeignKey("users.User", on_delete=models.SET_NULL, null=True)
     name = models.CharField(max_length=255)
@@ -49,6 +55,7 @@ class Property(AbstractBaseModel):
     number_of_rooms = models.IntegerField(default=0, null=True)
     #capacity = models.IntegerField(default=0)
     profile_image = models.ImageField(upload_to="property_images/", null=True)
+    approval_status = models.CharField(max_length=255, default="Pending", choices=APPROVAL_CHOICES)
 
     def __str__(self):
         return self.name

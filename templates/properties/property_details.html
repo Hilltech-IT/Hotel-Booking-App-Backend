@@ -19,10 +19,15 @@
         <h3>Hotel Rooms</h3>
     </div>
     <div class="col">
-        <a class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newRoomModal">New Hotel Room</a>
-    </div>
+      {% if property.property_type == "Event Space" %}
+        <a class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#bookEventSpaceModal">Reserve Event Space</a>
+      {% elif property.property_type == "AirBnB" %}
+      <a class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#bookEventSpaceModal{{property.id}}">Reserve AirBnB</a>
+      {% elif property.property_type == "Hotel" %}
+      <a class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#bookEventSpaceModal{{property.id}}">Reserve Hotel Room</a>
+      {% endif %}
+      </div>
    
-    
 </div>
 
 <hr/>
@@ -65,6 +70,8 @@
             
             {% include "properties/rooms/edit_room.html" %}
             {% include "booking/book_room.html" %}
+            {% include "event_spaces/book_event_space.html" %}
+
             {% endfor %}
 
           </tbody>

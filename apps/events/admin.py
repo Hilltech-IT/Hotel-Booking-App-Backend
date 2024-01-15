@@ -6,7 +6,7 @@ from apps.events.models import Event, EventTicket, EventTicketComponent
 # Register your models here.
 @admin.register(EventTicket)
 class EventTicketAdmin(admin.ModelAdmin):
-    list_display = ["id", "user", "event", "ticket_type", "amount_paid", "amount_expected", "ticket_status"]
+    list_display = ["id", "user", "event", "ticket_type", "amount_paid", "amount_expected", "ticket_status", "notif_send"]
 
 @admin.register(EventTicketComponent)
 class EventTicketComponentAdmin(admin.ModelAdmin):

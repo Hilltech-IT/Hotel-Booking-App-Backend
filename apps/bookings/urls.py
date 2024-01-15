@@ -3,8 +3,9 @@ from django.urls import path
 from apps.bookings.apis.views import (BookAirBnBAPIView, BookARoomAPIView,
                                       BookingFeeCalculationAPIView,
                                       RoomBookingAPIView)
-from apps.bookings.views import (airbnb_bookings, book_airbnb, bookings,
-                                 edit_airbnb_booking,
+from apps.bookings.views import (airbnb_bookings, book_airbnb,
+                                 book_event_space, bookings,
+                                 edit_airbnb_booking, event_space_bookings,
                                  make_booked_rooms_available,
                                  reserve_hotel_room)
 
@@ -21,4 +22,7 @@ urlpatterns = [
     path("book-airbnb/", book_airbnb, name="book-airbnb"),
     path("edit-airbnb-booking/", edit_airbnb_booking, name="edit-airbnb-booking"),
     path("book-an-airbnb/", BookAirBnBAPIView.as_view(), name="book-an-airbnb"),
+
+    path("event-space-bookings/", event_space_bookings, name="event-space-bookings"),
+    path("book-event-space/", book_event_space, name="book-event-space"),
 ]

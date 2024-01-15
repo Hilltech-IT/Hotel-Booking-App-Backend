@@ -71,6 +71,8 @@ class EventTicket(AbstractBaseModel):
     payment_link = models.URLField(max_length=500, null=True)
     tx_ref = models.CharField(max_length=255, null=True)
     transaction_id = models.CharField(max_length=255, null=True)
+    payment_notif_send = models.BooleanField(default=False)
+    notif_send = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.user.username} has purchased a {self.ticket_type} for {self.event.title}"

@@ -26,6 +26,7 @@ def check_bookings_over_today():
 
 @app.task(name="test_email_sending_task")
 def test_email_sending_task():
+    """
     try:
         send_mail(
             "Testing Email", 
@@ -35,6 +36,7 @@ def test_email_sending_task():
         )
     except Exception as e:
         raise e
+    """
     print("Email Testing Task Ran!!!")
 
 
