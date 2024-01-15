@@ -1,5 +1,6 @@
 from datetime import datetime
 
+from django.conf import settings
 from django.contrib.auth import authenticate
 from django.utils import timezone
 from rest_framework import serializers
@@ -8,6 +9,7 @@ from rest_framework.exceptions import AuthenticationFailed
 
 from apps.bookings.apis.serializers import RoomBookingSerializer
 from apps.core.validators import check_valid_password
+from apps.notifications.tasks import welcome_new_user_task
 from apps.notifications.utils import reset_mail
 from apps.users.models import User
 from apps.users.utils import generate_unique_key
@@ -31,6 +33,10 @@ class UserListSerializer(serializers.ModelSerializer):
     def get_payments(self, obj):
         return obj.customerpayments.values()
 
+class EditUserProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ["username", "email", "first_name", "last_name", "id_number", "role", "phone_number", "gender", "address", "city", "country"]
 
 
 class RegisterSerializer(serializers.ModelSerializer):
@@ -57,6 +63,22 @@ class RegisterSerializer(serializers.ModelSerializer):
         user.date_of_birth = validated_data["date_of_birth"]
         user.gender = validated_data["gender"]
         user.save()
+
+        token = generate_unique_key(user.email)
+        user.token = token
+        user.save()
+
+        try:
+            context_data = {
+                "name": f"{user.first_name} {user.last_name}",
+                "email": user.email,
+                "phone_number": user.phone_number,
+                "redirect_url": '{0}activate-account/{1}'.format(settings.DEFAULT_FRONT_URL, user.token),
+                "subject": "Welcome to Wonder Wise"
+            }
+            welcome_new_user_task.delay(context_data=context_data, email=user.email)
+        except Exception as e:
+            raise e
 
         return user
 
@@ -113,6 +135,8 @@ class ChangePasswordSerializer(serializers.Serializer):
             raise serializers.ValidationError("Token is not valid.")
         fields = "__all__"
     
+class UserActivationSerializer(serializers.Serializer):
+    token = serializers.CharField(max_length=500)
 
 
 class ForgotPasswordSerializer(serializers.Serializer):

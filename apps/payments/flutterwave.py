@@ -1,6 +1,6 @@
 import requests
 
-from apps.bookings.models import BnBBooking, RoomBooking
+from apps.bookings.models import BnBBooking, EventSpaceBooking, RoomBooking
 from apps.events.models import EventTicket
 
 FLUTTERWAVE_PUBLIC_KEY = "FLWPUBK_TEST-23282028a983882d08f755f1523db9a0-X"
@@ -10,7 +10,7 @@ FLUTTERWAVE_PAYMENT_URL = "https://api.flutterwave.com/v3/payments"
 
 
 class FlutterwavePaymentProcessMixin(object):
-    def __init__(self, customer_id, name, phone_number, email, tx_ref, amount, currency, booking_id, payment_type):
+    def __init__(self, customer_id, name, phone_number, email, tx_ref, amount, currency, booking_id, payment_type, payment_title):
         self.customer_id = customer_id
         self.name = name
         self.phone_number = phone_number
@@ -20,6 +20,7 @@ class FlutterwavePaymentProcessMixin(object):
         self.currency = currency
         self.booking_id = booking_id
         self.payment_type = payment_type
+        self.payment_title = payment_title
 
 
     def run(self):
@@ -44,7 +45,7 @@ class FlutterwavePaymentProcessMixin(object):
                 "name": self.name
             },
             "customizations": {
-                "title": "Hotel Room Booking Payments"
+                "title": self.payment_title
             }
         }
 
@@ -69,6 +70,11 @@ class FlutterwavePaymentProcessMixin(object):
                     bnb_booking = BnBBooking.objects.get(id=self.booking_id)
                     bnb_booking.payment_link = payment_link
                     bnb_booking.save()
+                    print(data)
+                elif self.payment_type == "event_space":
+                    event_space_booking = EventSpaceBooking.objects.get(id=self.booking_id)
+                    event_space_booking.payment_link = payment_link
+                    event_space_booking.save()
                     print(data)
 
         except requests.exceptions.RequestException as err:

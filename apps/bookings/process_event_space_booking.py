@@ -1,28 +1,27 @@
 from datetime import datetime
 from decimal import Decimal
 
-from apps.bookings.models import BnBBooking
+from apps.bookings.models import EventSpaceBooking
 from apps.bookings.tasks import create_payment_link_task
-#from apps.payments.flutterwave import FlutterwavePaymentProcessMixin
 from apps.property.models import Property
 from apps.users.models import User
 
 
-class AirBnBBookingMixin(object):
+class EventSpaceBookingMixin(object):
     def __init__(self, booking_data):
         self.booking_data = booking_data
 
     def run(self):
-        self.__process_airbnb_booking()
+        self.__process_event_space_booking()
 
-    def __process_airbnb_booking(self):
-        airbnb = self.booking_data.get("airbnb")
+    def __process_event_space_booking(self):
+        event_space = self.booking_data.get("event_space")
         booked_from = self.booking_data.get("booked_from")
         booked_to = self.booking_data.get("booked_to")
         user_id = self.booking_data.get("user")
 
         user = User.objects.get(id=user_id)
-        property = Property.objects.get(id=airbnb)
+        property = Property.objects.get(id=event_space)
 
         checkin_date = datetime.strptime(booked_from, "%Y-%m-%d")
         checkout_date = datetime.strptime(booked_to, "%Y-%m-%d")
@@ -30,18 +29,18 @@ class AirBnBBookingMixin(object):
         days_booked = (checkout_date - checkin_date).days
         amount_expected = Decimal(days_booked) * property.cost
 
-        bnb_booking = BnBBooking.objects.create(
+        event_space_booking = EventSpaceBooking.objects.create(
             user=user,
-            airbnb=property,
+            event_space=property,
             booked_from=checkin_date,
             booked_to=checkout_date,
             days_booked=days_booked,
             amount_paid=0,
             amount_expected=amount_expected
         )
-        tx_ref = f"bnb_{user.id}_{bnb_booking.id}"
-        bnb_booking.tx_ref = tx_ref
-        bnb_booking.save()
+        tx_ref = f"event_space_{user.id}_{event_space_booking.id}"
+        event_space_booking.tx_ref = tx_ref
+        event_space_booking.save()
         amount_to_pay = int(amount_expected)
         try:
             name = f"{user.first_name} {user.last_name}"
@@ -52,9 +51,9 @@ class AirBnBBookingMixin(object):
                 email=user.email,
                 tx_ref=tx_ref,
                 amount_expected=amount_to_pay,
-                booking_id=bnb_booking.id,
-                payment_type="bnb",
-                payment_title="AirBnB Booking Payment"
+                booking_id=event_space_booking.id,
+                payment_type="event_space",
+                payment_title="Event Space Booking Payment"
             )
         except Exception as e:
             raise e

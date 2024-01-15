@@ -3,7 +3,7 @@ from HotelBookingBackend.celery import app
 
 
 @app.task(name="create_payment_link_task")
-def create_payment_link_task(customer_id, name, phone_number, email, tx_ref, amount_expected, booking_id, payment_type):
+def create_payment_link_task(customer_id, name, phone_number, email, tx_ref, amount_expected, booking_id, payment_type, payment_title):
     try:
         payment_mixin = FlutterwavePaymentProcessMixin(
             customer_id=customer_id,
@@ -14,7 +14,8 @@ def create_payment_link_task(customer_id, name, phone_number, email, tx_ref, amo
             amount=amount_expected,
             currency="KES",
             booking_id=booking_id,
-            payment_type=payment_type
+            payment_type=payment_type,
+            payment_title=payment_title
         )
         payment_mixin.run()
     except Exception as e:

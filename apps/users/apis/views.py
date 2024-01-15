@@ -7,8 +7,10 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from apps.users.apis.serializers import (ChangePasswordSerializer,
+                                         EditUserProfileSerializer,
                                          ForgotPasswordSerializer,
                                          RegisterSerializer,
+                                         UserActivationSerializer,
                                          UserListSerializer,
                                          UserLoginSerializer)
 from apps.users.models import User
@@ -20,13 +22,18 @@ class UserListAPIView(generics.ListAPIView):
 
     permission_classes = [IsAuthenticated]
 
-
     def get(self, request, *args, **kwargs):
         user = request.user
         user_data = self.queryset.get(id=user.id)
         print(user_data)
         serializer = self.serializer_class(instance=user_data, many=False)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+class EditUserProfileAPIView(generics.UpdateAPIView):
+    queryset = User.objects.all()
+    serializer_class = EditUserProfileSerializer
+
+    lookup_field = "pk"
 
 class UserLoginAPIView(ObtainAuthToken):
     serializer_class = UserLoginSerializer
@@ -73,7 +80,7 @@ class RegisterUserAPIView(generics.CreateAPIView):
 
 class UserRetrieveUpdateDeleteAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = User.objects.all()
-    serializer_class = UserListSerializer
+    serializer_class = EditUserProfileSerializer
 
     lookup_field = "pk"
 
@@ -118,3 +125,20 @@ class ChangePasswordAPIView(APIView):
                 status=status.HTTP_201_CREATED,
             )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class UserActivationAPIView(APIView):
+    serializer_class = UserActivationSerializer
+    permission_classes = [AllowAny,]
+
+    def post(self, request, *args, **kwargs):
+        data = request.data
+
+        serializer = self.serializer_class(data=data)
+
+        if serializer.is_valid(raise_exception=True):
+            user = User.objects.get(token=data["token"])
+            user.is_active = True
+            user.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_404_NOT_FOUND)

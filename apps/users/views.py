@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
@@ -7,6 +8,7 @@ from django.shortcuts import redirect, render
 from apps.notifications.tasks import welcome_new_user_task
 from apps.subscriptions.models import Pricing
 from apps.users.models import User
+from apps.users.utils import generate_unique_key
 
 
 # Create your views here.
@@ -66,10 +68,15 @@ def new_staff(request):
         )
 
         try:
+            token = generate_unique_key(user.email)
+            user.token = token
+            user.save()
+
             context_data = {
                 "name": f"{first_name} {last_name}",
                 "email": email,
                 "phone_number": phone_number,
+                "redirect_url": '{0}activate-account/{1}'.format(settings.DEFAULT_FRONT_URL, user.token),
                 "subject": "Welcome to Wonder Wise"
             }
             welcome_new_user_task.delay(context_data=context_data, email=email)

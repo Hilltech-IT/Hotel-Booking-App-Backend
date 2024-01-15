@@ -7,7 +7,6 @@ from django.shortcuts import redirect, render
 
 from apps.bookings.models import BnBBooking, RoomBooking
 from apps.bookings.tasks import create_payment_link_task
-from apps.payments.flutterwave import FlutterwavePaymentProcessMixin
 from apps.property.models import Property, PropertyRoom
 from apps.users.models import User
 
@@ -154,22 +153,9 @@ def reserve_hotel_room(request):
                 tx_ref=tx_ref,
                 amount_expected=amount_to_pay,
                 booking_id=booking.id,
-                payment_type="room"
+                payment_type="room",
+                payment_title="Hotel Room Booking Payment"
             )
-            """
-            payment_mixin = FlutterwavePaymentProcessMixin(
-                customer_id=user.id,
-                name=f"{user.first_name} {user.last_name}",
-                phone_number=user.phone_number,
-                email=user.email,
-                tx_ref=tx_ref,
-                amount=int(amount_expected),
-                currency="KES",
-                booking_id=booking.id,
-                payment_type="room"
-            )
-            payment_mixin.run()
-            """
         except Exception as e:
             raise e
         return redirect("bookings")
@@ -274,22 +260,9 @@ def book_airbnb(request):
                 tx_ref=tx_ref,
                 amount_expected=amount_to_pay,
                 booking_id=bnb_booking.id,
-                payment_type="bnb"
+                payment_type="bnb",
+                payment_title="AirBnB Booking Payment"
             )
-            """
-            payment_mixin = FlutterwavePaymentProcessMixin(
-                customer_id=user.id,
-                name=f"{user.first_name} {user.last_name}",
-                phone_number=user.phone_number,
-                email=user.email,
-                tx_ref=tx_ref,
-                amount=int(amount_expected),
-                currency="KES",
-                booking_id=booking.id,
-                payment_type="room"
-            )
-            payment_mixin.run()
-            """
         except Exception as e:
             raise e
 

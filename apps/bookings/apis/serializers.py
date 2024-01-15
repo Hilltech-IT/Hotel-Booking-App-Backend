@@ -29,3 +29,10 @@ class BookAirBnBSerializer(serializers.Serializer):
     booked_from = serializers.DateField()
     booked_to = serializers.DateField()
     user = serializers.IntegerField()
+
+
+class BookEventSpaceSerializer(serializers.Serializer):
+    event_space = serializers.IntegerField()
+    booked_from = serializers.DateField()
+    booked_to = serializers.DateField()
+    user = serializers.IntegerField()

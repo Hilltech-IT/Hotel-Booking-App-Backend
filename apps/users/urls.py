@@ -1,8 +1,10 @@
 from django.urls import path
 
 from apps.users.apis.views import (ChangePasswordAPIView,
+                                   EditUserProfileAPIView,
                                    ForgotPasswordAPIView, RegisterUserAPIView,
-                                   UserListAPIView, UserLoginAPIView,
+                                   UserActivationAPIView, UserListAPIView,
+                                   UserLoginAPIView,
                                    UserRetrieveUpdateDeleteAPIView)
 from apps.users.views import (customers, edit_service_provider, edit_staff,
                               new_staff, onboard_service_provider,
@@ -30,4 +32,5 @@ urlpatterns = [
     path("login/", UserLoginAPIView.as_view(), name="login"),
     path("forgot-password/", ForgotPasswordAPIView.as_view(), name="forgot_password",),
     path("change-password/<str:token>/", ChangePasswordAPIView.as_view(), name="change_password",),
+    path("activate-account/", UserActivationAPIView.as_view(), name="activate-account"),
 ]

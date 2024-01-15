@@ -4,7 +4,6 @@ from django.shortcuts import redirect, render
 
 from apps.bookings.tasks import create_payment_link_task
 from apps.events.models import Event, EventTicket, EventTicketComponent
-from apps.payments.flutterwave import FlutterwavePaymentProcessMixin
 from apps.users.models import User
 
 
@@ -240,22 +239,9 @@ def new_event_ticket(request):
                 tx_ref=tx_ref,
                 amount_expected=amount_to_pay,
                 booking_id=ticket.id,
-                payment_type="ticket"
+                payment_type="ticket",
+                payment_title="Event Ticket Payment"
             )
-            """
-            payment_mixin = FlutterwavePaymentProcessMixin(
-                customer_id=user.id,
-                name=f"{user.first_name} {user.last_name}",
-                phone_number=user.phone_number,
-                email=user.email,
-                tx_ref=tx_ref,
-                amount=int(amount_expected),
-                currency="KES",
-                booking_id=ticket.id,
-                payment_type="ticket"
-            )
-            payment_mixin.run()
-            """
         except Exception as e:
             raise e
 

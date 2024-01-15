@@ -7,6 +7,7 @@ PROPERTY_TYPE_CHOICES = (
     ("Hotel", "Hotel"),
     ("AirBnB", "AirBnB"),
     ("Lodge", "Lodge"),
+    ("Event Space", "Event Space"),
 )
 
 ROOM_TYPES = (

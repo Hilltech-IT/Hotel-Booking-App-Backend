@@ -9,6 +9,7 @@ from rest_framework.viewsets import ModelViewSet
 
 from apps.bookings.apis.serializers import (BookAirBnBSerializer,
                                             BookARoomSerializer,
+                                            BookEventSpaceSerializer,
                                             BookingFeeCalculationSerializer,
                                             RoomBookingSerializer)
 from apps.bookings.models import RoomBooking
@@ -83,5 +84,17 @@ class BookAirBnBAPIView(generics.CreateAPIView):
         if serializer.is_valid(raise_exception=True):
             booking_mixin = AirBnBBookingMixin(booking_data=data)
             booking_mixin.run()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class BookEventSpaceAPIView(generics.CreateAPIView):
+    serializer_class = BookEventSpaceSerializer
+
+    def post(self, request, *args, **kwargs):
+        data = request.data
+        serializer = self.serializer_class(data=data)
+        
+        if serializer.is_valid(raise_exception=True):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
