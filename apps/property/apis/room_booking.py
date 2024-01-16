@@ -1,5 +1,6 @@
-from apps.property.models import PropertyRoom, Property
+from apps.property.models import Property, PropertyRoom
 from apps.users.models import User
+
 
 class RoomBookingMixin(object):
     def __init__(self, rooms_data, user_data):

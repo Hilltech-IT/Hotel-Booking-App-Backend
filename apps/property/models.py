@@ -61,6 +61,11 @@ class Property(AbstractBaseModel):
     capacity = models.IntegerField(default=0)
     profile_image = models.ImageField(upload_to="property_images/", null=True)
     approval_status = models.CharField(max_length=255, default="Pending", choices=APPROVAL_CHOICES)
+    children_allowed = models.IntegerField(default=0)
+    adults_allowed = models.IntegerField(default=0)
+    amenities = models.JSONField(default=list)
+    pets_allowed = models.BooleanField(default=True)
+    smoking_allowed = models.BooleanField(default=True)
 
     def __str__(self):
         return self.name
