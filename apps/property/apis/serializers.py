@@ -1,8 +1,11 @@
+from datetime import datetime, timedelta
+
 from rest_framework import serializers
 
 from apps.property.models import (Property, PropertyImage, PropertyRoom,
                                   PropertyRoomImage, ReviewAndRating)
 
+date_today = datetime.now().date()
 
 class PropertyImageSerializer(serializers.ModelSerializer):
     class Meta:
@@ -14,6 +17,7 @@ class PropertySerializer(serializers.ModelSerializer):
     double_rooms = serializers.SerializerMethodField()
     suite_rooms = serializers.SerializerMethodField()
     images = serializers.SerializerMethodField()
+    booked_dates = serializers.ReadOnlyField(source="dates_booked")
 
     class Meta:
         model = Property
@@ -44,6 +48,7 @@ class PropertySerializer(serializers.ModelSerializer):
                 image_data['image'] = request.build_absolute_uri(image_data['image'])
 
         return representation
+
 
 
 class PropertyRoomSerializer(serializers.ModelSerializer):

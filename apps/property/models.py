@@ -1,4 +1,9 @@
+from datetime import datetime, timedelta
+
 from django.db import models
+
+date_today = datetime.now().date()
+
 
 from apps.core.models import AbstractBaseModel
 
@@ -53,7 +58,7 @@ class Property(AbstractBaseModel):
     email = models.EmailField(null=True)
     cost = models.DecimalField(max_digits=100, decimal_places=2, default=0, null=True)
     number_of_rooms = models.IntegerField(default=0, null=True)
-    #capacity = models.IntegerField(default=0)
+    capacity = models.IntegerField(default=0)
     profile_image = models.ImageField(upload_to="property_images/", null=True)
     approval_status = models.CharField(max_length=255, default="Pending", choices=APPROVAL_CHOICES)
 
@@ -71,6 +76,35 @@ class Property(AbstractBaseModel):
 
     def property_address(self):
         return f"{self.address}, {self.city}-{self.country}"
+
+    @property
+    def dates_booked(self):
+        if self.property_type == "AirBnB":
+            bookings = self.bnbbookings.filter(booked_to__gt=date_today)
+            dates_list = []
+            for booking in bookings:
+                delta = booking.booked_to - booking.booked_from
+                date_range = [booking.booked_from + timedelta(days=i) for i in range(delta.days + 1)]
+                dates_range_str =  [date.strftime("%Y-%m-%d") for date in date_range]
+
+                for x in dates_range_str:
+                    dates_list.append(x)
+
+            return dates_list
+
+        elif self.property_type in ["Event Space", "Event"]:
+            bookings = self.eventspacebookings.filter(booked_to__gt=date_today)
+            dates_list = []
+            for booking in bookings:
+                delta = booking.booked_to - booking.booked_from
+                date_range = [booking.booked_from + timedelta(days=i) for i in range(delta.days + 1)]
+                dates_range_str =  [date.strftime("%Y-%m-%d") for date in date_range]
+
+                for x in dates_range_str:
+                    dates_list.append(x)
+
+            return dates_list
+        return []
 
 
 class PropertyRoom(AbstractBaseModel):

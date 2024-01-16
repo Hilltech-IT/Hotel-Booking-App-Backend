@@ -38,7 +38,7 @@ class RoomBooking(AbstractBaseModel):
 # Create your models here.
 class BnBBooking(AbstractBaseModel):
     user = models.ForeignKey("users.User", on_delete=models.CASCADE, related_name="customerbnbbookings")
-    airbnb = models.ForeignKey("property.Property", on_delete=models.SET_NULL, null=True)
+    airbnb = models.ForeignKey("property.Property", on_delete=models.SET_NULL, null=True, related_name="bnbbookings")
     booked_from = models.DateField()
     booked_to = models.DateField()
     amount_expected = models.DecimalField(max_digits=100, decimal_places=2, default=0)
@@ -60,7 +60,7 @@ class BnBBooking(AbstractBaseModel):
 
 class EventSpaceBooking(AbstractBaseModel):
     user = models.ForeignKey("users.User", on_delete=models.CASCADE, related_name="customereventspacebookings")
-    event_space = models.ForeignKey("property.Property", on_delete=models.SET_NULL, null=True)
+    event_space = models.ForeignKey("property.Property", on_delete=models.SET_NULL, null=True, related_name="eventspacebookings")
     booked_from = models.DateField()
     booked_to = models.DateField()
     amount_expected = models.DecimalField(max_digits=100, decimal_places=2, default=0)

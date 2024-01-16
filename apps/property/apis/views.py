@@ -19,8 +19,9 @@ class PropertyModelViewSet(ModelViewSet):
     queryset = Property.objects.all()
     serializer_class = PropertySerializer
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
-    search_fields = ["name", "location", "city", "country"]
+    search_fields = ["name", "location", "city", "country", "property_type"]
     #ordering_fields = ["unit_price", "last_update"]
+    filter_fields = ["property_type", "country"]
 
     permission_classes = [IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
 

@@ -1,4 +1,38 @@
-<div class="modal fade" id="bookAirBnBModal{{property.id}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+            var checkinInput = document.getElementById('booked_from');
+            var checkoutInput = document.getElementById('booked_to');
+            var currentDate = new Date().toISOString().split('T')[0];
+
+            // Disable past dates
+            checkinInput.setAttribute('min', currentDate);
+            checkoutInput.setAttribute('min', currentDate);
+
+            // Example: Assume existing bookings as an array of booked dates
+            var bookedDates = ["2024-01-16", "2024-01-18", "2024-01-19"];
+
+            // Function to update available dates based on existing bookings
+            function updateAvailableDates() {
+                var selectedCheckin = checkinInput.value;
+                var availableDates = bookedDates.filter(date => date >= selectedCheckin);
+                
+                checkoutInput.innerHTML = ''; // Clear existing options
+
+                availableDates.forEach(date => {
+                    var option = document.createElement('option');
+                    option.value = date;
+                    option.text = date;
+                    checkoutInput.add(option);
+                });
+            }
+
+            // Attach event listeners to checkin and checkout inputs
+            checkinInput.addEventListener('change', updateAvailableDates);
+            // Disable past dates initially
+            updateAvailableDates();
+        });
+</script>
+<div class="modal fade" id="bookAirBnBModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
@@ -142,59 +176,7 @@
         var rawCheckoutDate = document.getElementById("booked_to").value;
 
         console.log(`Checkin Date: ${rawCheckinDate}, Checkout Date: ${rawCheckoutDate}`)
-
-
-        /*var checkinDate = new Date(document.getElementById('booked_from').value);
-        var checkoutDate = new Date (document.getElementById('booked_to').value);
-        var roomsCount = document.getElementById('rooms_booked').value;
-        const chargePerNight = "{{room.charge_per_night}}"
-        const roomId = "{{room.id}}"
-
-        var bookingFeeURL = "/bookings/calculate-booking-fee/?room=2&days_booked=4"
-
-        var bookedDays = 0
-        var totalAmount = 0
-        // Calculate the difference in milliseconds
-        if (checkinDate && checkoutDate && roomsCount) {
-          var differenceInMilliseconds = checkoutDate - checkinDate;
-          // Convert the difference to days
-          bookedDays = differenceInMilliseconds / (1000 * 60 * 60 * 24);
-          totalAmount = bookedDays * chargePerNight * roomsCount
-
-          const get_booking_fee = async () => {
-            const response = await fetch(`/bookings/calculate-booking-fee/?room=${roomId}&days_booked=${bookedDays}`, {"method": "GET"})
-            const data = await response.json()
-            console.log(data)
-          }
-
-          get_booking_fee();
-
-        }
-        
-
-        var bookingObj = {
-          "bookedDays": bookedDays,
-          "roomsCount": roomsCount,
-          "totalAmount": totalAmount,
-          "chargePerNight": chargePerNight,
-          "checkinDate": checkinDate,
-          "checkoutDate": checkoutDate
-        }
-    
-        console.log(bookingObj)
-        // Calculate the total amount
-        //var totalAmount = (regularTickets * regularTicketPrice) + (vipTickets * vipTicketPrice)  + (vvipTickets * vvipTicketPrice);
-
-        // Update the total amount display
-        document.getElementById('totalAmount').innerText = totalAmount;
-        document.getElementById('total_cost').value = totalAmount;
-        document.getElementById('days_booked').value = bookedDays;
-        */
     }
 
-    // Set your ticket prices here
-    //var regularTicketPrice = 50;
-    //var vipTicketPrice = 100;
-    //var vvipTicketPrice = 150;
-
+    
 </script>
