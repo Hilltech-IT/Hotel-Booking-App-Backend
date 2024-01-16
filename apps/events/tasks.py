@@ -17,13 +17,15 @@ def ticket_purchased_task():
                 "subject": "Event Ticket Booking",
                 "components": booking.ticketcomponents.all(),
                 "event_date": booking.event.event_date,
-                "event_location": booking.event.location
+                "event_location": booking.event.location,
             }
             send_message = SendMessage({}, asynchronous=False)
             send_message.send_mail(
                 context_data,
-                [booking.user.email,],
-                template='ticket_booking'
+                [
+                    booking.user.email,
+                ],
+                template="ticket_booking",
             )
             booking.notif_send = True
             booking.save()

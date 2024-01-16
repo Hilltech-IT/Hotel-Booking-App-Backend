@@ -6,13 +6,15 @@ from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from apps.users.apis.serializers import (ChangePasswordSerializer,
-                                         EditUserProfileSerializer,
-                                         ForgotPasswordSerializer,
-                                         RegisterSerializer,
-                                         UserActivationSerializer,
-                                         UserListSerializer,
-                                         UserLoginSerializer)
+from apps.users.apis.serializers import (
+    ChangePasswordSerializer,
+    EditUserProfileSerializer,
+    ForgotPasswordSerializer,
+    RegisterSerializer,
+    UserActivationSerializer,
+    UserListSerializer,
+    UserLoginSerializer,
+)
 from apps.users.models import User
 
 
@@ -29,11 +31,13 @@ class UserListAPIView(generics.ListAPIView):
         serializer = self.serializer_class(instance=user_data, many=False)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+
 class EditUserProfileAPIView(generics.UpdateAPIView):
     queryset = User.objects.all()
     serializer_class = EditUserProfileSerializer
 
     lookup_field = "pk"
+
 
 class UserLoginAPIView(ObtainAuthToken):
     serializer_class = UserLoginSerializer
@@ -43,10 +47,9 @@ class UserLoginAPIView(ObtainAuthToken):
         return self.serializer_class()
 
     def post(self, request, *args, **kwargs):
-
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
-        user = serializer.validated_data['user']
+        user = serializer.validated_data["user"]
         token = Token.objects.get(user=user).key
 
         # Update last_login of the current user
@@ -54,9 +57,9 @@ class UserLoginAPIView(ObtainAuthToken):
         user.save()
 
         response = {
-            'token': token,
-            'pk': user.pk,
-            'role': user.role,
+            "token": token,
+            "pk": user.pk,
+            "role": user.role,
             "username": user.username,
             "email": user.email,
             "name": f"{user.first_name} {user.last_name}"
@@ -65,8 +68,8 @@ class UserLoginAPIView(ObtainAuthToken):
 
         return Response(response)
 
-class RegisterUserAPIView(generics.CreateAPIView):
 
+class RegisterUserAPIView(generics.CreateAPIView):
     serializer_class = RegisterSerializer
     permission_classes = [AllowAny]
 
@@ -129,7 +132,9 @@ class ChangePasswordAPIView(APIView):
 
 class UserActivationAPIView(APIView):
     serializer_class = UserActivationSerializer
-    permission_classes = [AllowAny,]
+    permission_classes = [
+        AllowAny,
+    ]
 
     def post(self, request, *args, **kwargs):
         data = request.data

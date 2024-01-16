@@ -4,20 +4,19 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('events', '0007_eventticket_payment_link_eventticket_transaction_id_and_more'),
+        ("events", "0007_eventticket_payment_link_eventticket_transaction_id_and_more"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='eventticket',
-            name='notif_send',
+            model_name="eventticket",
+            name="notif_send",
             field=models.BooleanField(default=False),
         ),
         migrations.AddField(
-            model_name='eventticket',
-            name='payment_notif_send',
+            model_name="eventticket",
+            name="payment_notif_send",
             field=models.BooleanField(default=False),
         ),
     ]

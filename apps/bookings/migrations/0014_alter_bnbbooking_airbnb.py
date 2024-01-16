@@ -5,16 +5,20 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('property', '0014_property_approval_status'),
-        ('bookings', '0013_eventspacebooking'),
+        ("property", "0014_property_approval_status"),
+        ("bookings", "0013_eventspacebooking"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='bnbbooking',
-            name='airbnb',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='bnbbookings', to='property.property'),
+            model_name="bnbbooking",
+            name="airbnb",
+            field=models.ForeignKey(
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="bnbbookings",
+                to="property.property",
+            ),
         ),
     ]

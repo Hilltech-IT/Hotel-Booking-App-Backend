@@ -13,7 +13,6 @@ SUBSCRIPTION_STATUS_CHOICES = (
 class Pricing(AbstractBaseModel):
     name = models.CharField(max_length=255)
     cost = models.DecimalField(max_digits=10, decimal_places=2)
-    
 
     def __str__(self):
         return self.name
@@ -31,10 +30,11 @@ class Pricing(AbstractBaseModel):
 class Subscription(AbstractBaseModel):
     user = models.OneToOneField("users.User", on_delete=models.SET_NULL, null=True)
     package = models.ForeignKey(Pricing, on_delete=models.SET_NULL, null=True)
-    status = models.CharField(max_length=255, choices=SUBSCRIPTION_STATUS_CHOICES, default="Active")
+    status = models.CharField(
+        max_length=255, choices=SUBSCRIPTION_STATUS_CHOICES, default="Active"
+    )
     start_date = models.DateField(null=True)
     end_date = models.DateField(null=True)
 
     def __str__(self):
         return f"{self.user.username} has subscribed to {self.package.name}"
-    

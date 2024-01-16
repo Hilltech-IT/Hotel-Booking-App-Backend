@@ -16,22 +16,21 @@ PROPERTY_TYPE_CHOICES = (
 )
 
 ROOM_TYPES = (
-    ('Single', 'Single'),
-    ('Double', 'Double'),
-    ('Suite', 'Suite'),
+    ("Single", "Single"),
+    ("Double", "Double"),
+    ("Suite", "Suite"),
 )
 
 BED_TYPES = (
-    ('Single Bed', 'Single Bed'),
-    ('Double Bed', 'Double Bed'),
-    ('King Size Bed', 'King Size Bed'),
+    ("Single Bed", "Single Bed"),
+    ("Double Bed", "Double Bed"),
+    ("King Size Bed", "King Size Bed"),
 )
 
 VIEW_CHOICES = (
-    ('City View', 'City View'),
-    ('Sea View', 'Sea View'),
-    ('Garden View', 'Garden View'),
-    
+    ("City View", "City View"),
+    ("Sea View", "Sea View"),
+    ("Garden View", "Garden View"),
 )
 
 ROOM_STATUS_CHOICES = (
@@ -46,13 +45,14 @@ APPROVAL_CHOICES = (
     ("Declined", "Declined"),
 )
 
+
 class Property(AbstractBaseModel):
     owner = models.ForeignKey("users.User", on_delete=models.SET_NULL, null=True)
     name = models.CharField(max_length=255)
     location = models.CharField(max_length=255)
     city = models.CharField(max_length=255)
     country = models.CharField(max_length=255)
-    property_type = models.CharField(max_length=255, choices=PROPERTY_TYPE_CHOICES) 
+    property_type = models.CharField(max_length=255, choices=PROPERTY_TYPE_CHOICES)
     address = models.CharField(max_length=255)
     contact_number = models.CharField(max_length=255)
     email = models.EmailField(null=True)
@@ -60,7 +60,9 @@ class Property(AbstractBaseModel):
     number_of_rooms = models.IntegerField(default=0, null=True)
     capacity = models.IntegerField(default=0)
     profile_image = models.ImageField(upload_to="property_images/", null=True)
-    approval_status = models.CharField(max_length=255, default="Pending", choices=APPROVAL_CHOICES)
+    approval_status = models.CharField(
+        max_length=255, default="Pending", choices=APPROVAL_CHOICES
+    )
     children_allowed = models.IntegerField(default=0)
     adults_allowed = models.IntegerField(default=0)
     amenities = models.JSONField(default=list)
@@ -69,7 +71,6 @@ class Property(AbstractBaseModel):
 
     def __str__(self):
         return self.name
-
 
     @property
     def booked_rooms(self):
@@ -89,8 +90,11 @@ class Property(AbstractBaseModel):
             dates_list = []
             for booking in bookings:
                 delta = booking.booked_to - booking.booked_from
-                date_range = [booking.booked_from + timedelta(days=i) for i in range(delta.days + 1)]
-                dates_range_str =  [date.strftime("%Y-%m-%d") for date in date_range]
+                date_range = [
+                    booking.booked_from + timedelta(days=i)
+                    for i in range(delta.days + 1)
+                ]
+                dates_range_str = [date.strftime("%Y-%m-%d") for date in date_range]
 
                 for x in dates_range_str:
                     dates_list.append(x)
@@ -102,8 +106,11 @@ class Property(AbstractBaseModel):
             dates_list = []
             for booking in bookings:
                 delta = booking.booked_to - booking.booked_from
-                date_range = [booking.booked_from + timedelta(days=i) for i in range(delta.days + 1)]
-                dates_range_str =  [date.strftime("%Y-%m-%d") for date in date_range]
+                date_range = [
+                    booking.booked_from + timedelta(days=i)
+                    for i in range(delta.days + 1)
+                ]
+                dates_range_str = [date.strftime("%Y-%m-%d") for date in date_range]
 
                 for x in dates_range_str:
                     dates_list.append(x)
@@ -113,7 +120,9 @@ class Property(AbstractBaseModel):
 
 
 class PropertyRoom(AbstractBaseModel):
-    property = models.ForeignKey(Property, on_delete=models.CASCADE, related_name="propertyrooms")
+    property = models.ForeignKey(
+        Property, on_delete=models.CASCADE, related_name="propertyrooms"
+    )
     room_type = models.CharField(max_length=255, choices=ROOM_TYPES, null=True)
     rooms_number = models.IntegerField(default=0)
     occupancy_capacity = models.PositiveIntegerField(null=True)
@@ -125,22 +134,23 @@ class PropertyRoom(AbstractBaseModel):
     check_in_time = models.TimeField(null=True)
     check_out_time = models.TimeField(null=True)
     available = models.BooleanField(default=True)
-    status = models.CharField(max_length=255, choices=ROOM_STATUS_CHOICES, default='Available')  # Available, Reserved, Canceled, etc
+    status = models.CharField(
+        max_length=255, choices=ROOM_STATUS_CHOICES, default="Available"
+    )  # Available, Reserved, Canceled, etc
     booked = models.IntegerField(default=0)
     charge_per_night = models.DecimalField(max_digits=100, decimal_places=2, default=0)
-
 
     def __str__(self):
         return f"Room {str(self.id)}- {self.room_type}"
 
-    
     def rooms_count(self):
         return self.rooms_number - self.booked
 
 
-
 class PropertyImage(AbstractBaseModel):
-    property = models.ForeignKey(Property, on_delete=models.CASCADE, related_name="propertyimages")
+    property = models.ForeignKey(
+        Property, on_delete=models.CASCADE, related_name="propertyimages"
+    )
     image = models.ImageField(upload_to="property_images/")
 
     def __str__(self):
@@ -148,7 +158,9 @@ class PropertyImage(AbstractBaseModel):
 
 
 class PropertyRoomImage(AbstractBaseModel):
-    room = models.ForeignKey(PropertyRoom, on_delete=models.CASCADE, related_name="roomimages")
+    room = models.ForeignKey(
+        PropertyRoom, on_delete=models.CASCADE, related_name="roomimages"
+    )
     image = models.ImageField(upload_to="room_images/")
 
     def __str__(self):
@@ -157,7 +169,8 @@ class PropertyRoomImage(AbstractBaseModel):
 
 class ReviewAndRating(AbstractBaseModel):
     property = models.ForeignKey(
-        Property, on_delete=models.CASCADE, related_name="propertyreviewsandratings")
+        Property, on_delete=models.CASCADE, related_name="propertyreviewsandratings"
+    )
     rating = models.FloatField(default=0)
     review = models.TextField(null=True)
 
@@ -167,22 +180,21 @@ class ReviewAndRating(AbstractBaseModel):
 
 class Room(models.Model):
     ROOM_TYPES = (
-        ('Single', 'Single'),
-        ('Double', 'Double'),
-        ('Suite', 'Suite'),
+        ("Single", "Single"),
+        ("Double", "Double"),
+        ("Suite", "Suite"),
     )
 
     BED_TYPES = (
-        ('Single Bed', 'Single Bed'),
-        ('Double Bed', 'Double Bed'),
-        ('King Size Bed', 'King Size Bed'),
+        ("Single Bed", "Single Bed"),
+        ("Double Bed", "Double Bed"),
+        ("King Size Bed", "King Size Bed"),
     )
 
     VIEW_CHOICES = (
-        ('City View', 'City View'),
-        ('Sea View', 'Sea View'),
-        ('Garden View', 'Garden View'),
-        
+        ("City View", "City View"),
+        ("Sea View", "Sea View"),
+        ("Garden View", "Garden View"),
     )
 
     ROOM_STATUS_CHOICES = (
@@ -203,8 +215,9 @@ class Room(models.Model):
     check_in_time = models.TimeField(null=True)
     check_out_time = models.TimeField(null=True)
     available = models.BooleanField(default=True)
-    status = models.CharField(max_length=255, choices=ROOM_STATUS_CHOICES, default='Available')  # Available, Reserved, Canceled, etc
-    
+    status = models.CharField(
+        max_length=255, choices=ROOM_STATUS_CHOICES, default="Available"
+    )  # Available, Reserved, Canceled, etc
 
     def __str__(self):
         return f"Room {self.room_number} - {self.room_type}"

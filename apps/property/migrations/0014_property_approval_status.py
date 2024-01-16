@@ -4,15 +4,22 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('property', '0013_alter_property_property_type'),
+        ("property", "0013_alter_property_property_type"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='property',
-            name='approval_status',
-            field=models.CharField(choices=[('Pending', 'Pending'), ('Approved', 'Approved'), ('Declined', 'Declined')], default='Pending', max_length=255),
+            model_name="property",
+            name="approval_status",
+            field=models.CharField(
+                choices=[
+                    ("Pending", "Pending"),
+                    ("Approved", "Approved"),
+                    ("Declined", "Declined"),
+                ],
+                default="Pending",
+                max_length=255,
+            ),
         ),
     ]

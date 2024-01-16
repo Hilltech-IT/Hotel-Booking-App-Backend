@@ -5,16 +5,20 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('events', '0005_alter_eventticket_ticket_type'),
-        ('payments', '0002_alter_payment_payment_reason'),
+        ("events", "0005_alter_eventticket_ticket_type"),
+        ("payments", "0002_alter_payment_payment_reason"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='payment',
-            name='ticket',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='eventsticketspayments', to='events.eventticket'),
+            model_name="payment",
+            name="ticket",
+            field=models.ForeignKey(
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="eventsticketspayments",
+                to="events.eventticket",
+            ),
         ),
     ]

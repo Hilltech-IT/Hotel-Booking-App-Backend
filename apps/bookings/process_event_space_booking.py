@@ -25,7 +25,7 @@ class EventSpaceBookingMixin(object):
 
         checkin_date = datetime.strptime(booked_from, "%Y-%m-%d")
         checkout_date = datetime.strptime(booked_to, "%Y-%m-%d")
-            
+
         days_booked = (checkout_date - checkin_date).days
         amount_expected = Decimal(days_booked) * property.cost
 
@@ -36,7 +36,7 @@ class EventSpaceBookingMixin(object):
             booked_to=checkout_date,
             days_booked=days_booked,
             amount_paid=0,
-            amount_expected=amount_expected
+            amount_expected=amount_expected,
         )
         tx_ref = f"event_space_{user.id}_{event_space_booking.id}"
         event_space_booking.tx_ref = tx_ref
@@ -45,7 +45,7 @@ class EventSpaceBookingMixin(object):
         try:
             name = f"{user.first_name} {user.last_name}"
             create_payment_link_task(
-                customer_id=user.id, 
+                customer_id=user.id,
                 name=name,
                 phone_number=user.phone_number,
                 email=user.email,
@@ -53,7 +53,7 @@ class EventSpaceBookingMixin(object):
                 amount_expected=amount_to_pay,
                 booking_id=event_space_booking.id,
                 payment_type="event_space",
-                payment_title="Event Space Booking Payment"
+                payment_title="Event Space Booking Payment",
             )
         except Exception as e:
             raise e

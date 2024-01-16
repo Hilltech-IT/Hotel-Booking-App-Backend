@@ -10,12 +10,32 @@ PAYMENT_REASON_CHOICES = (
     ("Subscription", "Subscription"),
 )
 
+
 class Payment(AbstractBaseModel):
-    bnb_booking = models.ForeignKey("bookings.BnBBooking", related_name="bnbbookingpayments", on_delete=models.SET_NULL, null=True)
-    ticket = models.ForeignKey("events.EventTicket", related_name="eventsticketspayments", on_delete=models.SET_NULL, null=True)
-    room = models.ForeignKey("property.PropertyRoom", on_delete=models.SET_NULL, null=True, related_name="roombookingpayments")
-    paid_by = models.ForeignKey("users.User", on_delete=models.PROTECT, related_name="customerpayments")
-    paid_to = models.ForeignKey("users.User", on_delete=models.PROTECT, related_name="collections")
+    bnb_booking = models.ForeignKey(
+        "bookings.BnBBooking",
+        related_name="bnbbookingpayments",
+        on_delete=models.SET_NULL,
+        null=True,
+    )
+    ticket = models.ForeignKey(
+        "events.EventTicket",
+        related_name="eventsticketspayments",
+        on_delete=models.SET_NULL,
+        null=True,
+    )
+    room = models.ForeignKey(
+        "property.PropertyRoom",
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name="roombookingpayments",
+    )
+    paid_by = models.ForeignKey(
+        "users.User", on_delete=models.PROTECT, related_name="customerpayments"
+    )
+    paid_to = models.ForeignKey(
+        "users.User", on_delete=models.PROTECT, related_name="collections"
+    )
     payment_reason = models.CharField(max_length=255, choices=PAYMENT_REASON_CHOICES)
     amount = models.DecimalField(max_digits=100, decimal_places=2)
     payment_link = models.URLField(null=True)

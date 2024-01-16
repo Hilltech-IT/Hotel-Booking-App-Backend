@@ -6,7 +6,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
@@ -15,86 +14,161 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='Property',
+            name="Property",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created', models.DateTimeField(auto_now_add=True)),
-                ('modified', models.DateTimeField(auto_now=True)),
-                ('name', models.CharField(max_length=255)),
-                ('location', models.CharField(max_length=255)),
-                ('city', models.CharField(max_length=255)),
-                ('country', models.CharField(max_length=255)),
-                ('property_type', models.CharField(max_length=255)),
-                ('address', models.CharField(max_length=255)),
-                ('contact_number', models.CharField(max_length=255)),
-                ('email', models.EmailField(max_length=254, null=True)),
-                ('cost', models.DecimalField(decimal_places=2, max_digits=100)),
-                ('capacity', models.IntegerField(default=0)),
-                ('profile_image', models.ImageField(upload_to='property_images/')),
-                ('owner', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created", models.DateTimeField(auto_now_add=True)),
+                ("modified", models.DateTimeField(auto_now=True)),
+                ("name", models.CharField(max_length=255)),
+                ("location", models.CharField(max_length=255)),
+                ("city", models.CharField(max_length=255)),
+                ("country", models.CharField(max_length=255)),
+                ("property_type", models.CharField(max_length=255)),
+                ("address", models.CharField(max_length=255)),
+                ("contact_number", models.CharField(max_length=255)),
+                ("email", models.EmailField(max_length=254, null=True)),
+                ("cost", models.DecimalField(decimal_places=2, max_digits=100)),
+                ("capacity", models.IntegerField(default=0)),
+                ("profile_image", models.ImageField(upload_to="property_images/")),
+                (
+                    "owner",
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
         migrations.CreateModel(
-            name='PropertyRoom',
+            name="PropertyRoom",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created', models.DateTimeField(auto_now_add=True)),
-                ('modified', models.DateTimeField(auto_now=True)),
-                ('room_number', models.CharField(max_length=255)),
-                ('amenities', models.JSONField(default=list)),
-                ('room_type', models.CharField(max_length=255)),
-                ('capacity', models.IntegerField(default=1)),
-                ('number_of_beds', models.IntegerField(default=0)),
-                ('number_of_bathrooms', models.IntegerField(default=0)),
-                ('is_booked', models.BooleanField(default=False)),
-                ('profile_image', models.ImageField(upload_to='room_images/')),
-                ('property', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='propertyrooms', to='property.property')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created", models.DateTimeField(auto_now_add=True)),
+                ("modified", models.DateTimeField(auto_now=True)),
+                ("room_number", models.CharField(max_length=255)),
+                ("amenities", models.JSONField(default=list)),
+                ("room_type", models.CharField(max_length=255)),
+                ("capacity", models.IntegerField(default=1)),
+                ("number_of_beds", models.IntegerField(default=0)),
+                ("number_of_bathrooms", models.IntegerField(default=0)),
+                ("is_booked", models.BooleanField(default=False)),
+                ("profile_image", models.ImageField(upload_to="room_images/")),
+                (
+                    "property",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="propertyrooms",
+                        to="property.property",
+                    ),
+                ),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
         migrations.CreateModel(
-            name='ReviewAndRating',
+            name="ReviewAndRating",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created', models.DateTimeField(auto_now_add=True)),
-                ('modified', models.DateTimeField(auto_now=True)),
-                ('rating', models.FloatField(default=0)),
-                ('review', models.TextField(null=True)),
-                ('property', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='propertyreviewsandratings', to='property.property')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created", models.DateTimeField(auto_now_add=True)),
+                ("modified", models.DateTimeField(auto_now=True)),
+                ("rating", models.FloatField(default=0)),
+                ("review", models.TextField(null=True)),
+                (
+                    "property",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="propertyreviewsandratings",
+                        to="property.property",
+                    ),
+                ),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
         migrations.CreateModel(
-            name='PropertyRoomImage',
+            name="PropertyRoomImage",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created', models.DateTimeField(auto_now_add=True)),
-                ('modified', models.DateTimeField(auto_now=True)),
-                ('image', models.ImageField(upload_to='room_images/')),
-                ('room', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='roomimages', to='property.propertyroom')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created", models.DateTimeField(auto_now_add=True)),
+                ("modified", models.DateTimeField(auto_now=True)),
+                ("image", models.ImageField(upload_to="room_images/")),
+                (
+                    "room",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="roomimages",
+                        to="property.propertyroom",
+                    ),
+                ),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
         migrations.CreateModel(
-            name='PropertyImage',
+            name="PropertyImage",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created', models.DateTimeField(auto_now_add=True)),
-                ('modified', models.DateTimeField(auto_now=True)),
-                ('image', models.ImageField(upload_to='property_images/')),
-                ('property', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='propertyimages', to='property.property')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created", models.DateTimeField(auto_now_add=True)),
+                ("modified", models.DateTimeField(auto_now=True)),
+                ("image", models.ImageField(upload_to="property_images/")),
+                (
+                    "property",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="propertyimages",
+                        to="property.property",
+                    ),
+                ),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
     ]

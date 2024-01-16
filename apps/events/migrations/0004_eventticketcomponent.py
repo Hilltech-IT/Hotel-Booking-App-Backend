@@ -5,24 +5,48 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('events', '0003_eventticket_amount_expected_and_more'),
+        ("events", "0003_eventticket_amount_expected_and_more"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='EventTicketComponent',
+            name="EventTicketComponent",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created', models.DateTimeField(auto_now_add=True)),
-                ('modified', models.DateTimeField(auto_now=True)),
-                ('ticket_type', models.CharField(choices=[('Regular', 'Regular Ticket'), ('VIP', 'VIP Ticket'), ('VVIP', 'VVIP Ticket'), ('Children', 'Children')], max_length=255)),
-                ('number_of_tickets', models.IntegerField(default=1)),
-                ('ticket', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='events.eventticket')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created", models.DateTimeField(auto_now_add=True)),
+                ("modified", models.DateTimeField(auto_now=True)),
+                (
+                    "ticket_type",
+                    models.CharField(
+                        choices=[
+                            ("Regular", "Regular Ticket"),
+                            ("VIP", "VIP Ticket"),
+                            ("VVIP", "VVIP Ticket"),
+                            ("Children", "Children"),
+                        ],
+                        max_length=255,
+                    ),
+                ),
+                ("number_of_tickets", models.IntegerField(default=1)),
+                (
+                    "ticket",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="events.eventticket",
+                    ),
+                ),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
     ]

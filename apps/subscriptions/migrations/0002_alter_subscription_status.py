@@ -4,15 +4,22 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('subscriptions', '0001_initial'),
+        ("subscriptions", "0001_initial"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='subscription',
-            name='status',
-            field=models.CharField(choices=[('Active', 'Active'), ('Deactivated', 'Deactivated'), ('Cancelled', 'Cancelled')], default='Active', max_length=255),
+            model_name="subscription",
+            name="status",
+            field=models.CharField(
+                choices=[
+                    ("Active", "Active"),
+                    ("Deactivated", "Deactivated"),
+                    ("Cancelled", "Cancelled"),
+                ],
+                default="Active",
+                max_length=255,
+            ),
         ),
     ]

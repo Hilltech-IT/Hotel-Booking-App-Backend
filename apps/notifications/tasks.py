@@ -11,6 +11,7 @@ date_today = datetime.now().date()
 current_time_utc = datetime.utcnow()
 one_hour_ago_utc = current_time_utc - timedelta(hours=1)
 
+
 @app.task(name="check_if_celery_works")
 def check_if_celery_works():
     print("*****************Testing Celery******************")
@@ -29,9 +30,9 @@ def test_email_sending_task():
     """
     try:
         send_mail(
-            "Testing Email", 
-            "Am just testing if emails are working", 
-            settings.SITE_EMAIL, 
+            "Testing Email",
+            "Am just testing if emails are working",
+            settings.SITE_EMAIL,
             ["paulndambo1198@gmail.com", "paulkadabo@gmail.com"]
         )
     except Exception as e:
@@ -46,8 +47,10 @@ def welcome_new_user_task(context_data, email):
         send_message = SendMessage({}, asynchronous=False)
         send_message.send_mail(
             context_data,
-            [email,],
-            template='welcome_user'
+            [
+                email,
+            ],
+            template="welcome_user",
         )
     except Exception as e:
         raise e

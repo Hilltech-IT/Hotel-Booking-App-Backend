@@ -11,10 +11,16 @@ BOOKING_STATUS_CHOICES = (
     ("Cancelled", "Cancelled"),
     ("Paying", "Paying"),
 )
+
+
 # Create your models here.
 class RoomBooking(AbstractBaseModel):
-    user = models.ForeignKey("users.User", on_delete=models.CASCADE, related_name="customerbookings")
-    room = models.ForeignKey("property.PropertyRoom", on_delete=models.SET_NULL, null=True)
+    user = models.ForeignKey(
+        "users.User", on_delete=models.CASCADE, related_name="customerbookings"
+    )
+    room = models.ForeignKey(
+        "property.PropertyRoom", on_delete=models.SET_NULL, null=True
+    )
     booked_from = models.DateField()
     booked_to = models.DateField()
     amount_expected = models.DecimalField(max_digits=100, decimal_places=2, default=0)
@@ -26,19 +32,30 @@ class RoomBooking(AbstractBaseModel):
     tx_ref = models.CharField(max_length=255, null=True)
     transaction_id = models.CharField(max_length=255, null=True)
     is_over = models.BooleanField(default=False)
-    status = models.CharField(max_length=255, null=True, default="Pending Payment", choices=BOOKING_STATUS_CHOICES)
+    status = models.CharField(
+        max_length=255,
+        null=True,
+        default="Pending Payment",
+        choices=BOOKING_STATUS_CHOICES,
+    )
     payment_notif_send = models.BooleanField(default=False)
     notif_send = models.BooleanField(default=False)
-    
+
     def __str__(self):
         return str(self.id)
 
 
-
 # Create your models here.
 class BnBBooking(AbstractBaseModel):
-    user = models.ForeignKey("users.User", on_delete=models.CASCADE, related_name="customerbnbbookings")
-    airbnb = models.ForeignKey("property.Property", on_delete=models.SET_NULL, null=True, related_name="bnbbookings")
+    user = models.ForeignKey(
+        "users.User", on_delete=models.CASCADE, related_name="customerbnbbookings"
+    )
+    airbnb = models.ForeignKey(
+        "property.Property",
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name="bnbbookings",
+    )
     booked_from = models.DateField()
     booked_to = models.DateField()
     amount_expected = models.DecimalField(max_digits=100, decimal_places=2, default=0)
@@ -50,17 +67,31 @@ class BnBBooking(AbstractBaseModel):
     tx_ref = models.CharField(max_length=255, null=True)
     transaction_id = models.CharField(max_length=255, null=True)
     is_over = models.BooleanField(default=False)
-    status = models.CharField(max_length=255, null=True, default="Pending Payment", choices=BOOKING_STATUS_CHOICES)
+    status = models.CharField(
+        max_length=255,
+        null=True,
+        default="Pending Payment",
+        choices=BOOKING_STATUS_CHOICES,
+    )
     payment_notif_send = models.BooleanField(default=False)
     notif_send = models.BooleanField(default=False)
-    
+
     def __str__(self):
         return str(self.id)
 
 
 class EventSpaceBooking(AbstractBaseModel):
-    user = models.ForeignKey("users.User", on_delete=models.CASCADE, related_name="customereventspacebookings")
-    event_space = models.ForeignKey("property.Property", on_delete=models.SET_NULL, null=True, related_name="eventspacebookings")
+    user = models.ForeignKey(
+        "users.User",
+        on_delete=models.CASCADE,
+        related_name="customereventspacebookings",
+    )
+    event_space = models.ForeignKey(
+        "property.Property",
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name="eventspacebookings",
+    )
     booked_from = models.DateField()
     booked_to = models.DateField()
     amount_expected = models.DecimalField(max_digits=100, decimal_places=2, default=0)
@@ -72,9 +103,14 @@ class EventSpaceBooking(AbstractBaseModel):
     tx_ref = models.CharField(max_length=255, null=True)
     transaction_id = models.CharField(max_length=255, null=True)
     is_over = models.BooleanField(default=False)
-    status = models.CharField(max_length=255, null=True, default="Pending Payment", choices=BOOKING_STATUS_CHOICES)
+    status = models.CharField(
+        max_length=255,
+        null=True,
+        default="Pending Payment",
+        choices=BOOKING_STATUS_CHOICES,
+    )
     payment_notif_send = models.BooleanField(default=False)
     notif_send = models.BooleanField(default=False)
-    
+
     def __str__(self):
         return str(self.id)

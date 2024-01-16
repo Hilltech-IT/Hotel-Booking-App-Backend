@@ -17,6 +17,7 @@ def get_date_range(checkin_date, checkout_date):
 
     return date_range_str
 
+
 # Example usage:
 checkin_date = "2024-01-20"
 checkout_date = "2024-01-25"

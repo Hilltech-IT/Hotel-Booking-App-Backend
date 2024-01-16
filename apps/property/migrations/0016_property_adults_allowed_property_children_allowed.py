@@ -4,20 +4,19 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('property', '0015_property_capacity'),
+        ("property", "0015_property_capacity"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='property',
-            name='adults_allowed',
+            model_name="property",
+            name="adults_allowed",
             field=models.IntegerField(default=0),
         ),
         migrations.AddField(
-            model_name='property',
-            name='children_allowed',
+            model_name="property",
+            name="children_allowed",
             field=models.IntegerField(default=0),
         ),
     ]

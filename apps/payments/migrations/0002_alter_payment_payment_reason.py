@@ -4,15 +4,21 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('payments', '0001_initial'),
+        ("payments", "0001_initial"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='payment',
-            name='payment_reason',
-            field=models.CharField(choices=[('Room Booking', 'Room Booking'), ('Ticket Booking', 'Ticket Booking'), ('Subscription', 'Subscription')], max_length=255),
+            model_name="payment",
+            name="payment_reason",
+            field=models.CharField(
+                choices=[
+                    ("Room Booking", "Room Booking"),
+                    ("Ticket Booking", "Ticket Booking"),
+                    ("Subscription", "Subscription"),
+                ],
+                max_length=255,
+            ),
         ),
     ]

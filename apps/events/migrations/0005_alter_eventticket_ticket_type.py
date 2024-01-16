@@ -4,15 +4,16 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('events', '0004_eventticketcomponent'),
+        ("events", "0004_eventticketcomponent"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='eventticket',
-            name='ticket_type',
-            field=models.CharField(choices=[('Single', 'Single'), ('Multiple', 'Multiple')], max_length=255),
+            model_name="eventticket",
+            name="ticket_type",
+            field=models.CharField(
+                choices=[("Single", "Single"), ("Multiple", "Multiple")], max_length=255
+            ),
         ),
     ]

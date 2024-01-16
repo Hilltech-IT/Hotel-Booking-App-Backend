@@ -4,15 +4,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('property', '0016_property_adults_allowed_property_children_allowed'),
+        ("property", "0016_property_adults_allowed_property_children_allowed"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='property',
-            name='amenities',
+            model_name="property",
+            name="amenities",
             field=models.JSONField(default=list),
         ),
     ]

@@ -4,15 +4,17 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('notifications', '0001_initial'),
+        ("notifications", "0001_initial"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='message',
-            name='message_type',
-            field=models.CharField(choices=[('sms', 'SMS'), ('email', 'email'), ('system', 'system')], max_length=255),
+            model_name="message",
+            name="message_type",
+            field=models.CharField(
+                choices=[("sms", "SMS"), ("email", "email"), ("system", "system")],
+                max_length=255,
+            ),
         ),
     ]

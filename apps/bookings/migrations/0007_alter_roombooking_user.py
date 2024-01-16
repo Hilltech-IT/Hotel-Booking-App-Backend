@@ -6,16 +6,19 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('bookings', '0006_roombooking_is_over'),
+        ("bookings", "0006_roombooking_is_over"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='roombooking',
-            name='user',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='customerbookings', to=settings.AUTH_USER_MODEL),
+            model_name="roombooking",
+            name="user",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="customerbookings",
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
     ]

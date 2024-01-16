@@ -4,20 +4,19 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('property', '0017_property_amenities'),
+        ("property", "0017_property_amenities"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='property',
-            name='pets_allowed',
+            model_name="property",
+            name="pets_allowed",
             field=models.BooleanField(default=True),
         ),
         migrations.AddField(
-            model_name='property',
-            name='smoking_allowed',
+            model_name="property",
+            name="smoking_allowed",
             field=models.BooleanField(default=True),
         ),
     ]

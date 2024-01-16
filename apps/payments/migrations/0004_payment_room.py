@@ -5,16 +5,20 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('property', '0008_propertyroom_rooms_number'),
-        ('payments', '0003_payment_ticket'),
+        ("property", "0008_propertyroom_rooms_number"),
+        ("payments", "0003_payment_ticket"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='payment',
-            name='room',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='roombookingpayments', to='property.propertyroom'),
+            model_name="payment",
+            name="room",
+            field=models.ForeignKey(
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="roombookingpayments",
+                to="property.propertyroom",
+            ),
         ),
     ]

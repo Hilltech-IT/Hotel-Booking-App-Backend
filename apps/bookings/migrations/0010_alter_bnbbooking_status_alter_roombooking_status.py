@@ -4,20 +4,37 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('bookings', '0009_bnbbooking_status_roombooking_status'),
+        ("bookings", "0009_bnbbooking_status_roombooking_status"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='bnbbooking',
-            name='status',
-            field=models.CharField(choices=[('Pending Payment', 'Pending Payment'), ('Completed', 'Completed'), ('Cancelled', 'Cancelled')], default='Pending Payment', max_length=255, null=True),
+            model_name="bnbbooking",
+            name="status",
+            field=models.CharField(
+                choices=[
+                    ("Pending Payment", "Pending Payment"),
+                    ("Completed", "Completed"),
+                    ("Cancelled", "Cancelled"),
+                ],
+                default="Pending Payment",
+                max_length=255,
+                null=True,
+            ),
         ),
         migrations.AlterField(
-            model_name='roombooking',
-            name='status',
-            field=models.CharField(choices=[('Pending Payment', 'Pending Payment'), ('Completed', 'Completed'), ('Cancelled', 'Cancelled')], default='Pending Payment', max_length=255, null=True),
+            model_name="roombooking",
+            name="status",
+            field=models.CharField(
+                choices=[
+                    ("Pending Payment", "Pending Payment"),
+                    ("Completed", "Completed"),
+                    ("Cancelled", "Cancelled"),
+                ],
+                default="Pending Payment",
+                max_length=255,
+                null=True,
+            ),
         ),
     ]

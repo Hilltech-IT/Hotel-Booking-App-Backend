@@ -4,15 +4,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('bookings', '0003_roombooking_amount_expected_roombooking_fully_paid'),
+        ("bookings", "0003_roombooking_amount_expected_roombooking_fully_paid"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='roombooking',
-            name='rooms_booked',
+            model_name="roombooking",
+            name="rooms_booked",
             field=models.IntegerField(default=1),
         ),
     ]

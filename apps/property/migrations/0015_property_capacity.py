@@ -4,15 +4,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('property', '0014_property_approval_status'),
+        ("property", "0014_property_approval_status"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='property',
-            name='capacity',
+            model_name="property",
+            name="capacity",
             field=models.IntegerField(default=0),
         ),
     ]

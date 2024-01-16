@@ -26,8 +26,9 @@ STAFF_POSITION_CHOICES = (
     ("COO", "Chief Operating Officer"),
     ("CFO", "Chief Finance Officer"),
     ("DCP", "Director Corporate And Business"),
-    ("DCSA", "Director Client Services And Administration")
+    ("DCSA", "Director Client Services And Administration"),
 )
+
 
 class User(AbstractUser, AbstractBaseModel):
     role = models.CharField(choices=ROLE_CHOICES, max_length=32, null=True)
@@ -41,8 +42,9 @@ class User(AbstractUser, AbstractBaseModel):
     token = models.CharField(null=True, max_length=255)
     token_expiration_date = models.DateTimeField(null=True)
     activation_date = models.DateTimeField(null=True)
-    position = models.CharField(max_length=255, choices=STAFF_POSITION_CHOICES, null=True)
-
+    position = models.CharField(
+        max_length=255, choices=STAFF_POSITION_CHOICES, null=True
+    )
 
     def __str__(self):
         return self.username

@@ -12,6 +12,7 @@ from apps.users.models import User
 
 date_today = datetime.now().date()
 
+
 # Create your views here.
 def bookings(request):
     bookings = RoomBooking.objects.all().order_by("-created")
@@ -20,10 +21,7 @@ def bookings(request):
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
 
-    context = {
-        "bookings": bookings,
-        "page_obj": page_obj
-    }
+    context = {"bookings": bookings, "page_obj": page_obj}
     return render(request, "booking/bookings.html", context)
 
 
@@ -41,7 +39,6 @@ def make_booked_rooms_available(request):
         booking.save()
 
         return redirect("bookings")
-
 
     return render(request, "booking/make_rooms_free.html")
 
@@ -63,22 +60,22 @@ def reserve_hotel_room(request):
         booked_to = request.POST.get("booked_to")
         rooms_booked = request.POST.get("rooms_booked")
 
-
         # Convert date strings to datetime objects
         checkin_date = datetime.strptime(booked_from, "%Y-%m-%d")
         checkout_date = datetime.strptime(booked_to, "%Y-%m-%d")
-        
+
         daysBooked = (checkout_date - checkin_date).days
 
         booked_room = PropertyRoom.objects.get(id=room_id)
-        
+
         booked_room.booked += int(rooms_booked)
         booked_room.save()
 
-
         user = User.objects.filter(email=email).first()
         user_by_username = User.objects.filter(username=username).first()
-        amount_expected=Decimal(rooms_booked) * Decimal(charge_per_night) * Decimal(daysBooked)
+        amount_expected = (
+            Decimal(rooms_booked) * Decimal(charge_per_night) * Decimal(daysBooked)
+        )
 
         if user:
             user.phone_number = phone_number
@@ -97,33 +94,32 @@ def reserve_hotel_room(request):
             user.save()
         else:
             user = User.objects.create(
-                email= email,
-                username= username,
-                first_name= first_name,
-                last_name= last_name,
-                phone_number= phone_number,
-                gender= gender,
-                id_number= id_number,
-                role="customer"
+                email=email,
+                username=username,
+                first_name=first_name,
+                last_name=last_name,
+                phone_number=phone_number,
+                gender=gender,
+                id_number=id_number,
+                role="customer",
             )
             user.set_password("1234")
             user.save()
-
 
         booking = RoomBooking.objects.create(
             user=user,
             room=booked_room,
             booked_from=booked_from,
             booked_to=booked_to,
-            days_booked = daysBooked,
+            days_booked=daysBooked,
             rooms_booked=rooms_booked,
             amount_paid=0,
-            amount_expected=amount_expected
+            amount_expected=amount_expected,
         )
-        tx_ref=f"room_{user.id}_{booking.id}"
+        tx_ref = f"room_{user.id}_{booking.id}"
         booking.tx_ref = tx_ref
         booking.save()
-        
+
         booking_obj = {
             "email": email,
             "username": username,
@@ -137,8 +133,10 @@ def reserve_hotel_room(request):
             "booked_from": booked_from,
             "booked_to": booked_to,
             "rooms_booked": rooms_booked,
-            "amount_expected": Decimal(rooms_booked) * Decimal(charge_per_night) * Decimal(daysBooked),
-            "days_booked": daysBooked
+            "amount_expected": Decimal(rooms_booked)
+            * Decimal(charge_per_night)
+            * Decimal(daysBooked),
+            "days_booked": daysBooked,
         }
 
         amount_to_pay = int(amount_expected)
@@ -146,7 +144,7 @@ def reserve_hotel_room(request):
         try:
             name = f"{user.first_name} {user.last_name}"
             create_payment_link_task(
-                customer_id=user.id, 
+                customer_id=user.id,
                 name=name,
                 phone_number=user.phone_number,
                 email=user.email,
@@ -154,7 +152,7 @@ def reserve_hotel_room(request):
                 amount_expected=amount_to_pay,
                 booking_id=booking.id,
                 payment_type="room",
-                payment_title="Hotel Room Booking Payment"
+                payment_title="Hotel Room Booking Payment",
             )
         except Exception as e:
             raise e
@@ -170,12 +168,10 @@ def airbnb_bookings(request):
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
 
-    context = {
-        "page_obj": page_obj,
-        "airbnb_bookings": airbnb_bookings
-    }
+    context = {"page_obj": page_obj, "airbnb_bookings": airbnb_bookings}
 
     return render(request, "airbnbs/airbnb_bookings.html", context)
+
 
 def book_airbnb(request):
     if request.method == "POST":
@@ -195,14 +191,14 @@ def book_airbnb(request):
         # Convert date strings to datetime objects
         checkin_date = datetime.strptime(booked_from, "%Y-%m-%d")
         checkout_date = datetime.strptime(booked_to, "%Y-%m-%d")
-        
+
         daysBooked = (checkout_date - checkin_date).days
 
         airbnb = Property.objects.get(id=property_id)
 
         user = User.objects.filter(email=email).first()
         user_by_username = User.objects.filter(username=username).first()
-        amount_expected= Decimal(cost_per_night) * Decimal(daysBooked)
+        amount_expected = Decimal(cost_per_night) * Decimal(daysBooked)
 
         if user:
             user.phone_number = phone_number
@@ -221,14 +217,14 @@ def book_airbnb(request):
             user.save()
         else:
             user = User.objects.create(
-                email= email,
-                username= username,
-                first_name= first_name,
-                last_name= last_name,
-                phone_number= phone_number,
-                gender= gender,
-                id_number= id_number,
-                role="customer"
+                email=email,
+                username=username,
+                first_name=first_name,
+                last_name=last_name,
+                phone_number=phone_number,
+                gender=gender,
+                id_number=id_number,
+                role="customer",
             )
             user.set_password("1234")
             user.save()
@@ -241,11 +237,11 @@ def book_airbnb(request):
             amount_paid=0,
             booked_from=checkin_date,
             booked_to=checkout_date,
-            is_over=False
+            is_over=False,
         )
 
         tx_ref = f"bnb_{user.id}_{bnb_booking.id}"
-        bnb_booking.tx_ref=tx_ref
+        bnb_booking.tx_ref = tx_ref
         bnb_booking.save()
 
         amount_to_pay = int(amount_expected)
@@ -253,7 +249,7 @@ def book_airbnb(request):
         try:
             name = f"{user.first_name} {user.last_name}"
             create_payment_link_task(
-                customer_id=user.id, 
+                customer_id=user.id,
                 name=name,
                 phone_number=user.phone_number,
                 email=user.email,
@@ -261,7 +257,7 @@ def book_airbnb(request):
                 amount_expected=amount_to_pay,
                 booking_id=bnb_booking.id,
                 payment_type="bnb",
-                payment_title="AirBnB Booking Payment"
+                payment_title="AirBnB Booking Payment",
             )
         except Exception as e:
             raise e
@@ -290,7 +286,7 @@ def edit_airbnb_booking(request):
             return redirect("airbnb-bookings")
 
     return render(request, "airbnbs/edit_airbnb_booking.html")
-    
+
 
 def clear_complete_bookings(request):
     bookings = RoomBooking.objects.all()
@@ -304,9 +300,7 @@ def event_space_bookings(request):
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
 
-    context = {
-        "page_obj": page_obj
-    }
+    context = {"page_obj": page_obj}
 
     return render(request, "event_spaces/bookings.html", context)
 
@@ -329,14 +323,14 @@ def book_event_space(request):
         # Convert date strings to datetime objects
         checkin_date = datetime.strptime(booked_from, "%Y-%m-%d")
         checkout_date = datetime.strptime(booked_to, "%Y-%m-%d")
-        
+
         daysBooked = (checkout_date - checkin_date).days
 
         event_space = Property.objects.get(id=property_id)
 
         user = User.objects.filter(email=email).first()
         user_by_username = User.objects.filter(username=username).first()
-        amount_expected= Decimal(cost_per_night) * Decimal(daysBooked)
+        amount_expected = Decimal(cost_per_night) * Decimal(daysBooked)
 
         if user:
             user.phone_number = phone_number
@@ -355,14 +349,14 @@ def book_event_space(request):
             user.save()
         else:
             user = User.objects.create(
-                email= email,
-                username= username,
-                first_name= first_name,
-                last_name= last_name,
-                phone_number= phone_number,
-                gender= gender,
-                id_number= id_number,
-                role="customer"
+                email=email,
+                username=username,
+                first_name=first_name,
+                last_name=last_name,
+                phone_number=phone_number,
+                gender=gender,
+                id_number=id_number,
+                role="customer",
             )
             user.set_password("1234")
             user.save()
@@ -375,11 +369,11 @@ def book_event_space(request):
             amount_paid=0,
             booked_from=checkin_date,
             booked_to=checkout_date,
-            is_over=False
+            is_over=False,
         )
 
         tx_ref = f"event_space_{user.id}_{event_space_booking.id}"
-        event_space_booking.tx_ref=tx_ref
+        event_space_booking.tx_ref = tx_ref
         event_space_booking.save()
 
         amount_to_pay = int(amount_expected)
@@ -387,7 +381,7 @@ def book_event_space(request):
         try:
             name = f"{user.first_name} {user.last_name}"
             create_payment_link_task(
-                customer_id=user.id, 
+                customer_id=user.id,
                 name=name,
                 phone_number=user.phone_number,
                 email=user.email,
@@ -395,7 +389,7 @@ def book_event_space(request):
                 amount_expected=amount_to_pay,
                 booking_id=event_space_booking.id,
                 payment_type="event_space",
-                payment_title="Event Space Booking Payment"
+                payment_title="Event Space Booking Payment",
             )
         except Exception as e:
             raise e

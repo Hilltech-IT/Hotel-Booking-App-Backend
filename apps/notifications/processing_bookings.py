@@ -14,4 +14,3 @@ class ProcessRoomBookingsMixin(object):
         for booking in room_bookings:
             booking.room.booked -= booking.rooms_booked
             booking.room.save()
-            

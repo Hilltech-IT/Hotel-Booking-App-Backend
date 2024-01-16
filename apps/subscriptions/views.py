@@ -10,6 +10,7 @@ date_today = datetime.now().date()
 end_of_month = date_today + timedelta(days=30)
 seven_days_from_today = date_today + timedelta(days=7)
 
+
 # Create your views here.
 def subscriptions(request):
     subscriptions = Subscription.objects.all().order_by("-created")
@@ -24,7 +25,7 @@ def subscriptions(request):
         "subscriptions": subscriptions,
         "page_obj": page_obj,
         "packages": packages,
-        "users": users
+        "users": users,
     }
 
     return render(request, "pricing/subscriptions.html", context)
@@ -42,10 +43,7 @@ def create_subscription(request):
         user = User.objects.get(id=user_id)
 
         subscription = Subscription.objects.create(
-            user=user,
-            package=package,
-            start_date=start_date,
-            end_date=end_date
+            user=user, package=package, start_date=start_date, end_date=end_date
         )
 
         return redirect("subscriptions")
@@ -55,9 +53,7 @@ def create_subscription(request):
 
 def pricing_packages(request):
     packages = Pricing.objects.all().order_by("-created")
-    context = {
-        "packages": packages
-    }
+    context = {"packages": packages}
 
     return render(request, "pricing/pricing_plans.html", context)
 
@@ -67,10 +63,7 @@ def new_pricing_package(request):
         name = request.POST.get("name")
         cost = request.POST.get("cost")
 
-        package = Pricing.objects.create(
-            name=name,
-            cost=cost
-        )
+        package = Pricing.objects.create(name=name, cost=cost)
         return redirect("packages")
     return render(request, "pricing/new_pricing_plan.html")
 
@@ -99,21 +92,19 @@ def customer_pricing_packages(request, customer_id=None):
         package = Pricing.objects.get(id=package_id)
         user = User.objects.get(id=customer_id)
 
-
         subscription = Subscription.objects.create(
-            user = user,
+            user=user,
             package=package,
             status="Active",
             start_date=date_today,
-            end_date=seven_days_from_today if package.name == "Free Trial" else end_of_month
+            end_date=seven_days_from_today
+            if package.name == "Free Trial"
+            else end_of_month,
         )
 
         return redirect("user-login")
-        
 
-    context = {
-        "packages": packages
-    }
+    context = {"packages": packages}
     return render(request, "service_providers/packages.html", context)
 
 
@@ -129,6 +120,7 @@ def deactivate_subscription(request, subscription_id=None):
     subscription.status = "Deactivated"
     subscription.save()
     return redirect("subscriptions")
+
 
 def cancel_subscription(request, subscription_id=None):
     subscription = Subscription.objects.get(id=subscription_id)
