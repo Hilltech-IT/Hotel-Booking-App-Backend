@@ -3,8 +3,6 @@ from decimal import Decimal
 
 from apps.bookings.models import RoomBooking
 from apps.bookings.tasks import create_payment_link_task
-
-# from apps.payments.flutterwave import FlutterwavePaymentProcessMixin
 from apps.property.models import PropertyRoom
 from apps.users.models import User
 
@@ -20,10 +18,8 @@ class RoomBookingMixin(object):
         try:
             user_id = self.booking_data.get("user")
             room = self.booking_data.get("room")
-            amount_expected = self.booking_data.get("amount_expected")
             booked_from = self.booking_data.get("booked_from")
             booked_to = self.booking_data.get("booked_to")
-            days_booked = self.booking_data.get("days_booked")
             rooms_booked = self.booking_data.get("rooms_booked")
 
             user = User.objects.get(id=user_id)
@@ -50,6 +46,7 @@ class RoomBookingMixin(object):
                 amount_expected=amount_expected,
                 days_booked=days_booked,
                 rooms_booked=rooms_booked,
+                status="Pending Payment"
             )
             tx_ref = f"room_{user.id}_{booking.id}"
             booking.tx_ref = tx_ref

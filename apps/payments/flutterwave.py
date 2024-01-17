@@ -37,6 +37,15 @@ class FlutterwavePaymentProcessMixin(object):
     def run(self):
         self.__initiate_payment()
 
+    def authenticate(self):
+        pass
+
+    def create_sub_account(self):
+        pass
+
+    def create_booking_payment_link(self):
+        pass
+
     def __initiate_payment(self):
         headers = {
             "Authorization": f"Bearer {FLUTTERWAVE_SECRET_KEY}"  # Replace with your actual secret key

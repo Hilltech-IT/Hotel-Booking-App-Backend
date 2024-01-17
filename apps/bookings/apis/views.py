@@ -7,13 +7,11 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 
-from apps.bookings.apis.serializers import (
-    BookAirBnBSerializer,
-    BookARoomSerializer,
-    BookEventSpaceSerializer,
-    BookingFeeCalculationSerializer,
-    RoomBookingSerializer,
-)
+from apps.bookings.apis.serializers import (BookAirBnBSerializer,
+                                            BookARoomSerializer,
+                                            BookEventSpaceSerializer,
+                                            BookingFeeCalculationSerializer,
+                                            RoomBookingSerializer)
 from apps.bookings.models import RoomBooking
 from apps.bookings.process_airbnb_booking import AirBnBBookingMixin
 from apps.bookings.process_booking import RoomBookingMixin

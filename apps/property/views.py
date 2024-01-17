@@ -5,6 +5,7 @@ from django.core.paginator import Paginator
 from django.db.models import Q
 from django.shortcuts import redirect, render
 
+from apps.bookings.models import RoomBooking
 from apps.property.models import Property, PropertyRoom
 from apps.users.models import User
 
@@ -13,7 +14,7 @@ from apps.users.models import User
 @login_required(login_url="/users/user-login/")
 def properties(request):
     user = request.user
-    properties = Property.objects.all().order_by("-created")
+    properties = Property.objects.filter(property_type="Hotel").order_by("-created")
 
     if request.method == "POST":
         search_text = request.POST.get("search_text")
@@ -22,7 +23,7 @@ def properties(request):
             Q(name__icontains=search_text)
             | Q(city__icontains=search_text)
             | Q(country__icontains=search_text)
-        )
+        ).filter(property_type="Hotel")
 
     if not user.is_superuser:
         properties = Property.objects.filter(owner=user)
@@ -35,31 +36,6 @@ def properties(request):
 
     return render(request, "properties/hotels.html", context)
 
-
-@login_required(login_url="/users/user-login/")
-def bnb_properties(request):
-    user = request.user
-    properties = Property.objects.filter(property_type="AirBnB")
-
-    if request.method == "POST":
-        search_text = request.POST.get("search_text")
-
-        properties = Property.objects.filter(
-            Q(name__icontains=search_text)
-            | Q(city__icontains=search_text)
-            | Q(country__icontains=search_text)
-        ).filter(property_type="AirBnB")
-
-    if not user.is_superuser:
-        properties = Property.objects.filter(owner=user)
-    users = User.objects.filter(role="customer")
-
-    paginator = Paginator(properties, 10)
-    page_number = request.GET.get("page")
-    page_obj = paginator.get_page(page_number)
-    context = {"properties": properties, "users": users, "page_obj": page_obj}
-
-    return render(request, "airbnbs/airbnbs.html", context)
 
 
 @login_required(login_url="/users/user-login/")
@@ -131,6 +107,8 @@ def edit_property(request):
 
         if property_type == "AirBnB":
             return redirect("airbnbs")
+        elif property_type == "Event Space":
+            return redirect("event-spaces")
 
         return redirect(f"/properties/property/{property_id}/")
 
@@ -140,9 +118,20 @@ def edit_property(request):
 @login_required(login_url="/users/user-login/")
 def property_details(request, property_id=None):
     property = Property.objects.get(id=property_id)
-    rooms = property.propertyrooms.all()
+    rooms = PropertyRoom.objects.filter(property=property)
 
-    context = {"property": property, "rooms": rooms}
+    bookings = RoomBooking.objects.filter(room__property=property).order_by("-created")
+
+    paginator = Paginator(bookings, 10)
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+
+    context = {
+        "property": property, 
+        "rooms": rooms,
+        "bookings_list": bookings,
+        "page_obj": page_obj
+    }
     return render(request, "properties/property_details.html", context)
 
 
@@ -214,3 +203,97 @@ def edit_room(request):
 @login_required(login_url="/users/user-login/")
 def delete_room(request):
     return render(request, "properties/rooms/delete_room.html")
+
+
+
+##################AIRBNBs###############
+@login_required(login_url="/users/user-login/")
+def bnb_properties(request):
+    user = request.user
+    properties = Property.objects.filter(property_type="AirBnB")
+
+    if request.method == "POST":
+        search_text = request.POST.get("search_text")
+
+        properties = Property.objects.filter(
+            Q(name__icontains=search_text)
+            | Q(city__icontains=search_text)
+            | Q(country__icontains=search_text)
+        ).filter(property_type="AirBnB")
+
+    if not user.is_superuser:
+        properties = Property.objects.filter(owner=user)
+    users = User.objects.filter(role="customer")
+
+    paginator = Paginator(properties, 10)
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+    context = {"properties": properties, "users": users, "page_obj": page_obj}
+
+    return render(request, "airbnbs/airbnbs.html", context)
+
+
+@login_required(login_url="/users/user-login/")
+def airbnb_details(request, airbnb_id=None):
+    property = Property.objects.get(id=airbnb_id)
+   
+
+    bookings_list = property.bnbbookings.all().order_by("-created")
+
+    paginator = Paginator(bookings_list, 8)
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+
+    context = {
+        "property": property, 
+        "bookings_list": bookings_list,
+        "page_obj": page_obj
+    }
+    return render(request, "airbnbs/airbnb_details.html", context)
+
+
+
+## EVENT SPACES
+@login_required(login_url="/users/user-login/")
+def event_spaces(request):
+    user = request.user
+    properties = Property.objects.filter(property_type__in=["Event Space", "Event", "Event_Space"])
+
+    if request.method == "POST":
+        search_text = request.POST.get("search_text")
+
+        properties = Property.objects.filter(
+            Q(name__icontains=search_text)
+            | Q(city__icontains=search_text)
+            | Q(country__icontains=search_text)
+        ).filter(property_type__in=["Event Space", "Event", "Event_Space"])
+
+    if not user.is_superuser:
+        properties = Property.objects.filter(owner=user)
+    users = User.objects.filter(role="customer")
+
+    paginator = Paginator(properties, 10)
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+    context = {"properties": properties, "users": users, "page_obj": page_obj}
+
+    return render(request, "event_spaces/event_spaces.html", context)
+
+
+@login_required(login_url="/users/user-login/")
+def event_space_details(request, event_space_id=None):
+    property = Property.objects.get(id=event_space_id)
+   
+
+    bookings_list = property.eventspacebookings.all().order_by("-created")
+
+    paginator = Paginator(bookings_list, 8)
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+
+    context = {
+        "property": property, 
+        "bookings_list": bookings_list,
+        "page_obj": page_obj
+    }
+    return render(request, "event_spaces/event_space_details.html", context)

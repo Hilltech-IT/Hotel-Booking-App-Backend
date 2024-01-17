@@ -1,38 +1,4 @@
-<script>
-  document.addEventListener('DOMContentLoaded', function () {
-            var checkinInput = document.getElementById('booked_from');
-            var checkoutInput = document.getElementById('booked_to');
-            var currentDate = new Date().toISOString().split('T')[0];
-
-            // Disable past dates
-            checkinInput.setAttribute('min', currentDate);
-            checkoutInput.setAttribute('min', currentDate);
-
-            // Example: Assume existing bookings as an array of booked dates
-            var bookedDates = ["2024-01-16", "2024-01-18", "2024-01-19"];
-
-            // Function to update available dates based on existing bookings
-            function updateAvailableDates() {
-                var selectedCheckin = checkinInput.value;
-                var availableDates = bookedDates.filter(date => date >= selectedCheckin);
-                
-                checkoutInput.innerHTML = ''; // Clear existing options
-
-                availableDates.forEach(date => {
-                    var option = document.createElement('option');
-                    option.value = date;
-                    option.text = date;
-                    checkoutInput.add(option);
-                });
-            }
-
-            // Attach event listeners to checkin and checkout inputs
-            checkinInput.addEventListener('change', updateAvailableDates);
-            // Disable past dates initially
-            updateAvailableDates();
-        });
-</script>
-<div class="modal fade" id="bookAirBnBModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal fade" id="bookAirBnBModal{{property.id}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
@@ -167,16 +133,3 @@
       </div>
     </div>
   </div>
-
-
-<script>
-    function calculateTotal() {
-        // Get the values of regular and VIP tickets
-        var rawCheckinDate = document.getElementById("booked_from").value;
-        var rawCheckoutDate = document.getElementById("booked_to").value;
-
-        console.log(`Checkin Date: ${rawCheckinDate}, Checkout Date: ${rawCheckoutDate}`)
-    }
-
-    
-</script>

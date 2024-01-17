@@ -141,10 +141,10 @@
                 </div>
               </div>
 
-              {% if property.property_type == "AirBnB" %}
+              {% if property.property_type == "AirBnB" or property.property_type == "Event Space" %}
               <div class="row mt-3">
                 <div class="col">
-                  <label for="exampleInputPassword1" class="form-label">Cost per Night</label>
+                  <label for="exampleInputPassword1" class="form-label">Cost per Day/Night</label>
                   <input
                       type="number"
                       class="form-control"
