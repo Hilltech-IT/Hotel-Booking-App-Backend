@@ -3,8 +3,8 @@ import requests
 from apps.bookings.models import BnBBooking, EventSpaceBooking, RoomBooking
 from apps.events.models import EventTicket
 
-FLUTTERWAVE_PUBLIC_KEY = "FLWPUBK_TEST-23282028a983882d08f755f1523db9a0-X"
-FLUTTERWAVE_SECRET_KEY = "FLWSECK_TEST-75bf9fa457e52ef50c3ba3e27dd5df73-X"
+FLUTTERWAVE_PUBLIC_KEY = "FLWPUBK_TEST-2fdaa8d386db34a99199799a8b948af5-X"
+FLUTTERWAVE_SECRET_KEY = "FLWSECK_TEST-890358088be2632f5c6692c6da61482a-X"
 
 FLUTTERWAVE_PAYMENT_URL = "https://api.flutterwave.com/v3/payments"
 
@@ -37,15 +37,7 @@ class FlutterwavePaymentProcessMixin(object):
     def run(self):
         self.__initiate_payment()
 
-    def authenticate(self):
-        pass
-
-    def create_sub_account(self):
-        pass
-
-    def create_booking_payment_link(self):
-        pass
-
+    
     def __initiate_payment(self):
         headers = {
             "Authorization": f"Bearer {FLUTTERWAVE_SECRET_KEY}"  # Replace with your actual secret key
@@ -53,8 +45,9 @@ class FlutterwavePaymentProcessMixin(object):
         data = {
             "tx_ref": self.tx_ref,
             "amount": self.amount,
-            "currency": self.currency,
-            "redirect_url": "http://localhost:8000/payments/confirm-payment",
+            "currency": "KES",
+            #"payment_options": "mpesa",
+            "redirect_url": "http://34.171.61.167:8000//payments/confirm-payment",
             "meta": {
                 "consumer_id": self.customer_id,
                 "consumer_mac": "92a3-912ba-1192a",
@@ -64,7 +57,7 @@ class FlutterwavePaymentProcessMixin(object):
                 "phonenumber": self.phone_number,
                 "name": self.name,
             },
-            "customizations": {"title": self.payment_title},
+            "customizations": {"title": "Hilltech IT Payments"},
         }
 
         try:

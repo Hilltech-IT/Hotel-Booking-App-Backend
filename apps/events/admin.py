@@ -15,6 +15,7 @@ class EventTicketAdmin(admin.ModelAdmin):
         "amount_expected",
         "ticket_status",
         "notif_send",
+        "payment_link",
     ]
 
 

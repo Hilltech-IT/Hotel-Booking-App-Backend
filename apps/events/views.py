@@ -121,7 +121,7 @@ def edit_event(request):
 
 def event_details(request, event_id=None):
     event = Event.objects.get(id=event_id)
-    event_tickets = event.eventtickets.all()
+    event_tickets = event.eventtickets.all().order_by("-created")
 
     paginator = Paginator(event_tickets, 10)
     page_number = request.GET.get("page")
