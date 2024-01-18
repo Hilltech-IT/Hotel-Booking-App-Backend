@@ -8,6 +8,9 @@ TICKET_TYPE_CHOICES = (
     ("VIP", "VIP Ticket"),
     ("VVIP", "VVIP Ticket"),
     ("Children", "Children"),
+    ("Student", "Student"),
+    ("Couple", "Couple"),
+    ("Group", "Group"),
 )
 
 PAYMENT_METHOD_CHOICES = (
@@ -28,7 +31,6 @@ EVENT_TICKET_TYPE_CHOICES = (
     ("Multiple", "Multiple"),
 )
 
-
 class Event(AbstractBaseModel):
     owner = models.ForeignKey(
         "users.User", on_delete=models.CASCADE, related_name="userevents"
@@ -36,10 +38,13 @@ class Event(AbstractBaseModel):
     title = models.CharField(max_length=500)
     event_date = models.DateField(null=True)
     event_time = models.TimeField(null=True)
-    regular_ticket_price = models.DecimalField(max_digits=20, decimal_places=2)
-    vip_ticket_price = models.DecimalField(max_digits=20, decimal_places=2)
-    vvip_ticket_price = models.DecimalField(max_digits=20, decimal_places=2)
-    children_ticket_price = models.DecimalField(max_digits=20, decimal_places=2)
+    regular_ticket_price = models.DecimalField(max_digits=20, decimal_places=2, default=0)
+    vip_ticket_price = models.DecimalField(max_digits=20, decimal_places=2, default=0)
+    vvip_ticket_price = models.DecimalField(max_digits=20, decimal_places=2, default=0)
+    children_ticket_price = models.DecimalField(max_digits=20, decimal_places=2, default=0)
+    couples_ticket_price = models.DecimalField(max_digits=20, decimal_places=2, default=0)
+    students_ticket_price = models.DecimalField(max_digits=20, decimal_places=2, default=0)
+    group_ticket_price = models.DecimalField(max_digits=20, decimal_places=2, default=0)
     age_limit = models.FloatField(default=0)
     children_allowed = models.BooleanField(default=True)
     description = models.TextField()
