@@ -2,13 +2,8 @@ from datetime import datetime, timedelta
 
 from rest_framework import serializers
 
-from apps.property.models import (
-    Property,
-    PropertyImage,
-    PropertyRoom,
-    PropertyRoomImage,
-    ReviewAndRating,
-)
+from apps.property.models import (Property, PropertyImage, PropertyRoom,
+                                  PropertyRoomImage, ReviewAndRating)
 
 date_today = datetime.now().date()
 
@@ -59,6 +54,7 @@ class PropertySerializer(serializers.ModelSerializer):
 
 class PropertyRoomSerializer(serializers.ModelSerializer):
     rooms_count = serializers.SerializerMethodField()
+    dates_booked = serializers.SerializerMethodField()
 
     class Meta:
         model = PropertyRoom
@@ -66,6 +62,25 @@ class PropertyRoomSerializer(serializers.ModelSerializer):
 
     def get_rooms_count(self, obj):
         return obj.rooms_number - obj.booked
+
+    
+    def get_dates_booked(self, obj):
+        bookings = obj.roombookings.filter(booked_to__gt=date_today)
+
+        dates_list = []
+        for booking in bookings:
+            delta = booking.booked_to - booking.booked_from
+            date_range = [
+                booking.booked_from + timedelta(days=i)
+                for i in range(delta.days + 1)
+            ]
+            dates_range_str = [date.strftime("%Y-%m-%d") for date in date_range]
+
+            for x in dates_range_str:
+                dates_list.append(x)
+
+        return list(set(dates_list))
+    
 
 
 class PropertyRoomImageSerializer(serializers.ModelSerializer):

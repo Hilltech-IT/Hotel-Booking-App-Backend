@@ -160,7 +160,6 @@ def new_room(request):
             check_in_time=check_in_time,
             check_out_time=check_out_time,
             rooms_number=rooms_number,
-            rooms_count=0,
             booked=0,
             rate=rate,
             charge_per_night=rate,

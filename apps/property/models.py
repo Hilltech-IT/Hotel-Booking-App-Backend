@@ -2,6 +2,9 @@ from datetime import datetime, timedelta
 
 from django.db import models
 
+from apps.property.apis.get_booked_dates import (get_booked_dates,
+                                                 get_date_range)
+
 date_today = datetime.now().date()
 
 
@@ -99,7 +102,7 @@ class Property(AbstractBaseModel):
                 for x in dates_range_str:
                     dates_list.append(x)
 
-            return dates_list
+            return list(set(dates_list))
 
         elif self.property_type in ["Event Space", "Event"]:
             bookings = self.eventspacebookings.filter(booked_to__gt=date_today)
@@ -115,14 +118,30 @@ class Property(AbstractBaseModel):
                 for x in dates_range_str:
                     dates_list.append(x)
 
-            return dates_list
-        return []
+            return list(set(dates_list))
+        elif self.property_type.lower() == "hotel":
+            rooms = self.propertyrooms.all()
+
+            for room in rooms:
+                bookings = room.roombookings.filter(booked_to__gt=date_today)
+                dates_list = []
+                for booking in bookings:
+                    delta = booking.booked_to - booking.booked_from
+                    date_range = [
+                        booking.booked_from + timedelta(days=i)
+                        for i in range(delta.days + 1)
+                    ]
+                    dates_range_str = [date.strftime("%Y-%m-%d") for date in date_range]
+
+                    for x in dates_range_str:
+                        dates_list.append(x)
+                    #booked_dates_range = set(get_booked_dates("Hotel", bookings))
+                    #free_dates = list(set(list(dates_range - booked_dates_range)))
+                return list(set(dates_list))
 
 
 class PropertyRoom(AbstractBaseModel):
-    property = models.ForeignKey(
-        Property, on_delete=models.CASCADE, related_name="propertyrooms"
-    )
+    property = models.ForeignKey(Property, on_delete=models.CASCADE, related_name="propertyrooms")
     room_type = models.CharField(max_length=255, choices=ROOM_TYPES, null=True)
     rooms_number = models.IntegerField(default=0)
     occupancy_capacity = models.PositiveIntegerField(null=True)
@@ -145,6 +164,7 @@ class PropertyRoom(AbstractBaseModel):
 
     def rooms_count(self):
         return self.rooms_number - self.booked
+
 
 
 class PropertyImage(AbstractBaseModel):

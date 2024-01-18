@@ -50,3 +50,18 @@ def get_booked_dates(property_type, bookings):
                 dates_list.append(x)
 
         return dates_list
+
+    elif property_type == "Hotel":
+        bookings = bookings.filter(booked_to__gt=date_today)
+        dates_list = []
+        for booking in bookings:
+            delta = booking.booked_to - booking.booked_from
+            date_range = [
+                booking.booked_from + timedelta(days=i) for i in range(delta.days + 1)
+            ]
+            dates_range_str = [date.strftime("%Y-%m-%d") for date in date_range]
+
+            for x in dates_range_str:
+                dates_list.append(x)
+
+        return dates_list

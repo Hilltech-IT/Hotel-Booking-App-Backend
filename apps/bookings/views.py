@@ -62,7 +62,6 @@ def reserve_hotel_room(request):
 
         
         user = User.objects.filter(email=email).first()
-
         
         if not user:
             user = User.objects.filter(id_number).first()

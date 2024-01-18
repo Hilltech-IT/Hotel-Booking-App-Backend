@@ -1,4 +1,5 @@
-from apps.property.apis.get_booked_dates import get_booked_dates, get_date_range
+from apps.property.apis.get_booked_dates import (get_booked_dates,
+                                                 get_date_range)
 
 
 def filter_event_space(queryset, min_cost, max_cost, start_date, end_date):

@@ -15,11 +15,8 @@ BOOKING_STATUS_CHOICES = (
 
 # Create your models here.
 class RoomBooking(AbstractBaseModel):
-    user = models.ForeignKey(
-        "users.User", on_delete=models.CASCADE, related_name="customerbookings"
-    )
-    room = models.ForeignKey(
-        "property.PropertyRoom", on_delete=models.SET_NULL, null=True)
+    user = models.ForeignKey("users.User", on_delete=models.CASCADE, related_name="customerbookings")
+    room = models.ForeignKey("property.PropertyRoom", on_delete=models.SET_NULL, null=True, related_name="roombookings")
     booked_from = models.DateField()
     booked_to = models.DateField()
     amount_expected = models.DecimalField(max_digits=100, decimal_places=2, default=0)
