@@ -22,11 +22,9 @@ def payments(request):
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
 
-    context = {
-        "payments": payments,
-        "page_obj": page_obj
-    }
+    context = {"payments": payments, "page_obj": page_obj}
     return render(request, "payments/payments.html", context)
+
 
 def process_event_ticket_payment(request, ticket_id=None):
     ticket = EventTicket.objects.get(id=ticket_id)
@@ -53,14 +51,14 @@ def process_event_ticket_payment(request, ticket_id=None):
             paid_by=ticket.user,
             paid_to=ticket.event.owner,
             payment_reason="Ticket Booking",
-            amount=amount
+            amount=amount,
         )
 
         print(f"Event Ticket ID: {event_ticket_id}, Ticket ID: {ticket_id}")
         return redirect("/events/tickets/")
-    
+
     return render(request, "events/ticket_payment_options.html")
-    
+
 
 def hotel_booking_payment(request):
     if request.method == "POST":
@@ -79,7 +77,7 @@ def hotel_booking_payment(request):
                 paid_by=bnb_booking.user,
                 paid_to=bnb_booking.airbnb.owner,
                 payment_reason="AirBnB Booking",
-                amount=amount
+                amount=amount,
             )
             return redirect("airbnb-bookings")
 
@@ -88,7 +86,9 @@ def hotel_booking_payment(request):
             booking.amount_paid += amount
             booking.save()
 
-            booking.fully_paid = True if booking.amount_expected == booking.amount_paid else False
+            booking.fully_paid = (
+                True if booking.amount_expected == booking.amount_paid else False
+            )
             booking.save()
 
             payment = Payment.objects.create(
@@ -96,7 +96,7 @@ def hotel_booking_payment(request):
                 paid_by=booking.user,
                 paid_to=booking.room.property.owner,
                 payment_reason="Room Booking",
-                amount=amount
+                amount=amount,
             )
 
             return redirect("bookings")
@@ -105,12 +105,11 @@ def hotel_booking_payment(request):
 
 
 def process_flutterwave_payment(request):
-    status = request.GET.get('status')
-    tx_ref = request.GET.get('tx_ref')
-    transaction_id = request.GET.get('transaction_id')
+    status = request.GET.get("status")
+    tx_ref = request.GET.get("tx_ref")
+    transaction_id = request.GET.get("transaction_id")
 
     if status.lower() == "successful":
-
         if tx_ref.startswith("ticket_"):
             ticket = EventTicket.objects.get(tx_ref=tx_ref)
             ticket.amount_paid = ticket.amount_expected
@@ -126,14 +125,14 @@ def process_flutterwave_payment(request):
                 amount=ticket.amount_expected,
                 payment_link=ticket.payment_link,
                 tx_ref=tx_ref,
-                transaction_id=transaction_id
+                transaction_id=transaction_id,
             )
 
         elif tx_ref.startswith("room_"):
             booking = RoomBooking.objects.get(tx_ref=tx_ref)
             booking.amount_paid = booking.amount_expected
             booking.transaction_id = transaction_id
-            booking.status="Completed"
+            booking.status = "Completed"
             booking.save()
 
             payment = Payment.objects.create(
@@ -150,7 +149,7 @@ def process_flutterwave_payment(request):
             bnb_booking = BnBBooking.objects.get(tx_ref=tx_ref)
             bnb_booking.amount_paid = bnb_booking.amount_expected
             bnb_booking.transaction_id = transaction_id
-            bnb_booking.status="Completed"
+            bnb_booking.status = "Completed"
             bnb_booking.save()
 
             payment = Payment.objects.create(
@@ -161,7 +160,7 @@ def process_flutterwave_payment(request):
                 amount=bnb_booking.amount_expected,
                 payment_link=bnb_booking.payment_link,
                 tx_ref=tx_ref,
-                transaction_id=transaction_id
+                transaction_id=transaction_id,
             )
 
     else:
@@ -170,7 +169,7 @@ def process_flutterwave_payment(request):
     context = {
         "payment_status": status,
         "tx_ref": tx_ref,
-        "transaction_id": transaction_id
+        "transaction_id": transaction_id,
     }
     print(context)
 

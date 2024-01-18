@@ -4,24 +4,23 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('property', '0004_remove_propertyroom_bed_type_and_more'),
+        ("property", "0004_remove_propertyroom_bed_type_and_more"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='propertyroom',
-            name='amenities',
+            model_name="propertyroom",
+            name="amenities",
         ),
         migrations.AddField(
-            model_name='propertyroom',
-            name='booked',
+            model_name="propertyroom",
+            name="booked",
             field=models.IntegerField(default=0),
         ),
         migrations.AddField(
-            model_name='propertyroom',
-            name='rooms_count',
+            model_name="propertyroom",
+            name="rooms_count",
             field=models.IntegerField(default=0),
         ),
     ]

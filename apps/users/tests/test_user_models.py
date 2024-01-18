@@ -25,7 +25,7 @@ class UserModelTestCase(TestCase):
             id_number="4363672882",
             date_of_birth="2000-01-23",
             phone_number="0746740960",
-            role="customer"
+            role="customer",
         )
 
         self.assertEqual(user.first_name, "Irene")

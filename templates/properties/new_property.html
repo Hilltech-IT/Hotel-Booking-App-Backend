@@ -61,6 +61,7 @@
                     <option value="Hotel">Hotel</option>
                     <option value="AirBnB">AirBnB</option>
                     <option value="Lodge">Lodge</option>
+                    <option value="Event Space">Event Space</option>
                   </select>
                 </div>
                 </div>
@@ -118,6 +119,20 @@
                         required
                     />
                 </div>
+              </div>
+              <div class="row mt-2">
+                <div class="col">
+                  <label for="exampleInputPassword1" class="form-label">Charge Per Night/Day</label>
+                  <input
+                      type="number"
+                      class="form-control"
+                      id="cost_per_night"
+                      name="cost_per_night"
+                      min="0"
+                      value="0"
+                      required
+                  />
+              </div>
               </div>
                 <div class="text-center mt-2">
                   <button type="submit" class="btn btn-primary">Submit</button>

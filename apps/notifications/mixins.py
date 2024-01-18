@@ -18,44 +18,49 @@ from apps.users.models import User
 
 
 class SendMessage(object):
-
-    def __init__(self, context_data, content='', other_recipients=list(), asynchronous=True):
-
+    def __init__(
+        self, context_data, content="", other_recipients=list(), asynchronous=True
+    ):
         if not asynchronous:
             return
 
-        self._create_in_system_message(context_data['in_system_subject'], content, other_recipients=other_recipients)
-        
-        #self._send_sms(context_data, other_recipients)
-        #self._send_dynamic_flow_sms(context_data, other_recipients)
+        self._create_in_system_message(
+            context_data["in_system_subject"],
+            content,
+            other_recipients=other_recipients,
+        )
 
-    def _create_in_system_message(self, subject, content='', other_recipients=list()):
+        # self._send_sms(context_data, other_recipients)
+        # self._send_dynamic_flow_sms(context_data, other_recipients)
 
+    def _create_in_system_message(self, subject, content="", other_recipients=list()):
         messages = list()
 
-        for user_id in User.objects\
-                .filter(pk__in=other_recipients, notification_type__name='in_system')\
-                .values_list('id', flat=True):
-            messages.append(Message(
-                user_id=user_id,
-                subject=subject,
-                message=content,
-                message_type="system"
-            ))
+        for user_id in User.objects.filter(
+            pk__in=other_recipients, notification_type__name="in_system"
+        ).values_list("id", flat=True):
+            messages.append(
+                Message(
+                    user_id=user_id,
+                    subject=subject,
+                    message=content,
+                    message_type="system",
+                )
+            )
 
         Message.objects.bulk_create(messages)
 
-    def send_mail(self, context_data, recipient_list, template=None, pending_email=False):
-
+    def send_mail(
+        self, context_data, recipient_list, template=None, pending_email=False
+    ):
         try:
             from_email = settings.SITE_EMAIL
-            context_data['email_date'] = str(date.today())
-        
+            context_data["email_date"] = str(date.today())
 
             if pending_email:
                 try:
                     user = User.objects.get(email=recipient_list[0])
-                    #if not self.__check_emails_limit([user, ], context_data):
+                    # if not self.__check_emails_limit([user, ], context_data):
                     #    return
                     user.sent_emails += 1
                     user.save()
@@ -63,21 +68,31 @@ class SendMessage(object):
                     return False
 
             if template:
-                html_message = get_template('messages/{0}.html'.format(template)).render(context_data)
+                html_message = get_template(
+                    "messages/{0}.html".format(template)
+                ).render(context_data)
             else:
-                html_message = get_template('messages/send_message.html').render(context_data)
+                html_message = get_template("messages/send_message.html").render(
+                    context_data
+                )
 
             message = strip_tags(html_message)
-            admin_identifier = ' SYSTEM:' if context_data.get('user_type', '') == 'admin' else ''
+            admin_identifier = (
+                " SYSTEM:" if context_data.get("user_type", "") == "admin" else ""
+            )
 
-            if 'test' in context_data:
-                subject = 'TEST: {0}{1} - {2}'.format(settings.EMAIL_SUBJECT, admin_identifier, context_data['subject'])
+            if "test" in context_data:
+                subject = "TEST: {0}{1} - {2}".format(
+                    settings.EMAIL_SUBJECT, admin_identifier, context_data["subject"]
+                )
             else:
-                subject = '{0}{1} - {2}'.format(settings.EMAIL_SUBJECT, admin_identifier, context_data['subject'])
+                subject = "{0}{1} - {2}".format(
+                    settings.EMAIL_SUBJECT, admin_identifier, context_data["subject"]
+                )
 
             headers = {
-                'Reply-To': 'digicafeteria@gmail.com',
-                'From': 'digicafeteria@gmail.com'
+                "Reply-To": "digicafeteria@gmail.com",
+                "From": "digicafeteria@gmail.com",
             }
 
             email = EmailMultiAlternatives(
@@ -85,20 +100,20 @@ class SendMessage(object):
                 body=message,
                 from_email=from_email,
                 to=recipient_list,
-                #**self.__email_additional_configs(),
-                headers=headers
+                # **self.__email_additional_configs(),
+                headers=headers,
             )
             email.attach_alternative(html_message, "text/html")
 
-            if 'attached_files' in context_data:
-                for attached_file in context_data['attached_files']:
+            if "attached_files" in context_data:
+                for attached_file in context_data["attached_files"]:
                     email.attach(
-                        attached_file['name'],
-                        attached_file['main_file'],
-                        attached_file['media_type'],
+                        attached_file["name"],
+                        attached_file["main_file"],
+                        attached_file["media_type"],
                     )
 
             email.send()
         except Exception as e:
-            print(f'_send_email >> error in sending email > {e}')
+            print(f"_send_email >> error in sending email > {e}")
             raise e

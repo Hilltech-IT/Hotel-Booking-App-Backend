@@ -4,30 +4,41 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('events', '0002_event_event_time_alter_event_event_date'),
+        ("events", "0002_event_event_time_alter_event_event_date"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='eventticket',
-            name='amount_expected',
+            model_name="eventticket",
+            name="amount_expected",
             field=models.DecimalField(decimal_places=2, max_digits=20, null=True),
         ),
         migrations.AlterField(
-            model_name='eventticket',
-            name='amount_paid',
+            model_name="eventticket",
+            name="amount_paid",
             field=models.DecimalField(decimal_places=2, max_digits=20, null=True),
         ),
         migrations.AlterField(
-            model_name='eventticket',
-            name='payment_method',
-            field=models.CharField(choices=[('Bank', 'Bank'), ('Cash', 'Cash'), ('Mpesa', 'Mpesa')], max_length=255, null=True),
+            model_name="eventticket",
+            name="payment_method",
+            field=models.CharField(
+                choices=[("Bank", "Bank"), ("Cash", "Cash"), ("Mpesa", "Mpesa")],
+                max_length=255,
+                null=True,
+            ),
         ),
         migrations.AlterField(
-            model_name='eventticket',
-            name='ticket_status',
-            field=models.CharField(choices=[('Active', 'Active'), ('Cancelled', 'Cancelled'), ('Redeemed', 'Redeemed'), ('Pending Payment', 'Pending Payment')], max_length=255),
+            model_name="eventticket",
+            name="ticket_status",
+            field=models.CharField(
+                choices=[
+                    ("Active", "Active"),
+                    ("Cancelled", "Cancelled"),
+                    ("Redeemed", "Redeemed"),
+                    ("Pending Payment", "Pending Payment"),
+                ],
+                max_length=255,
+            ),
         ),
     ]

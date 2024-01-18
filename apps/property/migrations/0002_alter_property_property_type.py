@@ -4,15 +4,17 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('property', '0001_initial'),
+        ("property", "0001_initial"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='property',
-            name='property_type',
-            field=models.CharField(choices=[('Hotel', 'Hotel'), ('AirBnB', 'AirBnB'), ('Lodge', 'Lodge')], max_length=255),
+            model_name="property",
+            name="property_type",
+            field=models.CharField(
+                choices=[("Hotel", "Hotel"), ("AirBnB", "AirBnB"), ("Lodge", "Lodge")],
+                max_length=255,
+            ),
         ),
     ]

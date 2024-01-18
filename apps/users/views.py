@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
@@ -7,24 +8,25 @@ from django.shortcuts import redirect, render
 from apps.notifications.tasks import welcome_new_user_task
 from apps.subscriptions.models import Pricing
 from apps.users.models import User
+from apps.users.utils import generate_unique_key
 
 
 # Create your views here.
 def user_login(request):
-    if request.method == 'POST':
-        username = request.POST.get('username')
-        password = request.POST.get('password')
+    if request.method == "POST":
+        username = request.POST.get("username")
+        password = request.POST.get("password")
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
-                
-            return redirect('home') 
-    return render(request, 'accounts/login.html')
+
+            return redirect("home")
+    return render(request, "accounts/login.html")
 
 
 def user_logout(request):
     logout(request)
-    return redirect('user-login')
+    return redirect("user-login")
 
 
 def staff(request):
@@ -33,11 +35,9 @@ def staff(request):
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
 
-    context = {
-        "users": staff,
-        "page_obj": page_obj
-    }
+    context = {"users": staff, "page_obj": page_obj}
     return render(request, "staff/staff.html", context)
+
 
 def new_staff(request):
     if request.method == "POST":
@@ -62,15 +62,22 @@ def new_staff(request):
             role="admin",
             position=position,
             city=city,
-            country=country
+            country=country,
         )
 
         try:
+            token = generate_unique_key(user.email)
+            user.token = token
+            user.save()
+
             context_data = {
                 "name": f"{first_name} {last_name}",
                 "email": email,
                 "phone_number": phone_number,
-                "subject": "Welcome to Wonder Wise"
+                "redirect_url": "{0}activate-account/{1}".format(
+                    settings.DEFAULT_FRONT_URL, user.token
+                ),
+                "subject": "Welcome to Wonder Wise",
             }
             welcome_new_user_task.delay(context_data=context_data, email=email)
         except Exception as e:
@@ -99,18 +106,18 @@ def edit_staff(request):
         id_number = request.POST.get("id_number")
 
         user = User.objects.get(id=user_id)
-        user.email=email
-        user.username=username
-        user.first_name=first_name
-        user.last_name=last_name
-        user.phone_number=phone_number
-        user.city=city
-        user.country=country
-        user.gender=gender
-        user.date_of_birth=date_of_birth
-        user.address=address
-        user.id_number=id_number
-        user.postion=position
+        user.email = email
+        user.username = username
+        user.first_name = first_name
+        user.last_name = last_name
+        user.phone_number = phone_number
+        user.city = city
+        user.country = country
+        user.gender = gender
+        user.date_of_birth = date_of_birth
+        user.address = address
+        user.id_number = id_number
+        user.postion = position
         user.save()
 
         return redirect("staff")
@@ -135,7 +142,7 @@ def onboard_service_provider(request):
             email=email,
             phone_number=phone_number,
             gender=gender,
-            role="service_provider"
+            role="service_provider",
         )
         user.set_password(password)
         user.save()
@@ -160,16 +167,16 @@ def edit_service_provider(request):
         country = request.POST.get("country")
 
         user = User.objects.get(id=user_id)
-        user.first_name=first_name
-        user.last_name=last_name
-        user.username=username
-        user.email=email
-        user.phone_number=phone_number
-        user.gender=gender
-        user.id_number=id_number
-        user.address=address 
-        user.city=city
-        user.country=country
+        user.first_name = first_name
+        user.last_name = last_name
+        user.username = username
+        user.email = email
+        user.phone_number = phone_number
+        user.gender = gender
+        user.id_number = id_number
+        user.address = address
+        user.city = city
+        user.country = country
         user.save()
         return redirect("service-providers")
 
@@ -181,7 +188,11 @@ def service_providers(request):
     paginator = Paginator(providers, 10)
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
-    return render(request, "service_providers/providers.html", {"providers": providers, "page_obj": page_obj})
+    return render(
+        request,
+        "service_providers/providers.html",
+        {"providers": providers, "page_obj": page_obj},
+    )
 
 
 def customers(request):
@@ -191,8 +202,5 @@ def customers(request):
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
 
-    context = {
-        "customers": customers,
-        "page_obj": page_obj
-    }
+    context = {"customers": customers, "page_obj": page_obj}
     return render(request, "accounts/customers.html", context)

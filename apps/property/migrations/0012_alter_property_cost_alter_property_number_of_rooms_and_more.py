@@ -4,25 +4,26 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('property', '0011_property_cost_property_number_of_rooms'),
+        ("property", "0011_property_cost_property_number_of_rooms"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='property',
-            name='cost',
-            field=models.DecimalField(decimal_places=2, default=0, max_digits=100, null=True),
+            model_name="property",
+            name="cost",
+            field=models.DecimalField(
+                decimal_places=2, default=0, max_digits=100, null=True
+            ),
         ),
         migrations.AlterField(
-            model_name='property',
-            name='number_of_rooms',
+            model_name="property",
+            name="number_of_rooms",
             field=models.IntegerField(default=0, null=True),
         ),
         migrations.AlterField(
-            model_name='property',
-            name='profile_image',
-            field=models.ImageField(null=True, upload_to='property_images/'),
+            model_name="property",
+            name="profile_image",
+            field=models.ImageField(null=True, upload_to="property_images/"),
         ),
     ]

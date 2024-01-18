@@ -1,0 +1,53 @@
+<div class="modal fade" id="testBookingModal{{booking.id}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5 text-center">Edit AirBnB Rooking</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+            <form action="{% url 'edit-airbnb-booking' %}" method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="modal-body">
+        
+                <div class="mb-2">
+                    <input
+                        type="number"
+                        class="form-control"
+                        id="booking_id"
+                        name="booking_id"
+                        value="{{booking.id}}"
+                        readonly
+                        hidden
+                        required
+                    />
+                    </div>
+                  <div class="mb-3">
+                    <label for="exampleInputPassword1" class="form-label">Booking Type</label>
+                    <input
+                        type="text"
+                        class="form-control"
+                        id="booking_type"
+                        name="booking_type"
+                        value="Hotel"
+                        readonly
+                        required
+                    />
+                    </div>
+                <div class="mb-3">
+                    <label for="exampleInputPassword1" class="form-label">Booking Status</label>
+                    <select class="form-select" id="status" name="status" value="{{booking.status}}">
+                        <option value="Payment Pending">Pending Payment</option>
+                        <option value="Completed">Paid/Payment Done</option>
+                        <option value="Cancelled">Cancelled</option>
+                        <option value="Paying">Still Paying</option>
+                </select>
+                    </div>
+                
+                <div class="text-center mt-2">
+                  <button type="submit" class="btn btn-primary">Submit</button>
+                </div>
+              </div>
+              </form>
+      </div>
+    </div>
+  </div>

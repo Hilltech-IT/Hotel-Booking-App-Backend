@@ -6,7 +6,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
@@ -15,45 +14,128 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='Event',
+            name="Event",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created', models.DateTimeField(auto_now_add=True)),
-                ('modified', models.DateTimeField(auto_now=True)),
-                ('title', models.CharField(max_length=500)),
-                ('event_date', models.DateTimeField()),
-                ('regular_ticket_price', models.DecimalField(decimal_places=2, max_digits=20)),
-                ('vip_ticket_price', models.DecimalField(decimal_places=2, max_digits=20)),
-                ('vvip_ticket_price', models.DecimalField(decimal_places=2, max_digits=20)),
-                ('children_ticket_price', models.DecimalField(decimal_places=2, max_digits=20)),
-                ('age_limit', models.FloatField(default=0)),
-                ('children_allowed', models.BooleanField(default=True)),
-                ('description', models.TextField()),
-                ('location', models.CharField(max_length=1000)),
-                ('event_banner', models.ImageField(null=True, upload_to='event_banners/')),
-                ('allowed_payment_methods', models.JSONField(default=list)),
-                ('total_tickets', models.IntegerField(default=1)),
-                ('owner', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='userevents', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created", models.DateTimeField(auto_now_add=True)),
+                ("modified", models.DateTimeField(auto_now=True)),
+                ("title", models.CharField(max_length=500)),
+                ("event_date", models.DateTimeField()),
+                (
+                    "regular_ticket_price",
+                    models.DecimalField(decimal_places=2, max_digits=20),
+                ),
+                (
+                    "vip_ticket_price",
+                    models.DecimalField(decimal_places=2, max_digits=20),
+                ),
+                (
+                    "vvip_ticket_price",
+                    models.DecimalField(decimal_places=2, max_digits=20),
+                ),
+                (
+                    "children_ticket_price",
+                    models.DecimalField(decimal_places=2, max_digits=20),
+                ),
+                ("age_limit", models.FloatField(default=0)),
+                ("children_allowed", models.BooleanField(default=True)),
+                ("description", models.TextField()),
+                ("location", models.CharField(max_length=1000)),
+                (
+                    "event_banner",
+                    models.ImageField(null=True, upload_to="event_banners/"),
+                ),
+                ("allowed_payment_methods", models.JSONField(default=list)),
+                ("total_tickets", models.IntegerField(default=1)),
+                (
+                    "owner",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="userevents",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
         migrations.CreateModel(
-            name='EventTicket',
+            name="EventTicket",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created', models.DateTimeField(auto_now_add=True)),
-                ('modified', models.DateTimeField(auto_now=True)),
-                ('ticket_type', models.CharField(choices=[('Regular', 'Regular Ticket'), ('VIP', 'VIP Ticket'), ('VVIP', 'VVIP Ticket'), ('Children', 'Children')], max_length=255)),
-                ('amount_paid', models.DecimalField(decimal_places=2, max_digits=20)),
-                ('payment_method', models.CharField(choices=[('Bank', 'Bank'), ('Cash', 'Cash'), ('Mpesa', 'Mpesa')], max_length=255)),
-                ('ticket_status', models.CharField(choices=[('Active', 'Active'), ('Cancelled', 'Cancelled'), ('Redeemed', 'Redeemed')], max_length=255)),
-                ('event', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='eventtickets', to='events.event')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='usereventtickets', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created", models.DateTimeField(auto_now_add=True)),
+                ("modified", models.DateTimeField(auto_now=True)),
+                (
+                    "ticket_type",
+                    models.CharField(
+                        choices=[
+                            ("Regular", "Regular Ticket"),
+                            ("VIP", "VIP Ticket"),
+                            ("VVIP", "VVIP Ticket"),
+                            ("Children", "Children"),
+                        ],
+                        max_length=255,
+                    ),
+                ),
+                ("amount_paid", models.DecimalField(decimal_places=2, max_digits=20)),
+                (
+                    "payment_method",
+                    models.CharField(
+                        choices=[
+                            ("Bank", "Bank"),
+                            ("Cash", "Cash"),
+                            ("Mpesa", "Mpesa"),
+                        ],
+                        max_length=255,
+                    ),
+                ),
+                (
+                    "ticket_status",
+                    models.CharField(
+                        choices=[
+                            ("Active", "Active"),
+                            ("Cancelled", "Cancelled"),
+                            ("Redeemed", "Redeemed"),
+                        ],
+                        max_length=255,
+                    ),
+                ),
+                (
+                    "event",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="eventtickets",
+                        to="events.event",
+                    ),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="usereventtickets",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
     ]

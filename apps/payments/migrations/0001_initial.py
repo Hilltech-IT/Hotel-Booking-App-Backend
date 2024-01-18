@@ -6,7 +6,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
@@ -15,18 +14,49 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='Payment',
+            name="Payment",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created', models.DateTimeField(auto_now_add=True)),
-                ('modified', models.DateTimeField(auto_now=True)),
-                ('payment_reason', models.CharField(choices=[('Booking', 'Booking'), ('Subscription', 'Subscription')], max_length=255)),
-                ('amount', models.DecimalField(decimal_places=2, max_digits=100)),
-                ('paid_by', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='customerpayments', to=settings.AUTH_USER_MODEL)),
-                ('paid_to', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='collections', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created", models.DateTimeField(auto_now_add=True)),
+                ("modified", models.DateTimeField(auto_now=True)),
+                (
+                    "payment_reason",
+                    models.CharField(
+                        choices=[
+                            ("Booking", "Booking"),
+                            ("Subscription", "Subscription"),
+                        ],
+                        max_length=255,
+                    ),
+                ),
+                ("amount", models.DecimalField(decimal_places=2, max_digits=100)),
+                (
+                    "paid_by",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name="customerpayments",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    "paid_to",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name="collections",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
     ]

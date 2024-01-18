@@ -4,7 +4,6 @@ from django.shortcuts import redirect, render
 
 from apps.bookings.tasks import create_payment_link_task
 from apps.events.models import Event, EventTicket, EventTicketComponent
-from apps.payments.flutterwave import FlutterwavePaymentProcessMixin
 from apps.users.models import User
 
 
@@ -17,15 +16,11 @@ def events(request):
     if user.role == "service_provider":
         events = Event.objects.filter(owner=user)
 
-
     paginator = Paginator(events, 10)
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
-    
-    context = {
-        "events": events,
-        "page_obj": page_obj
-    }
+
+    context = {"events": events, "page_obj": page_obj}
     return render(request, "events/events.html", context)
 
 
@@ -47,7 +42,6 @@ def new_event(request):
         allowed_payment_methods = request.POST.get("payment_methods")
         total_tickets = request.POST.get("total_tickets")
 
-
         user = User.objects.get(id=owner_id)
 
         Event.objects.create(
@@ -65,7 +59,7 @@ def new_event(request):
             location=location,
             event_banner=event_banner,
             allowed_payment_methods=allowed_payment_methods,
-            total_tickets=total_tickets
+            total_tickets=total_tickets,
         )
 
         return redirect("events")
@@ -90,25 +84,37 @@ def edit_event(request):
         allowed_payment_methods = request.POST.get("payment_methods")
         total_tickets = request.POST.get("total_tickets")
 
-        
         event = Event.objects.get(id=event_id)
-        event.title=title if title else event.title
-        event.event_date=event_date if event_date else event.event_date
-        event.regular_ticket_price=regular_ticket_price if regular_ticket_price else event.regular_ticket_price
-        event.vip_ticket_price=vip_ticket_price if vip_ticket_price else event.vip_ticket_price
-        event.vvip_ticket_price=vvip_ticket_price if vvip_ticket_price else event.vvip_ticket_price
-        event.children_ticket_price=children_ticket_price if children_ticket_price else event.children_ticket_price
-        event.age_limit=age_limit if age_limit else event.age_limit
-        event.children_allowed= True if children_allowed == "Yes" else False
-        event.description=description if description else event.description
-        event.location=location if location else event.location
-        event.event_banner=event_banner if event_banner else event.event_banner
-        event.allowed_payment_methods=allowed_payment_methods if allowed_payment_methods else event.allowed_payment_methods
-        event.total_tickets=total_tickets if total_tickets else event.total_tickets
+        event.title = title if title else event.title
+        event.event_date = event_date if event_date else event.event_date
+        event.regular_ticket_price = (
+            regular_ticket_price if regular_ticket_price else event.regular_ticket_price
+        )
+        event.vip_ticket_price = (
+            vip_ticket_price if vip_ticket_price else event.vip_ticket_price
+        )
+        event.vvip_ticket_price = (
+            vvip_ticket_price if vvip_ticket_price else event.vvip_ticket_price
+        )
+        event.children_ticket_price = (
+            children_ticket_price
+            if children_ticket_price
+            else event.children_ticket_price
+        )
+        event.age_limit = age_limit if age_limit else event.age_limit
+        event.children_allowed = True if children_allowed == "Yes" else False
+        event.description = description if description else event.description
+        event.location = location if location else event.location
+        event.event_banner = event_banner if event_banner else event.event_banner
+        event.allowed_payment_methods = (
+            allowed_payment_methods
+            if allowed_payment_methods
+            else event.allowed_payment_methods
+        )
+        event.total_tickets = total_tickets if total_tickets else event.total_tickets
         event.save()
 
         return redirect("events")
-        
 
     return render(request, "events/edit_event.html")
 
@@ -117,16 +123,11 @@ def event_details(request, event_id=None):
     event = Event.objects.get(id=event_id)
     event_tickets = event.eventtickets.all()
 
-
     paginator = Paginator(event_tickets, 10)
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
 
-    context = {
-        "event": event,
-        "event_tickets": event_tickets,
-        "page_obj": page_obj
-    }
+    context = {"event": event, "event_tickets": event_tickets, "page_obj": page_obj}
 
     return render(request, "events/event_details.html", context)
 
@@ -137,11 +138,8 @@ def event_tickets(request):
     paginator = Paginator(tickets, 10)
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
-    
-    context = {
-        "tickets": tickets,
-        "page_obj": page_obj
-    }
+
+    context = {"tickets": tickets, "page_obj": page_obj}
     return render(request, "events/tickets.html", context)
 
 
@@ -158,7 +156,7 @@ def delete_event(request):
 def new_event_ticket(request):
     if request.method == "POST":
         event_id = request.POST.get("event_id")
-        
+
         regular_ticket = int(request.POST.get("regular_ticket"))
         vip_ticket = int(request.POST.get("vip_ticket"))
         vvip_ticket = int(request.POST.get("vvip_ticket"))
@@ -178,22 +176,30 @@ def new_event_ticket(request):
                 last_name=last_name,
                 username=email,
                 phone_number=phone_number,
-                role="customer"
+                role="customer",
             )
 
         event = Event.objects.get(id=event_id)
 
         ticket_type = "Single"
 
-        if regular_ticket and vip_ticket or regular_ticket and vvip_ticket or vip_ticket and vvip_ticket:
+        if (
+            regular_ticket
+            and vip_ticket
+            or regular_ticket
+            and vvip_ticket
+            or vip_ticket
+            and vvip_ticket
+        ):
             ticket_type = "Multiple"
 
         regular_tickets_charge = event.regular_ticket_price * regular_ticket
         vip_tickets_charge = event.vip_ticket_price * vip_ticket
         vvip_tickets_charge = event.vvip_ticket_price * vvip_ticket
 
-        amount_expected = regular_tickets_charge + vip_tickets_charge + vvip_tickets_charge
-
+        amount_expected = (
+            regular_tickets_charge + vip_tickets_charge + vvip_tickets_charge
+        )
 
         ticket = EventTicket.objects.create(
             user=user,
@@ -202,7 +208,7 @@ def new_event_ticket(request):
             ticket_type=ticket_type,
             amount_paid=-abs(amount_expected),
             payment_method=payment_method,
-            ticket_status="Pending Payment"
+            ticket_status="Pending Payment",
         )
 
         tx_ref = f"ticket_{user.id}_{ticket.id}"
@@ -211,56 +217,36 @@ def new_event_ticket(request):
 
         if regular_ticket:
             EventTicketComponent.objects.create(
-                ticket=ticket,
-                ticket_type="Regular",
-                number_of_tickets=regular_ticket
+                ticket=ticket, ticket_type="Regular", number_of_tickets=regular_ticket
             )
 
         if vip_ticket:
             EventTicketComponent.objects.create(
-                ticket=ticket,
-                ticket_type="VIP",
-                number_of_tickets=vip_ticket
+                ticket=ticket, ticket_type="VIP", number_of_tickets=vip_ticket
             )
 
         if vvip_ticket:
             EventTicketComponent.objects.create(
-                ticket=ticket,
-                ticket_type="VVIP",
-                number_of_tickets=vvip_ticket
+                ticket=ticket, ticket_type="VVIP", number_of_tickets=vvip_ticket
             )
         amount_to_pay = int(amount_expected)
         try:
             name = f"{user.first_name} {user.last_name}"
             create_payment_link_task(
-                customer_id=user.id, 
+                customer_id=user.id,
                 name=name,
                 phone_number=user.phone_number,
                 email=user.email,
                 tx_ref=tx_ref,
                 amount_expected=amount_to_pay,
                 booking_id=ticket.id,
-                payment_type="ticket"
+                payment_type="ticket",
+                payment_title="Event Ticket Payment",
             )
-            """
-            payment_mixin = FlutterwavePaymentProcessMixin(
-                customer_id=user.id,
-                name=f"{user.first_name} {user.last_name}",
-                phone_number=user.phone_number,
-                email=user.email,
-                tx_ref=tx_ref,
-                amount=int(amount_expected),
-                currency="KES",
-                booking_id=ticket.id,
-                payment_type="ticket"
-            )
-            payment_mixin.run()
-            """
         except Exception as e:
             raise e
 
         return redirect(f"/events/events/{event.id}/")
-
 
     return render(request, "events/new_event_ticket.html")
 
@@ -278,8 +264,5 @@ def print_event_ticket(request, ticket_id=None):
     ticket = EventTicket.objects.get(id=ticket_id)
     tickt_components = ticket.ticketcomponents.all()
 
-    context = {
-        "ticket": ticket,
-        "ticket_components": tickt_components
-    }
+    context = {"ticket": ticket, "ticket_components": tickt_components}
     return render(request, "events/event_ticket.html", context)

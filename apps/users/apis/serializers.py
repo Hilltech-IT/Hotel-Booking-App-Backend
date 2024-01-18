@@ -1,5 +1,6 @@
 from datetime import datetime
 
+from django.conf import settings
 from django.contrib.auth import authenticate
 from django.utils import timezone
 from rest_framework import serializers
@@ -8,6 +9,7 @@ from rest_framework.exceptions import AuthenticationFailed
 
 from apps.bookings.apis.serializers import RoomBookingSerializer
 from apps.core.validators import check_valid_password
+from apps.notifications.tasks import welcome_new_user_task
 from apps.notifications.utils import reset_mail
 from apps.users.models import User
 from apps.users.utils import generate_unique_key
@@ -16,11 +18,24 @@ from apps.users.utils import generate_unique_key
 class UserListSerializer(serializers.ModelSerializer):
     bookings = serializers.SerializerMethodField()
     payments = serializers.SerializerMethodField()
+
     class Meta:
         model = User
         fields = [
-            "id", "username", "email", "first_name", "last_name", "id_number", "role", "phone_number", "gender",
-            "date_of_birth", "address", "country", "bookings", "payments"
+            "id",
+            "username",
+            "email",
+            "first_name",
+            "last_name",
+            "id_number",
+            "role",
+            "phone_number",
+            "gender",
+            "date_of_birth",
+            "address",
+            "country",
+            "bookings",
+            "payments",
         ]
 
     def get_bookings(self, obj):
@@ -32,20 +47,49 @@ class UserListSerializer(serializers.ModelSerializer):
         return obj.customerpayments.values()
 
 
+class EditUserProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = [
+            "username",
+            "email",
+            "first_name",
+            "last_name",
+            "id_number",
+            "role",
+            "phone_number",
+            "gender",
+            "address",
+            "city",
+            "country",
+        ]
+
 
 class RegisterSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = (
-            "id", "username", "email", "password", "first_name", "last_name", "id_number", "role",
-            "phone_number", "gender", "date_of_birth", "country", "address")
+            "id",
+            "username",
+            "email",
+            "password",
+            "first_name",
+            "last_name",
+            "id_number",
+            "role",
+            "phone_number",
+            "gender",
+            "date_of_birth",
+            "country",
+            "address",
+        )
         extra_kwargs = {"password": {"write_only": True}}
 
     def create(self, validated_data):
         user = User.objects.create_user(
             validated_data["username"],
             validated_data["email"],
-            validated_data["password"],   
+            validated_data["password"],
         )
         user.first_name = validated_data["first_name"]
         user.last_name = validated_data["last_name"]
@@ -58,14 +102,31 @@ class RegisterSerializer(serializers.ModelSerializer):
         user.gender = validated_data["gender"]
         user.save()
 
+        token = generate_unique_key(user.email)
+        user.token = token
+        user.save()
+
+        try:
+            context_data = {
+                "name": f"{user.first_name} {user.last_name}",
+                "email": user.email,
+                "phone_number": user.phone_number,
+                "redirect_url": "{0}activate-account/{1}".format(
+                    settings.DEFAULT_FRONT_URL, user.token
+                ),
+                "subject": "Welcome to Wonder Wise",
+            }
+            welcome_new_user_task.delay(context_data=context_data, email=user.email)
+        except Exception as e:
+            raise e
+
         return user
 
 
 class UserLoginSerializer(AuthTokenSerializer):
-
     def validate(self, attrs):
-        username = attrs.get('username')
-        password = attrs.get('password')
+        username = attrs.get("username")
+        password = attrs.get("password")
 
         if username and password:
             user = authenticate(username=username, password=password)
@@ -75,13 +136,19 @@ class UserLoginSerializer(AuthTokenSerializer):
                 # returns `None` for is_active=False users.
                 # (Assuming the default `ModelBackend` authentication backend.)
                 if not user.is_active:
-                    raise serializers.ValidationError('User account is disabled.', code='authorization')
+                    raise serializers.ValidationError(
+                        "User account is disabled.", code="authorization"
+                    )
             else:
-                raise AuthenticationFailed('Unable to log in with provided credentials.', code='authorization')
+                raise AuthenticationFailed(
+                    "Unable to log in with provided credentials.", code="authorization"
+                )
         else:
-            raise serializers.ValidationError('Must include "username" and "password".', code='authorization')
+            raise serializers.ValidationError(
+                'Must include "username" and "password".', code="authorization"
+            )
 
-        attrs['user'] = user
+        attrs["user"] = user
         return attrs
 
 
@@ -98,9 +165,8 @@ class ChangePasswordSerializer(serializers.Serializer):
             self.user.activation_date = datetime.date.today()
         self.user.is_active = True
         self.user.save()
-    
-    def validate(self, data):
 
+    def validate(self, data):
         self.check_valid_token()
         check_valid_password(data, user=self.user)
 
@@ -112,7 +178,10 @@ class ChangePasswordSerializer(serializers.Serializer):
         except User.DoesNotExist:
             raise serializers.ValidationError("Token is not valid.")
         fields = "__all__"
-    
+
+
+class UserActivationSerializer(serializers.Serializer):
+    token = serializers.CharField(max_length=500)
 
 
 class ForgotPasswordSerializer(serializers.Serializer):
@@ -131,6 +200,3 @@ class ForgotPasswordSerializer(serializers.Serializer):
             self.user = User.objects.get(email=value)
         except User.DoesNotExist:
             raise serializers.ValidationError("No user found with provided email!")
-
-    
-    

@@ -4,20 +4,19 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('property', '0010_remove_propertyroom_rooms_count'),
+        ("property", "0010_remove_propertyroom_rooms_count"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='property',
-            name='cost',
+            model_name="property",
+            name="cost",
             field=models.DecimalField(decimal_places=2, default=0, max_digits=100),
         ),
         migrations.AddField(
-            model_name='property',
-            name='number_of_rooms',
+            model_name="property",
+            name="number_of_rooms",
             field=models.IntegerField(default=0),
         ),
     ]

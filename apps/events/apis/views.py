@@ -12,4 +12,3 @@ class EventModelViewSet(ModelViewSet):
 class EventTicketModelViewSet(ModelViewSet):
     queryset = EventTicket.objects.all()
     serializer_class = EventTicketSerializer
-

@@ -4,25 +4,24 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('payments', '0004_payment_room'),
+        ("payments", "0004_payment_room"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='payment',
-            name='payment_link',
+            model_name="payment",
+            name="payment_link",
             field=models.URLField(null=True),
         ),
         migrations.AddField(
-            model_name='payment',
-            name='transaction_id',
+            model_name="payment",
+            name="transaction_id",
             field=models.CharField(max_length=255, null=True),
         ),
         migrations.AddField(
-            model_name='payment',
-            name='tx_ref',
+            model_name="payment",
+            name="tx_ref",
             field=models.CharField(max_length=255, null=True),
         ),
     ]

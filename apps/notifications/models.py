@@ -9,6 +9,7 @@ MESSAGE_TYPE_CHOICES = (
     ("system", "system"),
 )
 
+
 class Message(AbstractBaseModel):
     send_to = models.ForeignKey("users.User", on_delete=models.SET_NULL, null=True)
     context = models.TextField(null=True)

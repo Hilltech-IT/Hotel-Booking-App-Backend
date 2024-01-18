@@ -1,0 +1,135 @@
+<div class="modal fade" id="bookEventSpaceModal{{property.id}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5 text-center">Book Event Space</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+            <form action="{% url 'book-event-space' %}" method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="modal-body">
+                <div class="row">
+                    <div class="col">
+                        <label for="exampleInputPassword1" class="form-label">First Name</label>
+                        <input
+                          type="text"
+                          class="form-control"
+                          id="first_name"
+                          name="first_name"
+                          required
+                        />
+                      </div>
+                      <div class="col">
+                          <label for="exampleInputPassword1" class="form-label">Last Name</label>
+                          <input
+                            type="text"
+                            class="form-control"
+                            id="last_name"
+                            name="last_name"
+                            required
+                          />
+                        </div>
+                </div>
+                <div class="row mt-2">
+                    <div class="col">
+                        <label for="exampleInputPassword1" class="form-label">Phone Number</label>
+                        <input
+                          type="text"
+                          class="form-control"
+                          id="phone_number"
+                          name="phone_number"
+                          required
+                        />
+                      </div>
+                      <div class="col">
+                        <label for="exampleInputPassword1" class="form-label">Email</label>
+                        <input
+                          type="email"
+                          class="form-control"
+                          id="email"
+                          name="email"
+                          required
+                        />
+                      </div>
+                </div>
+                <div class="row mt-2">
+                    <div class="col">
+                        <label for="exampleInputPassword1" class="form-label">ID Number</label>
+                        <input
+                          type="text"
+                          class="form-control"
+                          id="id_number"
+                          name="id_number"
+                          required
+                        />
+                      </div>
+                      <div class="col">
+                        <label class="form-label">Gender</label>
+                        <select class="form-select" id="gender" name="gender">
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+        
+                          </select>
+                      </div>
+                </div>
+                <h4 class="text-center mt-2">Event Space Details</h4>
+                <hr>
+                <input
+                    type="number"
+                          class="form-control"
+                          id="property_id"
+                          name="property_id"
+                          value="{{property.id}}"
+                          readonly
+                          hidden
+                          required
+                        />
+                <div class="row mt-3">
+                    <div class="col">
+                        <label for="exampleInputPassword1" class="form-label">Charge Per Night</label>
+                        <input
+                          type="number"
+                          class="form-control"
+                          id="cost_per_night"
+                          name="cost_per_night"
+                          value="{{property.cost}}"
+                          readonly
+                          required
+                        />
+                      </div>
+                    
+                      
+                </div>
+                <div class="row mt-3">
+                    <div class="col">
+                        <label for="exampleInputPassword1" class="form-label">Checkin Date</label>
+                        <input
+                          type="date"
+                          class="form-control"
+                          id="booked_from"
+                          name="booked_from"
+                          required
+                          
+                        />
+                      </div>
+                      <div class="col">
+                        <label for="exampleInputPassword1" class="form-label">Checkout Date</label>
+                        <input
+                          type="date"
+                          class="form-control"
+                          id="booked_to"
+                          name="booked_to"
+                          required
+                          
+                        />
+                      </div>
+                </div>
+                
+                <div class="text-center mt-3">
+                  <button type="submit" class="btn btn-primary">Submit</button>
+                </div>
+              </div>
+              </form>
+      </div>
+    </div>
+  </div>

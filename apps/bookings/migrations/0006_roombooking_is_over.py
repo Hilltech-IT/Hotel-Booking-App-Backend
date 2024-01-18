@@ -4,15 +4,17 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('bookings', '0005_roombooking_payment_link_roombooking_transaction_id_and_more'),
+        (
+            "bookings",
+            "0005_roombooking_payment_link_roombooking_transaction_id_and_more",
+        ),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='roombooking',
-            name='is_over',
+            model_name="roombooking",
+            name="is_over",
             field=models.BooleanField(default=False),
         ),
     ]

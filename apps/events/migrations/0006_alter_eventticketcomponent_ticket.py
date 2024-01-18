@@ -5,15 +5,18 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('events', '0005_alter_eventticket_ticket_type'),
+        ("events", "0005_alter_eventticket_ticket_type"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='eventticketcomponent',
-            name='ticket',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='ticketcomponents', to='events.eventticket'),
+            model_name="eventticketcomponent",
+            name="ticket",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="ticketcomponents",
+                to="events.eventticket",
+            ),
         ),
     ]

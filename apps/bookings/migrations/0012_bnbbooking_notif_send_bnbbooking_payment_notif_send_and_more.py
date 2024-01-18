@@ -4,30 +4,29 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('bookings', '0011_alter_bnbbooking_status_alter_roombooking_status'),
+        ("bookings", "0011_alter_bnbbooking_status_alter_roombooking_status"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='bnbbooking',
-            name='notif_send',
+            model_name="bnbbooking",
+            name="notif_send",
             field=models.BooleanField(default=False),
         ),
         migrations.AddField(
-            model_name='bnbbooking',
-            name='payment_notif_send',
+            model_name="bnbbooking",
+            name="payment_notif_send",
             field=models.BooleanField(default=False),
         ),
         migrations.AddField(
-            model_name='roombooking',
-            name='notif_send',
+            model_name="roombooking",
+            name="notif_send",
             field=models.BooleanField(default=False),
         ),
         migrations.AddField(
-            model_name='roombooking',
-            name='payment_notif_send',
+            model_name="roombooking",
+            name="payment_notif_send",
             field=models.BooleanField(default=False),
         ),
     ]

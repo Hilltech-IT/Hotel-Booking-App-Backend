@@ -1,18 +1,25 @@
-from datetime import datetime
-
-date_format = "%m/%d/%Y %H:%M"
+from datetime import datetime, timedelta
 
 
-def fix_date_str(string_text):
-    time_part = [x for x in string_text.split()][1]
-    date_part = [x.split("/") for x in string_text.split()][0]
-    date_part[-1] = "2015"
+def get_date_range(checkin_date, checkout_date):
+    # Parse input strings to datetime objects
+    checkin_date = datetime.strptime(checkin_date, "%Y-%m-%d")
+    checkout_date = datetime.strptime(checkout_date, "%Y-%m-%d")
 
-    date_part = f'{"/".join(date_part)} {time_part}'
+    # Calculate the number of days in the range
+    delta = checkout_date - checkin_date
 
-    return date_part
+    # Generate the list of dates
+    date_range = [checkin_date + timedelta(days=i) for i in range(delta.days + 1)]
 
-string_text = "4/16/15 16:00"
-x = fix_date_str(string_text)
-date = datetime.strptime(x, date_format)
-print(date)
+    # Convert the dates back to string format
+    date_range_str = [date.strftime("%Y-%m-%d") for date in date_range]
+
+    return date_range_str
+
+
+# Example usage:
+checkin_date = "2024-01-20"
+checkout_date = "2024-01-25"
+result = get_date_range(checkin_date, checkout_date)
+print(result)

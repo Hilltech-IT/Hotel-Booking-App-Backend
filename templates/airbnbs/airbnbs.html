@@ -26,7 +26,6 @@
         <a class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#newAirBnBModal">New AirBnB</a>
     </div>
     
-  
 </div>
 <hr/>
       <div class="table-responsive small">
@@ -36,9 +35,10 @@
               <th scope="col">#</th>
               <th scope="col">Name</th>
               <th scope="col">Owner</th>
+              <th scope="col">Charge</th>
               <th scope="col">Address</th>
               <th scope="col">City</th>
-              <th scope="col" colspan="3">Actions</th>
+              <th scope="col" colspan="4">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -46,9 +46,13 @@
             <tr>
               <td>{{property.id}}</td>
               <td>{{property.name}}</td>
-              <td>{{property.owner}}</td>
+              <td>{{property.owner.name}}</td>
+              <td>{{property.cost}}</td>
               <td>{{property.address}}</td>
               <td>{{property.city}}, {{property.country}}</td>
+              <td><a href="{% url 'airbnb-details' property.id %}" class="btn btn-info btn-sm">
+                <i class="bi bi-eye"></i>
+              </a></td>
               <td>
                 <a class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#bookAirBnBModal{{property.id}}">
                   <i class="bi bi-journal-check"></i>

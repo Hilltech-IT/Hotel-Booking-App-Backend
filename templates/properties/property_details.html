@@ -2,8 +2,6 @@
 
 {% block content %}
 <div class="row">
-    <h3>Property Details</h3>
-    <hr/>
     <div class="col">
         <p>Name: {{property.name}}</p>
         <p>Date Posted: {{property.created}}</p>
@@ -19,15 +17,14 @@
         <h3>Hotel Rooms</h3>
     </div>
     <div class="col">
-        <a class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newRoomModal">New Hotel Room</a>
-    </div>
-   
-    
+        <a class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newRoomModal{{property.id}}">New Room</a>
+        </div>
 </div>
 
 <hr/>
       <div class="table-responsive small">
         <table class="table table-sm">
+  
           <thead>
             <tr>
               <th scope="col">#</th>
@@ -40,6 +37,7 @@
             </tr>
           </thead>
           <tbody>
+            
             {% for room in rooms %}
             <tr>
               <td>{{room.id}}</td>
@@ -54,7 +52,7 @@
                 <i class="bi bi-pencil-square"></i>
               </a></td>
               <td>
-                <a class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#bookRoomModal{{room.id}}">
+                <a class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#bookRoomModal{{ room.id }}">
                   <i class="bi bi-journal-check"></i>
                 </a>
               </td>
@@ -62,12 +60,65 @@
                 <i class="bi bi-trash"></i>
               </a></td>
             </tr>
+
+            
             
             {% include "properties/rooms/edit_room.html" %}
             {% include "booking/book_room.html" %}
+            {% include "booking/test_booking.html" %}
+            {% include "event_spaces/book_event_space.html" %}
+            {% include "airbnbs/book_airbnb.html" %}
+
             {% endfor %}
 
           </tbody>
+        </table>
+      </div>
+      <br>
+      <div class="table-responsive small">
+        <h3>Bookigs</h3>
+          <table class="table table-sm">
+          <thead>
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">Customer</th>
+              <th scope="col">Checkin Date</th>
+              <th scope="col">Checkout Date</th>
+              <th scope="col">Amount Paid</th>
+              <th scope="col">Status</th>
+              <th scope="col" colspan="3">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            
+            {% for booking in page_obj %}
+            <tr>
+              <td>{{booking.id}}</td>
+              <td>{{booking.user.name}}</td>
+              <td>{{booking.booked_from}}</td>
+              <td>{{booking.booked_to}}</td>
+              <td>{{booking.amount_paid}}</td>
+              <td>{{booking.status}}</td>
+              <td>
+                <a class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editBookingModal{{ booking.id }}">
+                    <i class="bi bi-pencil-square"></i>
+                </a>
+              </td>
+              <td>
+                <td>
+              <a class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#payBookingModal{{ booking.id }}">
+                <i class="bi bi-currency-dollar"></i>
+            </a>
+          </td>
+              <td><a href="#" class="btn btn-warning btn-sm">
+                <i class="bi bi-x-circle"></i>
+              </a></td>
+            </tr>
+            {% include "booking/pay_booking.html" %}
+            {% include "booking/edit_booking.html" %}
+            {% endfor %}
+
+         
         </table>
         <div>
           <nav aria-label="Page navigation example">
@@ -83,4 +134,6 @@
           </nav>
         </div>
       </div>
+
+      {% include "properties/rooms/new_room.html" %}
 {% endblock content %}

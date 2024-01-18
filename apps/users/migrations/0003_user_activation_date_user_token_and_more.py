@@ -4,25 +4,24 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('users', '0002_alter_user_gender'),
+        ("users", "0002_alter_user_gender"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='user',
-            name='activation_date',
+            model_name="user",
+            name="activation_date",
             field=models.DateTimeField(null=True),
         ),
         migrations.AddField(
-            model_name='user',
-            name='token',
+            model_name="user",
+            name="token",
             field=models.CharField(max_length=255, null=True),
         ),
         migrations.AddField(
-            model_name='user',
-            name='token_expiration_date',
+            model_name="user",
+            name="token_expiration_date",
             field=models.DateTimeField(null=True),
         ),
     ]

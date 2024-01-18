@@ -3,7 +3,8 @@ from decimal import Decimal
 
 from apps.bookings.models import BnBBooking
 from apps.bookings.tasks import create_payment_link_task
-#from apps.payments.flutterwave import FlutterwavePaymentProcessMixin
+
+# from apps.payments.flutterwave import FlutterwavePaymentProcessMixin
 from apps.property.models import Property
 from apps.users.models import User
 
@@ -26,7 +27,7 @@ class AirBnBBookingMixin(object):
 
         checkin_date = datetime.strptime(booked_from, "%Y-%m-%d")
         checkout_date = datetime.strptime(booked_to, "%Y-%m-%d")
-            
+
         days_booked = (checkout_date - checkin_date).days
         amount_expected = Decimal(days_booked) * property.cost
 
@@ -37,38 +38,24 @@ class AirBnBBookingMixin(object):
             booked_to=checkout_date,
             days_booked=days_booked,
             amount_paid=0,
-            amount_expected=amount_expected
+            amount_expected=amount_expected,
         )
         tx_ref = f"bnb_{user.id}_{bnb_booking.id}"
         bnb_booking.tx_ref = tx_ref
         bnb_booking.save()
         amount_to_pay = int(amount_expected)
         try:
-            #create_payment_link_task.apply(user, tx_ref, amount_expected, bnb_booking, "bnb")
             name = f"{user.first_name} {user.last_name}"
             create_payment_link_task(
-                customer_id=user.id, 
+                customer_id=user.id,
                 name=name,
                 phone_number=user.phone_number,
                 email=user.email,
                 tx_ref=tx_ref,
                 amount_expected=amount_to_pay,
                 booking_id=bnb_booking.id,
-                payment_type="bnb"
+                payment_type="bnb",
+                payment_title="AirBnB Booking Payment",
             )
-            """
-            payment_mixin = FlutterwavePaymentProcessMixin(
-                customer_id=user.id,
-                name=f"{user.first_name} {user.last_name}",
-                phone_number=user.phone_number,
-                email=user.email,
-                tx_ref=tx_ref,
-                amount=int(amount_expected),
-                currency="KES",
-                booking_id=bnb_booking.id,
-                payment_type="bnb"
-            )
-            payment_mixin.run()
-            """
         except Exception as e:
             raise e

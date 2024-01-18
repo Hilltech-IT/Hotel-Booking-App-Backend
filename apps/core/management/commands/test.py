@@ -1,13 +1,12 @@
-
 from django.core.management.base import BaseCommand
 from django.test.runner import DiscoverRunner
 
 
 class Command(BaseCommand):
-    help = 'Run tests for specific test modules'
+    help = "Run tests for specific test modules"
 
     def handle(self, *args, **options):
-        test_modules = ['apps/users/tests']
+        test_modules = ["apps/users/tests"]
 
         test_runner = DiscoverRunner(verbosity=2)
 

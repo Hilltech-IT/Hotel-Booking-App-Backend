@@ -4,15 +4,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('users', '0003_user_activation_date_user_token_and_more'),
+        ("users", "0003_user_activation_date_user_token_and_more"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='user',
-            name='city',
+            model_name="user",
+            name="city",
             field=models.CharField(max_length=255, null=True),
         ),
     ]

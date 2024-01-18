@@ -3,7 +3,7 @@
 {% block content %}
 <div class="row">
     <div class="col">
-        <h3>HOTELS</h3>
+        <h4>HOTELS LISTED</h4>
     </div>
     <div class="col">
       <form method="POST">
@@ -36,7 +36,7 @@
               <th scope="col">#</th>
               <th scope="col">Name</th>
               <th scope="col">Owner</th>
-              <th scope="col">Address</th>
+              <th scope="col">Type</th>
               <th scope="col">City</th>
               <th scope="col" colspan="3">Actions</th>
             </tr>
@@ -46,8 +46,8 @@
             <tr>
               <td>{{property.id}}</td>
               <td>{{property.name}}</td>
-              <td>{{property.owner}}</td>
-              <td>{{property.address}}</td>
+              <td>{{property.owner.name}}</td>
+              <td>{{property.property_type}}</td>
               <td>{{property.city}}, {{property.country}}</td>
               <td><a href="{% url 'property-details' property.id %}" class="btn btn-info btn-sm">
                 <i class="bi bi-eye"></i>
@@ -62,6 +62,7 @@
             </tr>
             {% include "properties/edit_property.html" %}
             {% include "properties/delete_property.html" %}
+            
    
             {% endfor %}
 
