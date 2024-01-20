@@ -2,29 +2,68 @@
 
 {% block content %}
 <div class="row">
-    <div class="card m-2" style="width: 16rem; height: 150px;">
+    <div class="card m-2" style="width: 16rem;">
         <div class="card-body">
           <h5 class="card-title">Hotels</h5>
           <hr/>
-          <p class="card-text">Hotels Count: {{hotels_count}}</p>
+          <p class="card-text">Count: {{hotels_count}}</p>
+          <p class="card-text">Bookings: {{hotels_bookings}}</p>
+          <p class="card-text">Revenue: {{hotels_revenue}}</p>
           <a href="#"></a>
         </div>
       </div>
+      <div class="card m-2" style="width: 16rem;">
+        <div class="card-body">
+          <h5 class="card-title">Event Spaces</h5>
+          <hr/>
+          <p class="card-text">Count: {{event_spaces_count}}</p>
+          <p class="card-text">Bookings: {{event_spaces_bookings}}</p>
+          <p class="card-text">Revenue: {{event_spaces_revenue}}</p>
+          
+        </div>
+      </div>
+
+      <div class="card m-2" style="width: 16rem;">
+        <div class="card-body">
+          <h5 class="card-title">AirBnBs</h5>
+          <hr/>
+          <p class="card-text">Count: {{airbnbs_count}}</p>
+          <p class="card-text">Bookings: {{airbnbs_bookings}}</p>
+          <p class="card-text">Revenue: {{airbnbs_revenue}}</p>
+          <a href="#"></a>
+        </div>
+      </div>
+
+      <div class="card m-2" style="width: 16rem;">
+       
+        <div class="card-body">
+          <h5 class="card-title">Events</h5>
+          <hr/>
+          <p class="card-text">Count: {{events_count}}</p>
+          <p class="card-text">Bookings: {{events_bookings}}</p>
+          <p class="card-text">Revenue: {{events_revenue}}</p>
+        </div>
+      </div>
+      
+      {% if request.user.is_superuser %}
       <div class="card m-2" style="width: 16rem; height: 150px;">
        
         <div class="card-body">
           <h5 class="card-title">Customers</h5>
           <hr/>
-          <p class="card-text">Customers Count: {{customers_count}}</p>
+          <p class="card-text">Count: {{customers_count}}</p>
         </div>
       </div>
+
       <div class="card m-2" style="width: 16rem; height: 150px;">
+       
         <div class="card-body">
-          <h5 class="card-title">Bookings</h5>
+          <h5 class="card-title">Service Providers</h5>
           <hr/>
-          <p class="card-text">Bookings Count: {{bookings_count}}</p>
-         
+          <p class="card-text">Count: {{service_providers_count}}</p>
         </div>
       </div>
+      {% endif %}
+      
   </div>
 {% endblock %}
