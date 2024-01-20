@@ -3,8 +3,8 @@ import requests
 from apps.bookings.models import BnBBooking, EventSpaceBooking, RoomBooking
 from apps.events.models import EventTicket
 
-FLUTTERWAVE_PUBLIC_KEY = "FLWPUBK_TEST-2fdaa8d386db34a99199799a8b948af5-X"
-FLUTTERWAVE_SECRET_KEY = "FLWSECK_TEST-890358088be2632f5c6692c6da61482a-X"
+FLUTTERWAVE_PUBLIC_KEY = "FLWPUBK_TEST-b4fdf67a419a39416730b9b00684c725-X"
+FLUTTERWAVE_SECRET_KEY = "FLWSECK_TEST-bad42d6869e125620d1868832e379c33-X"
 
 FLUTTERWAVE_PAYMENT_URL = "https://api.flutterwave.com/v3/payments"
 
@@ -47,7 +47,7 @@ class FlutterwavePaymentProcessMixin(object):
             "amount": self.amount,
             "currency": "KES",
             #"payment_options": "mpesa",
-            "redirect_url": "http://34.171.61.167:8000//payments/confirm-payment",
+            "redirect_url": "http://127.0.0.1:8000/payments/confirm-payment",
             "meta": {
                 "consumer_id": self.customer_id,
                 "consumer_mac": "92a3-912ba-1192a",

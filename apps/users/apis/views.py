@@ -6,15 +6,13 @@ from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from apps.users.apis.serializers import (
-    ChangePasswordSerializer,
-    EditUserProfileSerializer,
-    ForgotPasswordSerializer,
-    RegisterSerializer,
-    UserActivationSerializer,
-    UserListSerializer,
-    UserLoginSerializer,
-)
+from apps.users.apis.serializers import (ChangePasswordSerializer,
+                                         EditUserProfileSerializer,
+                                         ForgotPasswordSerializer,
+                                         RegisterSerializer,
+                                         UserActivationSerializer,
+                                         UserListSerializer,
+                                         UserLoginSerializer)
 from apps.users.models import User
 
 
