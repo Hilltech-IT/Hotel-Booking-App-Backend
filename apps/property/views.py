@@ -16,6 +16,7 @@ def properties(request):
     user = request.user
     properties = Property.objects.filter(property_type="Hotel").order_by("-created")
 
+
     if request.method == "POST":
         search_text = request.POST.get("search_text")
 
@@ -26,8 +27,8 @@ def properties(request):
         ).filter(property_type="Hotel")
 
     if not user.is_superuser:
-        properties = Property.objects.filter(owner=user)
-    users = User.objects.filter(role="customer")
+        properties = Property.objects.filter(property_type="Hotel", owner=user).order_by("-created")
+    users = User.objects.filter(role="service_provider")
 
     paginator = Paginator(properties, 10)
     page_number = request.GET.get("page")
@@ -209,7 +210,7 @@ def delete_room(request):
 @login_required(login_url="/users/user-login/")
 def bnb_properties(request):
     user = request.user
-    properties = Property.objects.filter(property_type="AirBnB")
+    properties = Property.objects.filter(property_type="AirBnB").order_by("-created")
 
     if request.method == "POST":
         search_text = request.POST.get("search_text")
@@ -221,8 +222,8 @@ def bnb_properties(request):
         ).filter(property_type="AirBnB")
 
     if not user.is_superuser:
-        properties = Property.objects.filter(owner=user)
-    users = User.objects.filter(role="customer")
+        properties = Property.objects.filter(property_type="AirBnB", owner=user).order_by("-created")
+    users = User.objects.filter(role="service_provider")
 
     paginator = Paginator(properties, 10)
     page_number = request.GET.get("page")
@@ -256,7 +257,8 @@ def airbnb_details(request, airbnb_id=None):
 @login_required(login_url="/users/user-login/")
 def event_spaces(request):
     user = request.user
-    properties = Property.objects.filter(property_type__in=["Event Space", "Event", "Event_Space"])
+    properties = Property.objects.filter(property_type__in=["Event Space", "Event", "Event_Space"]).order_by("-created")
+
 
     if request.method == "POST":
         search_text = request.POST.get("search_text")
@@ -265,11 +267,12 @@ def event_spaces(request):
             Q(name__icontains=search_text)
             | Q(city__icontains=search_text)
             | Q(country__icontains=search_text)
-        ).filter(property_type__in=["Event Space", "Event", "Event_Space"])
+        ).filter(owner=user).filter(property_type__in=["Event Space", "Event", "Event_Space"])
 
     if not user.is_superuser:
-        properties = Property.objects.filter(owner=user)
-    users = User.objects.filter(role="customer")
+        properties = Property.objects.filter(owner=user).filter(property_type__in=["Event Space", "Event", "Event_Space"]).order_by("-created")
+
+    users = User.objects.filter(role="service_provider")
 
     paginator = Paginator(properties, 10)
     page_number = request.GET.get("page")

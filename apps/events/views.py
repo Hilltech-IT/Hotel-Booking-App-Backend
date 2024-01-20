@@ -23,7 +23,7 @@ def events(request):
     context = {"events": events, "page_obj": page_obj}
     return render(request, "events/events.html", context)
 
-
+@login_required(login_url="/users/user-login/")
 def new_event(request):
     if request.method == "POST":
         owner_id = request.POST.get("owner_id")
@@ -66,7 +66,7 @@ def new_event(request):
 
     return render(request, "events/new_event.html")
 
-
+@login_required(login_url="/users/user-login/")
 def edit_event(request):
     if request.method == "POST":
         event_id = request.POST.get("event_id")
@@ -119,6 +119,7 @@ def edit_event(request):
     return render(request, "events/edit_event.html")
 
 
+@login_required(login_url="/users/user-login/")
 def event_details(request, event_id=None):
     event = Event.objects.get(id=event_id)
     event_tickets = event.eventtickets.all().order_by("-created")
@@ -132,8 +133,14 @@ def event_details(request, event_id=None):
     return render(request, "events/event_details.html", context)
 
 
+@login_required(login_url="/users/user-login/")
 def event_tickets(request):
     tickets = EventTicket.objects.all().order_by("-created")
+
+    user = request.user
+    if not user.is_superuser:
+        tickets = EventTicket.objects.filter(event__owner=user).order_by("-created")
+    
 
     paginator = Paginator(tickets, 10)
     page_number = request.GET.get("page")
@@ -143,6 +150,7 @@ def event_tickets(request):
     return render(request, "events/tickets.html", context)
 
 
+@login_required(login_url="/users/user-login/")
 def delete_event(request):
     if request.method == "POST":
         event_id = int(request.POST.get("event_id"))
@@ -153,6 +161,7 @@ def delete_event(request):
     return render(request, "events/delete_event.html")
 
 
+@login_required(login_url="/users/user-login/")
 def new_event_ticket(request):
     if request.method == "POST":
         event_id = request.POST.get("event_id")
@@ -251,6 +260,7 @@ def new_event_ticket(request):
     return render(request, "events/new_event_ticket.html")
 
 
+@login_required(login_url="/users/user-login/")
 def cancel_event_ticket(request):
     if request.method == "POST":
         ticket_id = request.POST.get("ticket_id")

@@ -10,6 +10,26 @@ PAYMENT_REASON_CHOICES = (
     ("Subscription", "Subscription"),
 )
 
+WALLET_TRANSACTION_TYPES = (
+    ("Withdraw", "Withdraw"),
+    ("Refund", "Refund"),
+    ("AirBnB Booking", "AirBnB Booking"),
+    ("Ticket Booking", "Ticket Booking"),
+    ("Room Booking", "Room Booking"),
+    ("Subscription Payment", "Subscription Payment"),
+)
+
+class ServiceProviderWallet(AbstractBaseModel):
+    user = models.OneToOneField("users.User", on_delete=models.CASCADE)
+    balance = models.DecimalField(max_digits=100, decimal_places=2, default=0)
+
+
+class WalletLog(AbstractBaseModel):
+    wallet = models.ForeignKey(ServiceProviderWallet, on_delete=models.SET_NULL, null=True)
+    actioned_by = models.ForeignKey("users.User", on_delete=models.SET_NULL, null=True)
+    amount = models.DecimalField(max_digits=100, decimal_places=2, default=0)
+    transaction_type = models.CharField(max_length=255, choices=WALLET_TRANSACTION_TYPES)
+
 
 class Payment(AbstractBaseModel):
     bnb_booking = models.ForeignKey(
