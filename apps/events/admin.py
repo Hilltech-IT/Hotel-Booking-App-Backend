@@ -22,3 +22,8 @@ class EventTicketAdmin(admin.ModelAdmin):
 @admin.register(EventTicketComponent)
 class EventTicketComponentAdmin(admin.ModelAdmin):
     list_display = ["ticket", "ticket_type", "number_of_tickets"]
+
+
+@admin.register(Event)
+class EventAdmin(admin.ModelAdmin):
+    list_display = ["id", "title", "owner", "event_date", "location", "total_tickets"]

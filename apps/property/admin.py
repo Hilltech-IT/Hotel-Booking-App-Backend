@@ -14,13 +14,16 @@ class PropertyRoomAdmin(admin.ModelAdmin):
         "rooms_count",
         "booked",
         "rate",
+        
     ]
 
 
 @admin.register(Property)
 class PropertyAdmin(admin.ModelAdmin):
     list_display = [
+        "id",
         "name",
+        "owner",
         "property_type",
         "contact_number",
         "email",

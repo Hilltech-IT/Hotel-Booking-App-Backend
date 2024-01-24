@@ -28,7 +28,7 @@ def user_logout(request):
     logout(request)
     return redirect("user-login")
 
-
+@login_required(login_url="/users/user-login/")
 def staff(request):
     staff = User.objects.filter(role="admin")
     paginator = Paginator(staff, 10)
@@ -38,7 +38,7 @@ def staff(request):
     context = {"users": staff, "page_obj": page_obj}
     return render(request, "staff/staff.html", context)
 
-
+@login_required(login_url="/users/user-login/")
 def new_staff(request):
     if request.method == "POST":
         email = request.POST.get("email")
@@ -87,7 +87,7 @@ def new_staff(request):
 
     return render(request, "staff/new_staff.html")
 
-
+@login_required(login_url="/users/user-login/")
 def edit_staff(request):
     if request.method == "POST":
         user_id = request.POST.get("user_id")
@@ -151,7 +151,7 @@ def onboard_service_provider(request):
 
     return render(request, "service_providers/onboarding.html")
 
-
+@login_required(login_url="/users/user-login/")
 def edit_service_provider(request):
     if request.method == "POST":
         user_id = int(request.POST.get("user_id"))
@@ -182,7 +182,7 @@ def edit_service_provider(request):
 
     return render(request, "service_providers/edit_service_provider.html")
 
-
+@login_required(login_url="/users/user-login/")
 def service_providers(request):
     providers = User.objects.filter(role="service_provider")
     paginator = Paginator(providers, 10)
@@ -194,7 +194,7 @@ def service_providers(request):
         {"providers": providers, "page_obj": page_obj},
     )
 
-
+@login_required(login_url="/users/user-login/")
 def customers(request):
     customers = User.objects.filter(role__in=["Customer", "customer"])
 
@@ -204,3 +204,23 @@ def customers(request):
 
     context = {"customers": customers, "page_obj": page_obj}
     return render(request, "accounts/customers.html", context)
+
+@login_required(login_url="/users/user-login/")
+def service_provider_profile(request, service_provider_id=None):
+
+    user = request.user
+
+    service_provider = User.objects.get(id=service_provider_id)
+
+    if not user.is_superuser:
+        service_provider = User.objects.get(id=user.id)
+
+    properties = service_provider.listedproperties.all()
+    events = service_provider.userevents.all()
+
+    context = {
+        "service_provider": service_provider,
+        "properties": properties,
+        "events": events
+    }
+    return render(request, "service_providers/profile.html", context)

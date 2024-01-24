@@ -50,7 +50,7 @@ APPROVAL_CHOICES = (
 
 
 class Property(AbstractBaseModel):
-    owner = models.ForeignKey("users.User", on_delete=models.SET_NULL, null=True)
+    owner = models.ForeignKey("users.User", on_delete=models.SET_NULL, null=True, related_name="listedproperties")
     name = models.CharField(max_length=255)
     location = models.CharField(max_length=255)
     city = models.CharField(max_length=255)
