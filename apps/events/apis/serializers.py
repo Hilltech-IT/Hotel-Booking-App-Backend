@@ -10,9 +10,14 @@ class EventSerializer(serializers.ModelSerializer):
 
 
 class EventTicketSerializer(serializers.ModelSerializer):
+    event_name = serializers.SerializerMethodField()
+
     class Meta:
         model = EventTicket
         fields = "__all__"
+
+    def get_event_name(self, obj):
+        return obj.event.title
 
 TICKET_CHOICES = (
     ("Single", "Single"),

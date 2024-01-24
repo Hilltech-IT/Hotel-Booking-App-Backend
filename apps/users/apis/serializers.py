@@ -7,8 +7,11 @@ from rest_framework import serializers
 from rest_framework.authtoken.serializers import AuthTokenSerializer
 from rest_framework.exceptions import AuthenticationFailed
 
-from apps.bookings.apis.serializers import RoomBookingSerializer
+from apps.bookings.apis.serializers import (BnBBookingSerializer,
+                                            EventSpaceBookingSerializer,
+                                            RoomBookingSerializer)
 from apps.core.validators import check_valid_password
+from apps.events.apis.serializers import EventTicketSerializer
 from apps.notifications.tasks import welcome_new_user_task
 from apps.notifications.utils import reset_mail
 from apps.users.models import User
@@ -16,8 +19,11 @@ from apps.users.utils import generate_unique_key
 
 
 class UserListSerializer(serializers.ModelSerializer):
-    bookings = serializers.SerializerMethodField()
+    hotel_bookings = serializers.SerializerMethodField()
     payments = serializers.SerializerMethodField()
+    tickets = serializers.SerializerMethodField()
+    airbnb_bookings = serializers.SerializerMethodField()
+    event_space_bookings = serializers.SerializerMethodField()
 
     class Meta:
         model = User
@@ -34,17 +40,36 @@ class UserListSerializer(serializers.ModelSerializer):
             "date_of_birth",
             "address",
             "country",
-            "bookings",
+            "hotel_bookings",
+            "tickets",
+            "airbnb_bookings",
+            "event_space_bookings",
             "payments",
         ]
 
-    def get_bookings(self, obj):
+    def get_hotel_bookings(self, obj):
         data = obj.customerbookings.all()
         serializer = RoomBookingSerializer(instance=data, many=True)
         return serializer.data
 
     def get_payments(self, obj):
         return obj.customerpayments.values()
+
+    
+    def get_tickets(self, obj):
+        data = obj.usereventtickets.all()
+        serializer = EventTicketSerializer(instance=data, many=True)
+        return serializer.data
+
+    def get_airbnb_bookings(self, obj):
+        data = obj.customerbnbbookings.all()
+        serializer = BnBBookingSerializer(instance=data, many=True)
+        return serializer.data
+
+    def get_event_space_bookings(self, obj):
+        data = obj.customereventspacebookings.all()
+        serializer = EventSpaceBookingSerializer(instance=data, many=True)
+        return serializer.data
 
 
 class EditUserProfileSerializer(serializers.ModelSerializer):

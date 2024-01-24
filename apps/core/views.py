@@ -27,8 +27,8 @@ def home(request):
     events_spaces_revenue = sum(list(EventSpaceBooking.objects.values_list('amount_paid', flat=True)))
     events_revenue = sum(list(EventTicket.objects.values_list('amount_paid', flat=True)))
 
-    customers_count = User.objects.filter(role="customer")
-    service_providers_count = User.objects.filter(role="service_provider")
+    customers_count = User.objects.filter(role="customer").count()
+    service_providers_count = User.objects.filter(role="service_provider").count()
 
     if not user.is_superuser:
         airbnbs_count = Property.objects.filter(owner=user).filter(property_type="AirBnB").count()

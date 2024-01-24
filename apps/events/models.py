@@ -66,9 +66,7 @@ class Event(AbstractBaseModel):
 
 
 class EventTicket(AbstractBaseModel):
-    user = models.ForeignKey(
-        "users.User", on_delete=models.CASCADE, related_name="usereventtickets"
-    )
+    user = models.ForeignKey("users.User", on_delete=models.CASCADE, related_name="usereventtickets")
     event = models.ForeignKey(
         Event, on_delete=models.CASCADE, related_name="eventtickets"
     )
