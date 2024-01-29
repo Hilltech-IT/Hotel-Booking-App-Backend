@@ -5,6 +5,7 @@ from apps.bookings.apis.views import (
     BookARoomAPIView,
     BookingFeeCalculationAPIView,
     RoomBookingAPIView,
+    BookEventSpaceAPIView
 )
 from apps.bookings.views import (
     airbnb_bookings,
@@ -39,4 +40,5 @@ urlpatterns = [
     path("book-an-airbnb/", BookAirBnBAPIView.as_view(), name="book-an-airbnb"),
     path("event-space-bookings/", event_space_bookings, name="event-space-bookings"),
     path("book-event-space/", book_event_space, name="book-event-space"),
+    path("book-an-event-space/", BookEventSpaceAPIView.as_view(), name="book-an-event-space"),
 ]
