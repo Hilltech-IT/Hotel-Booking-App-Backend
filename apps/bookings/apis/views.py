@@ -15,6 +15,7 @@ from apps.bookings.apis.serializers import (BookAirBnBSerializer,
 from apps.bookings.models import RoomBooking
 from apps.bookings.process_airbnb_booking import AirBnBBookingMixin
 from apps.bookings.process_booking import RoomBookingMixin
+from apps.bookings.process_event_space_booking import EventSpaceBookingMixin
 from apps.property.models import PropertyRoom
 
 
@@ -97,5 +98,7 @@ class BookEventSpaceAPIView(generics.CreateAPIView):
         serializer = self.serializer_class(data=data)
 
         if serializer.is_valid(raise_exception=True):
+            booking_mixin = EventSpaceBookingMixin(data=data)
+            booking_mixin.run()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
