@@ -98,7 +98,7 @@ class BookEventSpaceAPIView(generics.CreateAPIView):
         serializer = self.serializer_class(data=data)
 
         if serializer.is_valid(raise_exception=True):
-            booking_mixin = EventSpaceBookingMixin(data=data)
+            booking_mixin = EventSpaceBookingMixin(booking_data=data)
             booking_mixin.run()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
