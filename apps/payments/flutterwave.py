@@ -3,8 +3,8 @@ import requests
 from apps.bookings.models import BnBBooking, EventSpaceBooking, RoomBooking
 from apps.events.models import EventTicket
 
-FLUTTERWAVE_PUBLIC_KEY = "FLWPUBK_TEST-b4fdf67a419a39416730b9b00684c725-X"
-FLUTTERWAVE_SECRET_KEY = "FLWSECK_TEST-bad42d6869e125620d1868832e379c33-X"
+FLUTTERWAVE_PUBLIC_KEY = "FLWPUBK_TEST-1995a03fbb08575cfeb94b9e4dd451e9-X"
+FLUTTERWAVE_SECRET_KEY = "FLWSECK_TEST-5ec4192bb5d242a85fa22936e09e1593-X"
 
 FLUTTERWAVE_PAYMENT_URL = "https://api.flutterwave.com/v3/payments"
 

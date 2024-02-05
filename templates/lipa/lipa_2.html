@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lipia Room!</title>
+    <style>
+        body {
+    font-size: 14px;
+    font-family: "Moderat","Inter",sans-serif;
+    font-weight: 400;
+    color: #333;
+}
+
+#start-payment-button {
+    cursor: pointer;
+    position: relative;
+    background-color: #ff9b00;
+    color: #12122c;
+    max-width: 30%;
+    padding: 7.5px 16px;
+    font-weight: 500;
+    font-size: 14px;
+    border-radius: 4px;
+    border: none;
+    transition: all .1s ease-in;
+    vertical-align: middle;
+}
+    </style>
+</head>
+<body>
+    <script src="https://checkout.flutterwave.com/v3.js"></script>
+<form>
+  <div>
+    Your order is ₦2,500
+  </div>
+  <button type="button" id="start-payment-button" onclick="makePayment()">Pay Now</button>
+</form>
+<script>
+  function makePayment() {
+    FlutterwaveCheckout({
+      public_key: "FLWPUBK-77cd36c3dcd7857eadf7e159f300d9fd-X",
+      tx_ref: "txref-DI0NzMxxx12",
+      amount: 5,
+      currency: "KES",
+      redirect_url: "http://127.0.0.1:8000/payments/confirm-payment",
+      meta: {
+        source: "docs-inline-test",
+        consumer_mac: "92a3-912ba-1192a",
+      },
+      customer: {
+        email: "paulkadabo@gmail.com",
+        phone_number: "0745491093",
+        name: "Paul Ndambo",
+      },
+      customizations: {
+        title: "WonderWise",
+        description: "Pay for your booking please",
+        logo: "https://checkout.flutterwave.com/assets/img/rave-logo.png",
+      },
+    });
+  }
+</script>
+</body>
+</html>
