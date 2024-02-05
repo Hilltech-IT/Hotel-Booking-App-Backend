@@ -1,6 +1,8 @@
 from django.db import models
 
 from apps.core.models import AbstractBaseModel
+from django.core.validators import MinValueValidator
+from django.db import models
 
 # Create your models here.
 PAYMENT_REASON_CHOICES = (
@@ -64,3 +66,29 @@ class Payment(AbstractBaseModel):
 
     def __str__(self):
         return f"{self.paid_by.name} has paid {self.paid_to.name}"
+
+
+class MpesaResponseData(models.Model):
+    response_data = models.JSONField(default=dict)
+    response_description = models.CharField(max_length=1000)
+    response_code = models.CharField(max_length=255)
+
+    def __str__(self):
+        return self.response_code
+
+
+
+class MpesaTransaction(models.Model):
+    MerchantRequestID = models.CharField(max_length=255, null=True)
+    CheckoutRequestID = models.CharField(max_length=255, null=True)
+    ResultCode = models.IntegerField(default=0, null=True)
+    ResultDesc = models.CharField(max_length=1000, null=True)
+    Amount = models.DecimalField(max_digits=10, decimal_places=2)
+    TransactionTimeStamp = models.CharField(max_length=255, null=True)
+    TransactionDate = models.DateTimeField(null=True)
+    PhoneNumber = models.CharField(max_length=255, null=True)
+    MpesaReceiptNumber = models.CharField(max_length=255, null=True)
+    
+
+    def __str__(self):
+        return self.MpesaReceiptNumber
