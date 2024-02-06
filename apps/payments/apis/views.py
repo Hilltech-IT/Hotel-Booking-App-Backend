@@ -5,13 +5,48 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
 from apps.payments.apis.serializers import (LipaNaMpesaCallbackSerializer,
-                                            LipaNaMpesaSerializer)
+                                            LipaNaMpesaSerializer, PaystackSerializer, PaystackCallbackSerializer)
 from apps.payments.models import MpesaResponseData, MpesaTransaction
 from apps.payments.mpesa.mpesa_callback_data import mpesa_callback_data_distructure
 from apps.payments.mpesa.utils import MpesaGateWay
+from apps.payments.paystack.paystack import PaystackProcessorMixin
 
 
 BASE_BACKEND_URL = ""
+
+class PaystackAPIView(generics.CreateAPIView):
+    serializer_class = PaystackSerializer
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        data = request.data
+
+        print(f"Paystack Data: {data}")
+
+        serializer = self.serializer_class(data=data)
+
+        if serializer.is_valid(raise_exception=True):
+            try:
+                paystack = PaystackProcessorMixin(data=data)
+                paystack.run()
+            except Exception as e:
+                raise e
+
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class PaystackCallbackAPIView(generics.CreateAPIView):
+    serializer_class = PaystackCallbackSerializer
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        data = request.data
+        print(f"Callback Data: {data}")
+
+        return Response({"message": "Hello World"})
+
 
 class LipaNaMpesaCallbackAPIView(generics.CreateAPIView):
     serializer_class = LipaNaMpesaCallbackSerializer

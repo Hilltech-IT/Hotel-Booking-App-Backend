@@ -8,7 +8,7 @@ from apps.payments.views import (
 )
 
 from apps.payments.apis.views import (LipaNaMpesaAPIView,
-                                      LipaNaMpesaCallbackAPIView)
+                                      LipaNaMpesaCallbackAPIView, PaystackAPIView, PaystackCallbackAPIView)
 
 urlpatterns = [
     path("", payments, name="payments"),
@@ -20,4 +20,9 @@ urlpatterns = [
     # Mpesa
     path("lipa-na-mpesa/", LipaNaMpesaAPIView.as_view(), name="lipa-na-mpesa"),
     path("lipa-na-mpesa-callback/", LipaNaMpesaCallbackAPIView.as_view(), name="lipa-na-mpesa-callback"),
+
+
+    # Paystack
+    path("paystack-pay/", PaystackAPIView.as_view(), name="paystack-pay"),
+    path("paystack-callback/", PaystackCallbackAPIView.as_view(), name="paystack-callback"),
 ]

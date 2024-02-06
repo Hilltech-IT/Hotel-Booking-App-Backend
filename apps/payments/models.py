@@ -92,3 +92,15 @@ class MpesaTransaction(models.Model):
 
     def __str__(self):
         return self.MpesaReceiptNumber
+
+
+class PaystackPayment(AbstractBaseModel):
+    user = models.ForeignKey("users.User", on_delete=models.SET_NULL, null=True)
+    reference = models.CharField(max_length=500)
+    access_code = models.CharField(max_length=255)
+    amount = models.DecimalField(max_digits=100, decimal_places=2)
+    email = models.EmailField()
+    authorization_url = models.URLField(max_length=500)
+
+    def __str__(self):
+        return self.reference
