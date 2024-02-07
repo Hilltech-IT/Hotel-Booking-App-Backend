@@ -14,4 +14,4 @@ admin.site.register(MpesaResponseData)
 
 @admin.register(PaystackPayment)
 class PaystackPaymentAdmin(admin.ModelAdmin):
-    list_display = ["id", "reference", "access_code", "amount", "email", "authorization_url"]
+    list_display = ["id", "reference", "access_code", "amount", "email", "verified", "payment_type", "authorization_url"]

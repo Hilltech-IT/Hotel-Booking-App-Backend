@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from apps.bookings.models import BnBBooking, RoomBooking
+from apps.bookings.models import BnBBooking, RoomBooking, EventSpaceBooking
 
 
 # Register your models here.
@@ -13,9 +13,11 @@ class RoomBookingAdmin(admin.ModelAdmin):
         "booked_from",
         "booked_to",
         "days_booked",
-        "tx_ref",
+        "reference",
+        "payment_link",
         "transaction_id",
         "amount_paid",
+        "amount_expected",
         "notif_send",
     ]
 
@@ -30,7 +32,27 @@ class BnBBooking(admin.ModelAdmin):
         "booked_to",
         "amount_expected",
         "amount_paid",
+        "payment_link",
+        "amount_expected",
         "transaction_id",
-        "tx_ref",
+        "reference",
+        "notif_send",
+    ]
+
+
+@admin.register(EventSpaceBooking)
+class EventSpaceBooking(admin.ModelAdmin):
+    list_display = [
+        "id",
+        "user",
+        "event_space",
+        "booked_from",
+        "booked_to",
+        "amount_expected",
+        "amount_paid",
+        "payment_link",
+        "amount_expected",
+        "transaction_id",
+        "reference",
         "notif_send",
     ]

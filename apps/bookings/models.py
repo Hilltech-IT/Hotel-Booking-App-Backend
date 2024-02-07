@@ -4,6 +4,9 @@ from apps.core.models import AbstractBaseModel
 from apps.payments.models import Payment
 from apps.property.models import PropertyRoom
 from apps.users.models import User
+from django.dispatch import receiver
+from django.db.models.signals import post_save
+
 
 BOOKING_STATUS_CHOICES = (
     ("Pending Payment", "Pending Payment"),
@@ -25,7 +28,7 @@ class RoomBooking(AbstractBaseModel):
     fully_paid = models.BooleanField(default=False)
     rooms_booked = models.IntegerField(default=1)
     payment_link = models.URLField(null=True)
-    tx_ref = models.CharField(max_length=255, null=True)
+    reference = models.CharField(max_length=255, null=True)
     transaction_id = models.CharField(max_length=255, null=True)
     is_over = models.BooleanField(default=False)
     status = models.CharField(
@@ -60,15 +63,10 @@ class BnBBooking(AbstractBaseModel):
     fully_paid = models.BooleanField(default=False)
     rooms_booked = models.IntegerField(default=1)
     payment_link = models.URLField(null=True)
-    tx_ref = models.CharField(max_length=255, null=True)
+    reference = models.CharField(max_length=255, null=True)
     transaction_id = models.CharField(max_length=255, null=True)
     is_over = models.BooleanField(default=False)
-    status = models.CharField(
-        max_length=255,
-        null=True,
-        default="Pending Payment",
-        choices=BOOKING_STATUS_CHOICES,
-    )
+    status = models.CharField(max_length=255, null=True, default="Pending Payment", choices=BOOKING_STATUS_CHOICES)
     payment_notif_send = models.BooleanField(default=False)
     notif_send = models.BooleanField(default=False)
 
@@ -77,11 +75,7 @@ class BnBBooking(AbstractBaseModel):
 
 
 class EventSpaceBooking(AbstractBaseModel):
-    user = models.ForeignKey(
-        "users.User",
-        on_delete=models.CASCADE,
-        related_name="customereventspacebookings",
-    )
+    user = models.ForeignKey("users.User", on_delete=models.CASCADE, related_name="customereventspacebookings",)
     event_space = models.ForeignKey(
         "property.Property",
         on_delete=models.SET_NULL,
@@ -96,7 +90,7 @@ class EventSpaceBooking(AbstractBaseModel):
     fully_paid = models.BooleanField(default=False)
     rooms_booked = models.IntegerField(default=1)
     payment_link = models.URLField(null=True)
-    tx_ref = models.CharField(max_length=255, null=True)
+    reference = models.CharField(max_length=255, null=True)
     transaction_id = models.CharField(max_length=255, null=True)
     is_over = models.BooleanField(default=False)
     status = models.CharField(
@@ -110,3 +104,23 @@ class EventSpaceBooking(AbstractBaseModel):
 
     def __str__(self):
         return str(self.id)
+
+
+"""
+@receiver(post_save, sender=RoomBooking)
+def initialize_payment(sender, instance, created, **kwargs):
+    if created:
+        try:
+            amount = int(instance.amount_expected) * 100
+            payment_data = {
+                "amount": amount,
+                "email": instance.user.email,
+                "reference": instance.reference,
+                "user_id": instance.user.id,
+                "payment_type": "room"
+            }
+            paystack = PaystackProcessorMixin()
+            paystack.initialize_payment(payment_data=payment_data)
+        except Exception as e:
+            raise e
+"""

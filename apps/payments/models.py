@@ -10,6 +10,7 @@ PAYMENT_REASON_CHOICES = (
     ("AirBnB Booking", "AirBnB Booking"),
     ("Ticket Booking", "Ticket Booking"),
     ("Subscription", "Subscription"),
+    ("Event Space Booking", "Event Space Booking"),
 )
 
 WALLET_TRANSACTION_TYPES = (
@@ -34,9 +35,13 @@ class WalletLog(AbstractBaseModel):
 
 
 class Payment(AbstractBaseModel):
-    bnb_booking = models.ForeignKey(
-        "bookings.BnBBooking",
+    bnb_booking = models.ForeignKey("bookings.BnBBooking",
         related_name="bnbbookingpayments",
+        on_delete=models.SET_NULL,
+        null=True,
+    )
+    event_space_booking = models.ForeignKey("bookings.EventSpaceBooking",
+        related_name="eventspacebookingpayments",
         on_delete=models.SET_NULL,
         null=True,
     )
@@ -52,16 +57,15 @@ class Payment(AbstractBaseModel):
         null=True,
         related_name="roombookingpayments",
     )
+    room_booking = models.ForeignKey("bookings.RoomBooking", on_delete=models.SET_NULL, null=True)
     paid_by = models.ForeignKey(
         "users.User", on_delete=models.PROTECT, related_name="customerpayments"
     )
-    paid_to = models.ForeignKey(
-        "users.User", on_delete=models.PROTECT, related_name="collections"
-    )
+    paid_to = models.ForeignKey("users.User", on_delete=models.PROTECT, related_name="collections")
     payment_reason = models.CharField(max_length=255, choices=PAYMENT_REASON_CHOICES)
     amount = models.DecimalField(max_digits=100, decimal_places=2)
     payment_link = models.URLField(null=True)
-    tx_ref = models.CharField(max_length=255, null=True)
+    reference = models.CharField(max_length=255, null=True)
     transaction_id = models.CharField(max_length=255, null=True)
 
     def __str__(self):
@@ -96,11 +100,14 @@ class MpesaTransaction(models.Model):
 
 class PaystackPayment(AbstractBaseModel):
     user = models.ForeignKey("users.User", on_delete=models.SET_NULL, null=True)
+    payment = models.ForeignKey(Payment, on_delete=models.SET_NULL, null=True)
     reference = models.CharField(max_length=500)
     access_code = models.CharField(max_length=255)
     amount = models.DecimalField(max_digits=100, decimal_places=2)
     email = models.EmailField()
     authorization_url = models.URLField(max_length=500)
+    verified = models.BooleanField(default=False)
+    payment_type = models.CharField(max_length=255, null=True)
 
     def __str__(self):
         return self.reference

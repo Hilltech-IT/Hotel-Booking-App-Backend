@@ -5,6 +5,7 @@ from apps.bookings.models import EventSpaceBooking
 from apps.bookings.tasks import create_payment_link_task
 from apps.property.models import Property
 from apps.users.models import User
+from apps.payments.paystack.paystack import PaystackProcessorMixin
 
 
 class EventSpaceBookingMixin(object):
@@ -38,22 +39,19 @@ class EventSpaceBookingMixin(object):
             amount_paid=0,
             amount_expected=amount_expected,
         )
-        tx_ref = f"event_space_{user.id}_{event_space_booking.id}"
-        event_space_booking.tx_ref = tx_ref
+        reference = f"event_space_{user.id}_{event_space_booking.id}"
+        event_space_booking.reference = reference
         event_space_booking.save()
-        amount_to_pay = int(amount_expected)
+        amount_to_pay = int(amount_expected) * 100
         try:
-            name = f"{user.first_name} {user.last_name}"
-            create_payment_link_task(
-                customer_id=user.id,
-                name=name,
-                phone_number=user.phone_number,
-                email=user.email,
-                tx_ref=tx_ref,
-                amount_expected=amount_to_pay,
-                booking_id=event_space_booking.id,
-                payment_type="event_space",
-                payment_title="Event Space Booking Payment",
-            )
+            payment_data = {
+                "amount": amount_to_pay,
+                "email": event_space_booking.user.email,
+                "reference": reference,
+                "user_id": event_space_booking.user.id,
+                "payment_type": "event_space"
+            }
+            paystack = PaystackProcessorMixin()
+            paystack.initialize_payment(payment_data=payment_data)
         except Exception as e:
             raise e

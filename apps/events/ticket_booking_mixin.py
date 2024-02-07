@@ -2,6 +2,7 @@ from apps.bookings.tasks import create_payment_link_task
 from apps.events.models import Event, EventTicket, EventTicketComponent
 from apps.users.models import User
 
+from apps.payments.paystack.paystack import PaystackProcessorMixin
 
 class EventTicketBookingMixin(object):
     def __init__(self, booking_data):
@@ -59,8 +60,8 @@ class EventTicketBookingMixin(object):
             payment_method=payment_method,
             ticket_status="Pending Payment",
         )
-        tx_ref = f"ticket_{user.id}_{ticket.id}"
-        ticket.tx_ref = tx_ref
+        reference = f"ticket_{user.id}_{ticket.id}"
+        ticket.reference = reference
         ticket.save()
 
         if regular_tickets:
@@ -98,19 +99,16 @@ class EventTicketBookingMixin(object):
                 ticket=ticket, ticket_type="Group", number_of_tickets=group_tickets
             )
 
-        amount_to_pay = int(amount_expected)
+        amount_to_pay = int(amount_expected) * 100
         try:
-            name = f"{user.first_name} {user.last_name}"
-            create_payment_link_task(
-                customer_id=user.id,
-                name=name,
-                phone_number=user.phone_number,
-                email=user.email,
-                tx_ref=tx_ref,
-                amount_expected=amount_to_pay,
-                booking_id=ticket.id,
-                payment_type="ticket",
-                payment_title="Event Ticket Payment",
-            )
+            payment_data = {
+                "amount": amount_to_pay,
+                "email": ticket.user.email,
+                "reference": reference,
+                "user_id": ticket.user.id,
+                "payment_type": "ticket"
+            }
+            paystack = PaystackProcessorMixin()
+            paystack.initialize_payment(payment_data=payment_data)
         except Exception as e:
             raise e
