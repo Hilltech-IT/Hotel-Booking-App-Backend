@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from apps.payments.models import Payment, MpesaResponseData, MpesaTransaction
+from apps.payments.models import Payment, MpesaResponseData, MpesaTransaction, PaystackPayment
 
 
 # Register your models here.
@@ -11,3 +11,7 @@ class PaymentAdmin(admin.ModelAdmin):
 
 admin.site.register(MpesaTransaction)
 admin.site.register(MpesaResponseData)
+
+@admin.register(PaystackPayment)
+class PaystackPaymentAdmin(admin.ModelAdmin):
+    list_display = ["id", "reference", "access_code", "amount", "email", "verified", "payment_type", "authorization_url"]

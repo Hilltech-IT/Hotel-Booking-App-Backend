@@ -4,9 +4,10 @@ from decimal import Decimal
 from apps.bookings.models import BnBBooking
 from apps.bookings.tasks import create_payment_link_task
 
-# from apps.payments.flutterwave import FlutterwavePaymentProcessMixin
+
 from apps.property.models import Property
 from apps.users.models import User
+from apps.payments.paystack.paystack import PaystackProcessorMixin
 
 
 class AirBnBBookingMixin(object):
@@ -40,22 +41,19 @@ class AirBnBBookingMixin(object):
             amount_paid=0,
             amount_expected=amount_expected,
         )
-        tx_ref = f"bnb_{user.id}_{bnb_booking.id}"
-        bnb_booking.tx_ref = tx_ref
+        reference = f"bnb_{user.id}_{bnb_booking.id}"
+        bnb_booking.reference = reference
         bnb_booking.save()
-        amount_to_pay = int(amount_expected)
+        amount_to_pay = int(amount_expected) * 100
         try:
-            name = f"{user.first_name} {user.last_name}"
-            create_payment_link_task(
-                customer_id=user.id,
-                name=name,
-                phone_number=user.phone_number,
-                email=user.email,
-                tx_ref=tx_ref,
-                amount_expected=amount_to_pay,
-                booking_id=bnb_booking.id,
-                payment_type="bnb",
-                payment_title="AirBnB Booking Payment",
-            )
+            payment_data = {
+                "amount": amount_to_pay,
+                "email": bnb_booking.user.email,
+                "reference": reference,
+                "user_id": bnb_booking.user.id,
+                "payment_type": "bnb"
+            }
+            paystack = PaystackProcessorMixin()
+            paystack.initialize_payment(payment_data=payment_data)
         except Exception as e:
             raise e
