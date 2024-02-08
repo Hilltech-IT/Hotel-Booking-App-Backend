@@ -4,7 +4,7 @@ from django.db import models
 
 from apps.property.apis.get_booked_dates import (get_booked_dates,
                                                  get_date_range)
-
+from apps.property.apis.get_room_booked_dates import get_room_booked_dates
 date_today = datetime.now().date()
 
 
@@ -119,12 +119,17 @@ class Property(AbstractBaseModel):
                     dates_list.append(x)
 
             return list(set(dates_list))
+
         elif self.property_type.lower() == "hotel":
             rooms = self.propertyrooms.all()
 
+        
+            dates_list = []
             for room in rooms:
+            #    print(f"Room ID: {room.id}, Room Type: {room.room_type}")
+            
                 bookings = room.roombookings.filter(booked_to__gt=date_today)
-                dates_list = []
+                
                 for booking in bookings:
                     delta = booking.booked_to - booking.booked_from
                     date_range = [
@@ -135,9 +140,12 @@ class Property(AbstractBaseModel):
 
                     for x in dates_range_str:
                         dates_list.append(x)
-                    #booked_dates_range = set(get_booked_dates("Hotel", bookings))
-                    #free_dates = list(set(list(dates_range - booked_dates_range)))
-                return list(set(dates_list))
+               
+            
+                    
+            return list(set(dates_list))
+
+            
 
 
 class PropertyRoom(AbstractBaseModel):
@@ -160,7 +168,7 @@ class PropertyRoom(AbstractBaseModel):
     charge_per_night = models.DecimalField(max_digits=100, decimal_places=2, default=0)
 
     def __str__(self):
-        return f"Room {str(self.id)}- {self.room_type}"
+        return f"Room {str(self.id)} - {self.room_type} - {self.property.name}"
 
     def rooms_count(self):
         return self.rooms_number - self.booked

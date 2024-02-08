@@ -33,6 +33,7 @@ class PaystackCallbackProcessMixin(object):
         
         booking = RoomBooking.objects.get(reference=reference)
         booking.amount_paid = booking.amount_expected
+        booking.status = "Paid"
         booking.transaction_id = transaction_id
         booking.save()
 
@@ -58,6 +59,7 @@ class PaystackCallbackProcessMixin(object):
 
         booking = BnBBooking.objects.get(reference=reference)
         booking.amount_paid = booking.amount_expected
+        booking.status = "Paid"
         booking.transaction_id = transaction_id
         booking.save()
 
@@ -109,6 +111,7 @@ class PaystackCallbackProcessMixin(object):
 
         booking = EventSpaceBooking.objects.get(reference=reference)
         booking.amount_paid = booking.amount_expected
+        booking.status = "Paid"
         booking.transaction_id = transaction_id
         booking.save()
 
