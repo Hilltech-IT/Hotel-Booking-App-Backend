@@ -31,6 +31,8 @@ class EventTicketBookingMixin(object):
         event = Event.objects.get(id=event_id)
         user = User.objects.filter(email=email).first()
 
+        tickets_count = regular_tickets + vip_tickets + vvip_tickets + children_tickets + couples_tickets + group_tickets + students_tickets
+
         if not user:
             user = User.objects.create(
                 email=email,

@@ -45,10 +45,18 @@
               <td>{{booking.booked_to}}</td>
               <td>{{booking.amount_paid}}</td>
               <td>{{booking.status}}</td>
-           
-              <td><a href="#" class="btn btn-danger btn-sm">
+              <td>
+                {% if booking.amount_paid >= booking.amount_expected %}
+              {% else %}<a href="{{ booking.payment_link }}" class="btn btn-warning btn-sm">
+                Pay
+              </a>
+              {% endif %}
+              <a href="#" class="btn btn-danger btn-sm">
                 <i class="bi bi-trash"></i>
-              </a></td>
+              </a>
+            </td>
+              
+          
             </tr>
             {% include "airbnbs/book_airbnb.html" %}
             {% endfor %}

@@ -10,6 +10,7 @@ from django.db.models.signals import post_save
 
 BOOKING_STATUS_CHOICES = (
     ("Pending Payment", "Pending Payment"),
+    ("Paid", "Paid"),
     ("Completed", "Completed"),
     ("Cancelled", "Cancelled"),
     ("Paying", "Paying"),

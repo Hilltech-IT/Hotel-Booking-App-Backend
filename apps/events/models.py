@@ -58,11 +58,13 @@ class Event(AbstractBaseModel):
 
     @property
     def booked_tickets(self):
-        return self.eventtickets.all().count()
+        components = sum(list(EventTicketComponent.objects.filter(ticket__event__id=self.id).values_list('number_of_tickets', flat=True)))
+        return components
 
     @property
     def pending_tickets(self):
-        return self.total_tickets - self.eventtickets.all().count()
+        components = sum(list(EventTicketComponent.objects.filter(ticket__event__id=self.id).values_list('number_of_tickets', flat=True)))
+        return self.total_tickets - components
 
 
 class EventTicket(AbstractBaseModel):
