@@ -63,6 +63,7 @@ class EventTicketBookingMixin(object):
             ticket_status="Pending Payment",
         )
         reference = f"ticket_{user.id}_{ticket.id}"
+        ticket.ticket_number = f"ETN_{user.id}_{ticket.id}"
         ticket.reference = reference
         ticket.save()
 
