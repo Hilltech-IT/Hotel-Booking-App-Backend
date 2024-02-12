@@ -5,17 +5,38 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Event Ticket Booking</title>
+    <style>
+        table {
+          font-family: arial, sans-serif;
+          border-collapse: collapse;
+          width: 100%;
+        }
+        
+        td, th {
+          border: 1px solid black;
+          text-align: left;
+          padding: 8px;
+        }
+
+        td {
+            font-weight: normal;
+        }
+        
+        tr:nth-child(even) {
+          background-color: #dddddd;
+        }
+        </style>
 </head>
 <body>
     <p>Hello {{name}},</p>
     <p>You have successfully booked an event ticket for {{event_name}}, happening on {{event_date}} at {{event_location}}</p>
     <p>Your ticket number is: #{{ticket_number}}</p>
-    <table>
+    <table class="table">
         <thead>
             <tr>
                 <th scope="col">ID</th>
                 <th scope="col">Ticket No.</th>
-                <th scope="col">Ticket Type</th>
+                <th scope="col">Ticket Type/Class</th>
                 <th scope="col">No. of People</th>
               </tr>
         </thead>
@@ -23,7 +44,7 @@
             {% for component in components %}
             <tr>
                 <th scope="row">{{component.id}}</th>
-                <td>{{component.ticket.id}}</td>
+                <td>{{component.ticket.ticket_number}}-{{component.id}}</td>
                 <td>{{component.ticket_type}}</td>
                 <td>{{component.number_of_tickets}}</td>
               </tr>
@@ -35,5 +56,6 @@
     <br>
     <p>Regards,</p>
     <p>Wonder Wise Bookings</p>
+
 </body>
 </html>

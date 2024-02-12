@@ -68,6 +68,7 @@ class Event(AbstractBaseModel):
 
 
 class EventTicket(AbstractBaseModel):
+    ticket_number = models.CharField(max_length=255, null=True)
     user = models.ForeignKey("users.User", on_delete=models.CASCADE, related_name="usereventtickets")
     event = models.ForeignKey(
         Event, on_delete=models.CASCADE, related_name="eventtickets"
@@ -91,6 +92,7 @@ class EventTicket(AbstractBaseModel):
     @property
     def is_fully_paid(self):
         return True if self.amount_paid == self.amount_expected else False
+
 
 
 class EventTicketComponent(AbstractBaseModel):

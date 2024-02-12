@@ -13,7 +13,7 @@ def ticket_purchased_task():
                 "name": f"{booking.user.first_name} {booking.user.last_name}",
                 "payment_link": booking.payment_link,
                 "event_name": booking.event.title,
-                "ticket_number": booking.tx_ref if booking.tx_ref else booking.id,
+                "ticket_number": booking.ticket_number,
                 "subject": "Event Ticket Booking",
                 "components": booking.ticketcomponents.all(),
                 "event_date": booking.event.event_date,

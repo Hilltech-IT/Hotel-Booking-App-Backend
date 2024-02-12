@@ -9,6 +9,7 @@ class EventTicketAdmin(admin.ModelAdmin):
     list_display = [
         "id",
         "user",
+        "ticket_number",
         "event",
         "ticket_type",
         "amount_paid",
