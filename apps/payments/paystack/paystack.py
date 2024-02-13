@@ -33,7 +33,7 @@ class PaystackProcessorMixin:
 
         amount = payment_data.get("amount")
         email = payment_data.get("email")
-        callback_url = "http://127.0.0.1:8000/payments/paystack-callback/"
+        callback_url = "http://34.171.61.167:8000/payments/paystack-callback/"
         reference = payment_data.get("reference")
         payment_type = payment_data.get("payment_type")
         user_id = payment_data.get("user_id")

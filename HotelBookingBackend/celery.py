@@ -27,5 +27,5 @@ app.conf.beat_schedule = {
     "run-every-1-minute": {"task": "bnb_booked_task", "schedule": 100},
     "run-every-3-minutes": {"task": "hotel_room_booked_task", "schedule": 150},
     "run-every-45-seconds": {"task": "ticket_purchased_task", "schedule": 45},
-    "run-every-20-seconds": {"task": "payment_received_task", "schedule": 20},
+    #"run-every-20-seconds": {"task": "payment_received_task", "schedule": 20},
 }
