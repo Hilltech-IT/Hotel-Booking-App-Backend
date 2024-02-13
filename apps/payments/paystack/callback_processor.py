@@ -57,7 +57,7 @@ class PaystackCallbackProcessMixin(object):
         name = f"{booking.user.first_name} {booking.user.last_name}"
         email = booking.user.email
 
-        payment_received_task(name, email, "Room Booking", booking.amount_expected)
+        payment_received_task.delay(name, email, "Room Booking", booking.amount_expected)
 
 
     def __process_bnb_booking_payment(self):
@@ -89,7 +89,7 @@ class PaystackCallbackProcessMixin(object):
         name = f"{booking.user.first_name} {booking.user.last_name}"
         email = booking.user.email
 
-        payment_received_task(name, email, "AirBnB Booking", booking.amount_expected)
+        payment_received_task.delay(name, email, "AirBnB Booking", booking.amount_expected)
 
 
 
@@ -121,7 +121,7 @@ class PaystackCallbackProcessMixin(object):
         name = f"{booking.user.first_name} {booking.user.last_name}"
         email = booking.user.email
 
-        payment_received_task(name, email, "Event Ticket Booking", booking.amount_expected)
+        payment_received_task.delay(name, email, "Event Ticket Booking", booking.amount_expected)
 
 
     def __process_event_space_booking_payment(self):
@@ -153,4 +153,4 @@ class PaystackCallbackProcessMixin(object):
 
         name = f"{booking.user.first_name} {booking.user.last_name}"
         email = booking.user.email
-        payment_received_task(name, email, "Event Space Booking", booking.amount_expected)
+        payment_received_task.delay(name, email, "Event Space Booking", booking.amount_expected)

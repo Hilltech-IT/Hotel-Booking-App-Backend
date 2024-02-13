@@ -37,7 +37,7 @@ def create_payment_link_task(
 @app.task(name="event_space_booked_task")
 def event_space_booked_task():
     try:
-        event_space_bookings = EventSpaceBooking.objects.filter(notif_send=False)[:5]
+        event_space_bookings = EventSpaceBooking.objects.filter(status="Paid").filter(notif_send=False)[:5]
 
         for booking in event_space_bookings:
             context_data = {
@@ -66,7 +66,7 @@ def event_space_booked_task():
 @app.task(name="hotel_room_booked_task")
 def hotel_room_booked_task():
     try:
-        room_bookings = RoomBooking.objects.filter(notif_send=False)[:5]
+        room_bookings = RoomBooking.objects.filter(status="Paid").filter(notif_send=False)[:5]
         for booking in room_bookings:
             context_data = {
                 "name": f"{booking.user.first_name} {booking.user.last_name}",
@@ -95,7 +95,7 @@ def hotel_room_booked_task():
 @app.task(name="bnb_booked_task")
 def bnb_booked_task():
     try:
-        bnb_bookings = BnBBooking.objects.filter(notif_send=False)[:5]
+        bnb_bookings = BnBBooking.objects.filter(status="Paid").filter(notif_send=False)[:5]
         for booking in bnb_bookings:
             context_data = {
                 "name": f"{booking.user.first_name} {booking.user.last_name}",
