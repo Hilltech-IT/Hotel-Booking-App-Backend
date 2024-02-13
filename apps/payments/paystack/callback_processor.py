@@ -1,6 +1,7 @@
 from apps.payments.models import PaystackPayment, Payment
 from apps.bookings.models import RoomBooking, EventSpaceBooking, BnBBooking
 from apps.events.models import EventTicket
+from apps.payments.tasks import payment_received_task
 
 
 class PaystackCallbackProcessMixin(object):
@@ -50,7 +51,13 @@ class PaystackCallbackProcessMixin(object):
         paystack_payment = PaystackPayment.objects.get(reference=reference)
         paystack_payment.payment = payment
         paystack_payment.user = booking.user
+        paystack_payment.processed = True
         paystack_payment.save()
+
+        name = f"{booking.user.first_name} {booking.user.last_name}"
+        email = booking.user.email
+
+        payment_received_task(name, email, "Room Booking", booking.amount_expected)
 
 
     def __process_bnb_booking_payment(self):
@@ -76,7 +83,13 @@ class PaystackCallbackProcessMixin(object):
         paystack_payment = PaystackPayment.objects.get(reference=reference)
         paystack_payment.payment = payment
         paystack_payment.user = booking.user
+        paystack_payment.processed = True
         paystack_payment.save()
+
+        name = f"{booking.user.first_name} {booking.user.last_name}"
+        email = booking.user.email
+
+        payment_received_task(name, email, "AirBnB Booking", booking.amount_expected)
 
 
 
@@ -102,7 +115,13 @@ class PaystackCallbackProcessMixin(object):
         paystack_payment = PaystackPayment.objects.get(reference=reference)
         paystack_payment.payment = payment
         paystack_payment.user = booking.user
+        paystack_payment.processed = True
         paystack_payment.save()
+
+        name = f"{booking.user.first_name} {booking.user.last_name}"
+        email = booking.user.email
+
+        payment_received_task(name, email, "Event Ticket Booking", booking.amount_expected)
 
 
     def __process_event_space_booking_payment(self):
@@ -128,4 +147,10 @@ class PaystackCallbackProcessMixin(object):
         paystack_payment = PaystackPayment.objects.get(reference=reference)
         paystack_payment.payment = payment
         paystack_payment.user = booking.user
+        paystack_payment.processed = True
         paystack_payment.save()
+
+
+        name = f"{booking.user.first_name} {booking.user.last_name}"
+        email = booking.user.email
+        payment_received_task(name, email, "Event Space Booking", booking.amount_expected)

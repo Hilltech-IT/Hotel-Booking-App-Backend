@@ -109,7 +109,7 @@ def reserve_hotel_room(request):
 
 
 def airbnb_bookings(request):
-    airbnb_bookings = BnBBooking.objects.all()
+    airbnb_bookings = BnBBooking.objects.all().order_by("-created")
 
     paginator = Paginator(airbnb_bookings, 12)
     page_number = request.GET.get("page")
@@ -237,7 +237,7 @@ def clear_complete_bookings(request):
 
 ########## Event Space Booking
 def event_space_bookings(request):
-    bookings = EventSpaceBooking.objects.all()
+    bookings = EventSpaceBooking.objects.all().order_by("-created")
 
     paginator = Paginator(bookings, 15)
     page_number = request.GET.get("page")

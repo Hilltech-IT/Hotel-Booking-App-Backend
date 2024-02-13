@@ -108,6 +108,7 @@ class PaystackPayment(AbstractBaseModel):
     authorization_url = models.URLField(max_length=500)
     verified = models.BooleanField(default=False)
     payment_type = models.CharField(max_length=255, null=True)
+    processed = models.BooleanField(default=False)
 
     def __str__(self):
         return self.reference
