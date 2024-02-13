@@ -8,6 +8,7 @@ def ticket_purchased_task():
     try:
         event_tickets = EventTicket.objects.filter(ticket_status="Active").filter(notif_send=False)[:5]
 
+        
         for booking in event_tickets:
             context_data = {
                 "name": f"{booking.user.first_name} {booking.user.last_name}",
@@ -29,5 +30,6 @@ def ticket_purchased_task():
             )
             booking.notif_send = True
             booking.save()
+            
     except Exception as e:
         raise e
