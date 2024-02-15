@@ -53,5 +53,6 @@ class EventSpaceBookingMixin(object):
             }
             paystack = PaystackProcessorMixin()
             paystack.initialize_payment(payment_data=payment_data)
+
         except Exception as e:
             raise e

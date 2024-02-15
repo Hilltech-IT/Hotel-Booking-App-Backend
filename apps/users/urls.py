@@ -9,7 +9,7 @@ from apps.users.apis.views import (ChangePasswordAPIView,
 from apps.users.views import (customers, edit_service_provider, edit_staff,
                               new_staff, onboard_service_provider,
                               service_provider_profile, service_providers,
-                              staff, user_login, user_logout)
+                              staff, user_login, user_logout, activate_user_account)
 
 urlpatterns = [
     ## Main APP URLS
@@ -34,10 +34,9 @@ urlpatterns = [
         ForgotPasswordAPIView.as_view(),
         name="forgot_password",
     ),
-    path(
-        "change-password/<str:token>/",
-        ChangePasswordAPIView.as_view(),
+    path("change-password/<str:token>/", ChangePasswordAPIView.as_view(),
         name="change_password",
     ),
+    path("user-account-activation/<str:token>/", activate_user_account, name="user-account-activation"),
     path("activate-account/", UserActivationAPIView.as_view(), name="activate-account"),
 ]

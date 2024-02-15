@@ -27,8 +27,8 @@ def reset_mail(user):
 
 def user_activate_email(user):
     subject = "Account Activation"
-    redirect_url = "{0}activate-account/{1}".format(
-        settings.DEFAULT_FRONT_URL, user.token
+    redirect_url = "/{0}activate-account/{1}".format(
+        settings.BACKEND_URL, user.token
     )
     context_data = {
         "user": user,

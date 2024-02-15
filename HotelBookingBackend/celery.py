@@ -1,11 +1,13 @@
 import os
-
+#from django.conf import settings
 from celery import Celery
 
+#settings.configure()
 # BROKER_URL = "amqps://kxdmmrcy:EGdGPUno6zXvkRlqyL6wRb2s3FTGlS1s@hummingbird.rmq.cloudamqp.com/kxdmmrcy"
 #BROKER_URL = "amqps://rluzmvaq:aFibmXkn5MoAYoOR79NL-OBgVw4BLHKX@hummingbird.rmq.cloudamqp.com/rluzmvaq"
 #BROKER_URL = "amqp://guest:guest@localhost:5672" #http://34.16.123.89/
 BROKER_URL = "amqp://guest:guest@34.16.123.89:5672" #http://34.16.123.89/
+#BROKER_URL = os.environ.get(settings.BROKER_URL)
 # Set the default Django settings module for the 'celery' program.
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "HotelBookingBackend.settings")
 

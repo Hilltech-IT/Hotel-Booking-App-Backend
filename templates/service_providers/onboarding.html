@@ -37,47 +37,126 @@
                                 <div class="card-body">
                                     <h3 class="h3 text-center">SERVICE PROVIDER REGISTRATION</h3>
                                     <hr />
+                                    
                                     <div class="m-sm-4">
+                                        <h5 class="fw-bold">Contact Person</h5>
+                                    <hr/>
                                         <form action="" method="POST">
                                             {% csrf_token %}
-                                            <div class="mb-3">
-                                                <label class="form-label">First Name</label>
-                                                <input class="form-control form-control-lg" type="text" name="first_name" id="first_name"
-                                                    placeholder="Enter First Name" />
+                                            <div class="row mb-3">
+                                                <div class="col">
+                                                    <label class="form-label">First Name</label>
+                                                    <input class="form-control form-control-lg" type="text" name="first_name" id="first_name"
+                                                        placeholder="Enter First Name" />
+                                                </div>
+                                                <div class="col">
+                                                    <label class="form-label">Last Name</label>
+                                                    <input class="form-control form-control-lg" type="text" name="last_name" id="last_name"
+                                                        placeholder="Enter Last Name" />
+                                                </div>
                                             </div>
-                                            <div class="mb-3">
-                                                <label class="form-label">Last Name</label>
-                                                <input class="form-control form-control-lg" type="text" name="last_name" id="last_name"
-                                                    placeholder="Enter Last Name" />
+
+                                            <div class="row mb-3">
+                                                <div class="col">
+                                                    <label class="form-label">Phone Number</label>
+                                                    <input class="form-control form-control-lg" type="text" name="phone_number" id="phone_number"
+                                                        placeholder="Enter Phone Number" />
+                                                </div>
+                                                <div class="col">
+                                                    <label class="form-label">Gender</label>
+                                                    <select class="form-select" id="gender" name="gender">
+                                                        <option value="Female">Female</option>
+                                                        <option value="Male">Male</option>
+                                                    </select>
+                                                </div>
                                             </div>
-                                            <div class="mb-3">
-                                                <label class="form-label">Phone Number</label>
-                                                <input class="form-control form-control-lg" type="text" name="phone_number" id="phone_number"
-                                                    placeholder="Enter Phone Number" />
+
+                                            <div class="row mb-3">
+                                                <div class="col">
+                                                    <label class="form-label">Username</label>
+                                                    <input class="form-control form-control-lg" type="text" name="username" id="username"
+                                                        placeholder="Enter Username" />
+                                                </div>
+                                                <div class="col">
+                                                    <label class="form-label">Email</label>
+                                                    <input class="form-control form-control-lg" type="email" name="email" id="email"
+                                                        placeholder="Enter Email" />
+                                                </div>
                                             </div>
-                                            <div class="mb-3">
-                                                <label class="form-label">Gender</label>
-                                                <select class="form-select" id="gender" name="gender">
-                                                    <option value="Female">Female</option>
-                                                    <option value="Male">Male</option>
-                                                </select>
+                                            <div class="row mb-3">
+                                                <div class="col">
+                                                    <label class="form-label">Password</label>
+                                                    <input class="form-control form-control-lg" type="password"
+                                                        name="password" id="password" placeholder="Enter your password" />
+                                                </div>
+                                                <div class="col">
+                                                    <label class="form-label">Address</label>
+                                                    <input class="form-control form-control-lg" type="text" name="address" id="address"
+                                                        placeholder="Enter Address" />
+                                                </div>
                                             </div>
-                                            <div class="mb-3">
-                                                <label class="form-label">Username</label>
-                                                <input class="form-control form-control-lg" type="text" name="username" id="username"
-                                                    placeholder="Enter Username" />
+                                            
+                                            <div class="row mb-3">
+                                                <div class="col">
+                                                    <label class="form-label">City/Town</label>
+                                                    <input class="form-control form-control-lg" type="text" name="city" id="city"
+                                                        placeholder="Enter City/Town" />
+                                                </div>
+                                                <div class="col">
+                                                    <label class="form-label">Country</label>
+                                                    <input class="form-control form-control-lg" type="text" name="country" id="country"
+                                                        placeholder="Enter Country" />
+                                                </div>
                                             </div>
-                                            <div class="mb-3">
-                                                <label class="form-label">Email</label>
-                                                <input class="form-control form-control-lg" type="email" name="email" id="email"
-                                                    placeholder="Enter Email" />
+
+                                            <hr>
+                                            <h5 class="fw-bold">Business Details</h5>
+                                            <hr>
+                                            <div class="row mb-3">
+                                                <div class="col">
+                                                    <label class="form-label">Business Name</label>
+                                                    <input class="form-control form-control-lg" type="text" name="business_name" id="business_name"
+                                                        placeholder="Enter Business Name" />
+                                                </div>
+                                                <div class="col">
+                                                    <label class="form-label">Phone Number</label>
+                                                    <input class="form-control form-control-lg" type="text" name="business_phone" id="business_phone"
+                                                        placeholder="Enter Phone Number" />
+                                                </div>
                                             </div>
-                                            <div class="mb-3">
-                                                <label class="form-label">Password</label>
-                                                <input class="form-control form-control-lg" type="password"
-                                                    name="password" id="password" placeholder="Enter your password" />
+
+                                            <div class="row mb-3">
+                                                <div class="col">
+                                                    <label class="form-label">Email</label>
+                                                    <input class="form-control form-control-lg" type="email" name="business_email" id="business_email"
+                                                        placeholder="Enter Email" />
+                                                </div>
+                                                <div class="col">
+                                                    <label class="form-label">Business No:</label>
+                                                    <input class="form-control form-control-lg" type="text" name="business_number" id="business_number"
+                                                        placeholder="Enter Business No." />
+                                                </div>
                                             </div>
-                                           
+
+                                            <div class="row mb-3">
+                                                <div class="col">
+                                                    <label class="form-label">Address</label>
+                                                    <input class="form-control form-control-lg" type="text" name="business_address" id="business_address"
+                                                        placeholder="Enter Address" />
+                                                </div>
+                                                <div class="col">
+                                                    <label class="form-label">City/Town</label>
+                                                    <input class="form-control form-control-lg" type="text" name="business_city" id="business_city"
+                                                        placeholder="Enter City/Town" />
+                                                </div>
+                                                <div class="col">
+                                                    <label class="form-label">Country</label>
+                                                    <input class="form-control form-control-lg" type="text" name="business_country" id="business_country"
+                                                        placeholder="Enter Country" />
+                                                </div>
+                                            </div>
+
+                            
                                             <div class="text-center mt-3">
                                                 <button type="submit" class="btn btn-lg btn-primary">REGISTER</button>
                                             </div>

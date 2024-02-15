@@ -12,7 +12,7 @@ from apps.bookings.apis.serializers import (BookAirBnBSerializer,
                                             BookEventSpaceSerializer,
                                             BookingFeeCalculationSerializer,
                                             RoomBookingSerializer)
-from apps.bookings.models import RoomBooking
+from apps.bookings.models import RoomBooking, EventSpaceBooking, BnBBooking
 from apps.bookings.process_airbnb_booking import AirBnBBookingMixin
 from apps.bookings.process_booking import RoomBookingMixin
 from apps.bookings.process_event_space_booking import EventSpaceBookingMixin
@@ -64,6 +64,7 @@ class RoomBookingAPIView(generics.ListAPIView):
 
 class BookARoomAPIView(generics.CreateAPIView):
     serializer_class = BookARoomSerializer
+    permission_classes = [IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
         data = request.data
@@ -72,12 +73,17 @@ class BookARoomAPIView(generics.CreateAPIView):
         if serializer.is_valid(raise_exception=True):
             booking_mixin = RoomBookingMixin(booking_data=data)
             booking_mixin.run()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+            booking = RoomBooking.objects.order_by("-created").first()
+            booking.refresh_from_db()
+
+            return Response({"booking": booking.id, "payment_link": booking.payment_link}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class BookAirBnBAPIView(generics.CreateAPIView):
     serializer_class = BookAirBnBSerializer
+    permission_classes = [IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
         data = request.data
@@ -86,19 +92,34 @@ class BookAirBnBAPIView(generics.CreateAPIView):
         if serializer.is_valid(raise_exception=True):
             booking_mixin = AirBnBBookingMixin(booking_data=data)
             booking_mixin.run()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+            booking = BnBBooking.objects.order_by("-created").first()
+            booking.refresh_from_db()
+
+
+            return Response({"booking": booking.id, "payment_link": booking.payment_link}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class BookEventSpaceAPIView(generics.CreateAPIView):
     serializer_class = BookEventSpaceSerializer
+    #permission_classes = [IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
+        user = request.user
         data = request.data
         serializer = self.serializer_class(data=data)
 
         if serializer.is_valid(raise_exception=True):
             booking_mixin = EventSpaceBookingMixin(booking_data=data)
             booking_mixin.run()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+            booking = EventSpaceBooking.objects.order_by("-created").first()
+            booking.refresh_from_db()
+
+    
+            print(f"Booking ID: {booking.id}, Payment Link: {booking.payment_link}")
+
+
+            return Response({"booking": booking.id,"payment_link": booking.payment_link}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
