@@ -193,5 +193,5 @@ SITE_EMAIL = "digicafeteria@gmail.com"
 EMAIL_SUBJECT = "Worder Wise"
 
 
-BACKEND_URL = os.environ.get("BACKEND_URL", "http://127.0.0.1:8000")
+BACKEND_URL = os.environ.get("BACKEND_URL", "http://127.0.0.1:3000")
 BROKER_URL = os.environ.get("BROKER_URL", "amqp://guest:guest@localhost:5672")

@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from apps.payments.apis.serializers import (LipaNaMpesaCallbackSerializer,
-                                            LipaNaMpesaSerializer, PaystackSerializer)
+                                            LipaNaMpesaSerializer, PaystackSerializer, PaystackCallbackSerializer)
 from apps.payments.models import MpesaTransaction, PaystackPayment
 from apps.payments.mpesa.mpesa_callback_data import mpesa_callback_data_distructure
 from apps.payments.mpesa.utils import MpesaGateWay
@@ -64,7 +64,42 @@ class PaystackCallbackAPIView(APIView):
             raise e
 
         return Response({"payment_reference": reference})
-    
+
+
+class PaystackCallbackDataAPIView(generics.CreateAPIView):
+    serializer_class = PaystackCallbackSerializer
+
+    def post(self, request):
+        data = request.data
+        serializer = self.serializer_class(data=data)
+
+        if serializer.is_valid(raise_exception=True):
+            reference = data.get("reference")
+            trxref = data.get("trxref")
+
+            try:
+                paystack = PaystackProcessorMixin()
+                verification_data = paystack.verify_transaction(reference=reference)
+                
+                payment_status = verification_data["data"]["status"]
+
+                if payment_status.lower() == "success":
+                    payment = PaystackPayment.objects.get(reference=reference)
+                    payment.verified = True
+                    payment.save()
+                    callback_data = {
+                        "reference": reference,
+                        "trxref": trxref,
+                        "paystack_payment_id": payment.id
+                    }
+                    callback = PaystackCallbackProcessMixin(data=callback_data)
+                    callback.run()
+            except Exception as e:
+                raise e
+
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)    
 
 
 class LipaNaMpesaCallbackAPIView(generics.CreateAPIView):
