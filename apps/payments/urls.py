@@ -7,7 +7,7 @@ from apps.payments.views import (
     process_flutterwave_payment,
 )
 
-from apps.payments.apis.views import (LipaNaMpesaAPIView,
+from apps.payments.apis.views import (LipaNaMpesaAPIView, PaystackCallbackDataAPIView,
                                       LipaNaMpesaCallbackAPIView, PaystackAPIView, PaystackCallbackAPIView)
 
 urlpatterns = [
@@ -25,4 +25,5 @@ urlpatterns = [
     # Paystack
     path("paystack-pay/", PaystackAPIView.as_view(), name="paystack-pay"),
     path("paystack-callback/", PaystackCallbackAPIView.as_view(), name="paystack-callback"),
+    path("process-paystack-callback/", PaystackCallbackDataAPIView.as_view(), name="process-paystack-callback"),
 ]

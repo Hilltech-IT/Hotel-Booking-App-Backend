@@ -18,4 +18,5 @@ class PaystackSerializer(serializers.Serializer):
 
 
 class PaystackCallbackSerializer(serializers.Serializer):
-    data = serializers.JSONField()
+    referece = serializers.CharField(max_length=255)
+    trxref = serializers.CharField(max_length=255)

@@ -190,4 +190,8 @@ EMAIL_USE_TLS = True
 # EMAIL_USE_SSL=False
 DEFAULT_FROM_EMAIL = "digicafeteria@gmail.com"
 SITE_EMAIL = "digicafeteria@gmail.com"
-EMAIL_SUBJECT = "World Wise"
+EMAIL_SUBJECT = "Worder Wise"
+
+
+BACKEND_URL = os.environ.get("BACKEND_URL", "http://127.0.0.1:3000")
+BROKER_URL = os.environ.get("BROKER_URL", "amqp://guest:guest@localhost:5672")

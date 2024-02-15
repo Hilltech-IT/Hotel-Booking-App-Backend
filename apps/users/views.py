@@ -6,6 +6,7 @@ from django.db import transaction
 from django.shortcuts import redirect, render
 
 from apps.notifications.tasks import welcome_new_user_task
+from apps.users.tasks import account_activation_task
 from apps.subscriptions.models import Pricing
 from apps.users.models import User
 from apps.users.utils import generate_unique_key
@@ -134,6 +135,18 @@ def onboard_service_provider(request):
         phone_number = request.POST.get("phone_number")
         gender = request.POST.get("gender")
         password = request.POST.get("password")
+        
+        address = request.POST.get("address")
+        business_address = request.POST.get("business_address")
+        city = request.POST.get("city")
+        business_city = request.POST.get("business_city")
+        country = request.POST.get("country")
+        business_country = request.POST.get("business_country")
+
+        business_number = request.POST.get("business_number")
+        business_name = request.POST.get("business_name")
+        business_email = request.POST.get("business_email")
+        business_phone = request.POST.get("business_phone")
 
         user = User.objects.create(
             first_name=first_name,
@@ -143,9 +156,26 @@ def onboard_service_provider(request):
             phone_number=phone_number,
             gender=gender,
             role="service_provider",
+            address=address,
+            business_address=business_address,
+            business_city=business_city,
+            city=city,
+            country=country,
+            business_country=business_country,
+            business_number=business_number,
+            business_name=business_name,
+            business_email=business_email,
+            business_phone=business_phone
         )
         user.set_password(password)
+        user.is_active = False
         user.save()
+        
+        try:
+            account_activation_task.delay(user.id)
+        except Exception as e:
+            raise e
+        
 
         return redirect(f"/subscriptions/customer-pricing/{user.id}/")
 
@@ -224,3 +254,9 @@ def service_provider_profile(request, service_provider_id=None):
         "events": events
     }
     return render(request, "service_providers/profile.html", context)
+
+
+def activate_user_account(request, token):
+    print(f"Token: {token}")
+
+    return redirect("login")

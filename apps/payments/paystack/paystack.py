@@ -4,6 +4,7 @@ from decimal import Decimal
 from apps.payments.models import PaystackPayment
 from apps.bookings.models import RoomBooking, EventSpaceBooking, BnBBooking
 from apps.events.models import EventTicket
+from django.conf import settings
 
 PAYSTACK_SECRET_KEY = "sk_test_395cc6537fad1ea454ff41bdf3ce63ba62b1261c"
 PAYSTACK_BASE_URL = "https://api.paystack.co"
@@ -33,7 +34,7 @@ class PaystackProcessorMixin:
 
         amount = payment_data.get("amount")
         email = payment_data.get("email")
-        callback_url = "http://34.171.61.167:8000/payments/paystack-callback/"
+        callback_url = f"{settings.BACKEND_URL}/payment-callback/"
         reference = payment_data.get("reference")
         payment_type = payment_data.get("payment_type")
         user_id = payment_data.get("user_id")
@@ -82,7 +83,7 @@ class PaystackProcessorMixin:
                 booking = EventSpaceBooking.objects.get(reference=reference)
                 booking.payment_link = data["authorization_url"]
                 booking.save()
-            
+
         else:
             print("Initialization failed!!")
         
