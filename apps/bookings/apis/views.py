@@ -74,10 +74,8 @@ class BookARoomAPIView(generics.CreateAPIView):
             booking_mixin = RoomBookingMixin(booking_data=data)
             booking_mixin.run()
 
-            booking = RoomBooking.objects.order_by("-created").first()
-            booking.refresh_from_db()
 
-            return Response({"booking": booking.id, "payment_link": booking.payment_link}, status=status.HTTP_201_CREATED)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -93,11 +91,8 @@ class BookAirBnBAPIView(generics.CreateAPIView):
             booking_mixin = AirBnBBookingMixin(booking_data=data)
             booking_mixin.run()
 
-            booking = BnBBooking.objects.order_by("-created").first()
-            booking.refresh_from_db()
-
-
-            return Response({"booking": booking.id, "payment_link": booking.payment_link}, status=status.HTTP_201_CREATED)
+          
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -114,12 +109,5 @@ class BookEventSpaceAPIView(generics.CreateAPIView):
             booking_mixin = EventSpaceBookingMixin(booking_data=data)
             booking_mixin.run()
 
-            booking = EventSpaceBooking.objects.order_by("-created").first()
-            booking.refresh_from_db()
-
-    
-            print(f"Booking ID: {booking.id}, Payment Link: {booking.payment_link}")
-
-
-            return Response({"booking": booking.id,"payment_link": booking.payment_link}, status=status.HTTP_201_CREATED)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
