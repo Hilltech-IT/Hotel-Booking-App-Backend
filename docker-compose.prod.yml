@@ -1,0 +1,35 @@
+services:
+  backend-production:
+    build: 
+      context: .
+      dockerfile: Dockerfile.prod
+    ports:
+      - "8000:8000"
+    environment:
+      - CURRENT_ENVIRONMENT=value
+      - DEFAULT_FRONTEND_URL=
+      - DEFAULT_FRONTENT_URL=
+      - BROKER_URL=
+    
+  celery-production:
+    build: .
+    command: ["celery", "-A", "HotelBookingBackend", "worker", "--loglevel=info"]
+    environment:
+      - CURRENT_ENVIRONMENT=value
+      - DEFAULT_FRONTEND_URL=
+      - DEFAULT_FRONTENT_URL=
+    depends_on:
+      - backend-production
+    
+      
+  celery-beat-production:
+    build: .
+    command: ["celery", "-A", "HotelBookingBackend", "beat", "--loglevel=info"]
+    environment:
+      - CURRENT_ENVIRONMENT=value
+      - DEFAULT_FRONTEND_URL=
+      - DEFAULT_FRONTENT_URL=
+    depends_on:
+      - backend-production
+      - celery-production
+     

@@ -7,6 +7,7 @@ from apps.bookings.models import BnBBooking, RoomBooking, EventSpaceBooking
 @admin.register(RoomBooking)
 class RoomBookingAdmin(admin.ModelAdmin):
     list_display = [
+        "created",
         "id",
         "user",
         "room",
@@ -25,6 +26,7 @@ class RoomBookingAdmin(admin.ModelAdmin):
 @admin.register(BnBBooking)
 class BnBBooking(admin.ModelAdmin):
     list_display = [
+        "created",
         "id",
         "user",
         "airbnb",
@@ -44,6 +46,7 @@ class BnBBooking(admin.ModelAdmin):
 class EventSpaceBooking(admin.ModelAdmin):
     list_display = [
         "id",
+        "created",
         "user",
         "event_space",
         "booked_from",

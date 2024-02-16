@@ -18,3 +18,12 @@ class Message(AbstractBaseModel):
 
     def __str__(self):
         return self.subject
+
+
+class SMSMessage(AbstractBaseModel):
+    phone_number = models.CharField(max_length=255)
+    text = models.TextField()
+    subject = models.CharField(max_length=500)
+
+    def __str__(self):
+        return self.phone_number

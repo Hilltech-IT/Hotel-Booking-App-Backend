@@ -5,6 +5,7 @@ from apps.payments.models import PaystackPayment
 from apps.bookings.models import RoomBooking, EventSpaceBooking, BnBBooking
 from apps.events.models import EventTicket
 from django.conf import settings
+from apps.payments.tasks import request_booking_payment_task
 
 PAYSTACK_SECRET_KEY = "sk_test_395cc6537fad1ea454ff41bdf3ce63ba62b1261c"
 PAYSTACK_BASE_URL = "https://api.paystack.co"
@@ -34,7 +35,7 @@ class PaystackProcessorMixin:
 
         amount = payment_data.get("amount")
         email = payment_data.get("email")
-        callback_url = f"{settings.BACKEND_URL}/payment-callback/"
+        callback_url = f"{settings.DEFAULT_BACKEND_URL}/payment-callback/"
         reference = payment_data.get("reference")
         payment_type = payment_data.get("payment_type")
         user_id = payment_data.get("user_id")
@@ -68,22 +69,42 @@ class PaystackProcessorMixin:
                 booking = RoomBooking.objects.get(reference=reference)
                 booking.payment_link = data["authorization_url"]
                 booking.save()
+                self.request_booking_payment(booking=booking, payment_type="Hotel Room Booking")
 
             elif payment_type.lower() == "ticket":
                 booking = EventTicket.objects.get(reference=reference)
                 booking.payment_link = data["authorization_url"]
                 booking.save()
+                self.request_booking_payment(booking=booking, payment_type="Event Ticket Booking")
 
             elif payment_type.lower() == "bnb":
                 booking = BnBBooking.objects.get(reference=reference)
                 booking.payment_link = data["authorization_url"]
                 booking.save()
+                self.request_booking_payment(booking=booking, payment_type="AirBnB Booking")
 
             elif payment_type.lower() == "event_space":
                 booking = EventSpaceBooking.objects.get(reference=reference)
                 booking.payment_link = data["authorization_url"]
                 booking.save()
 
+                self.request_booking_payment(booking=booking, payment_type="Event Space Booking")
+
         else:
             print("Initialization failed!!")
-        
+    
+    def request_booking_payment(self, booking, payment_type):
+        try:
+            name = f"{booking.user.first_name} {booking.user.last_name}"
+            email = booking.user.email
+            payment_link = booking.payment_link
+            amount = booking.amount_expected
+            request_booking_payment_task.delay(
+                name=name, 
+                email=email, 
+                payment_type=payment_type, 
+                payment_link=payment_link, 
+                amount=amount
+            )
+        except Exception as e:
+            raise e

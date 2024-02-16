@@ -177,7 +177,7 @@ CORS_ALLOW_ALL_ORIGINS = True
 
 
 IS_REAL_EMAIL_KEY = ""
-DEFAULT_FRONT_URL = "http://127.0.0.1:3000/"
+
 
 
 EMAIL_HOST_PASSWORD = "akacnconppcdpeth"
@@ -192,6 +192,9 @@ DEFAULT_FROM_EMAIL = "digicafeteria@gmail.com"
 SITE_EMAIL = "digicafeteria@gmail.com"
 EMAIL_SUBJECT = "Worder Wise"
 
+## SYSTEM VARIABLES
+CURRENT_EVIRONMENT = os.environ.get("CURRENT_ENVIRONMENT", "LOCAL")
 
-BACKEND_URL = os.environ.get("BACKEND_URL", "http://127.0.0.1:3000")
+DEFAULT_BACKEND_URL = os.environ.get("DEFAULT_FRONTEND_URL", "http://localhost:3000")
+DEFAULT_FRONTENT_URL = os.environ.get("DEFAULT_BACKEND_URL", "http://localhost:8000")
 BROKER_URL = os.environ.get("BROKER_URL", "amqp://guest:guest@localhost:5672")
