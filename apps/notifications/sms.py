@@ -1,5 +1,6 @@
 import requests
 import json
+from apps.notifications.models import Message
 
 class SMSNotificationMixin:
     def __init__(self, name, phone_number, booking_type):
@@ -15,6 +16,8 @@ class SMSNotificationMixin:
         try:
             message = f"Hello {self.name},\nYour {self.booking_type} booking was successful, check your email for details" 
             self.send_sms(phone_number=self.phone_number, message=message)
+
+
         except Exception as e:
             raise e
 
@@ -26,7 +29,7 @@ class SMSNotificationMixin:
             }
             url = "https://api.mobitechtechnologies.com/sms/sendsms"
             data = json.dumps({
-                "mobile": self.phone_number,
+                "mobile": phone_number,
                 "response_type": "json",
                 "sender_name": "23107",
                 "service_id": 0,
