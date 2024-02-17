@@ -9,6 +9,10 @@ FROM python:${PYTHON_VERSION}-slim as base
 
 # Prevents Python from writing pyc files.
 ENV PYTHONDONTWRITEBYTECODE=1
+ENV CURRENT_ENVIRONMENT=DEVELOPMENT
+ENV BROKER_URL=amqp://guest:guest@34.16.123.89:5672
+ENV DEFAULT_FRONTENT_URL=http://34.171.61.167:3000
+ENV DEFAULT_BACKEND_URL=http://34.171.61.167:8000
 
 # Keeps Python from buffering stdout and stderr to avoid situations where
 # the application crashes without emitting any logs due to buffering.
