@@ -187,10 +187,10 @@ def onboard_service_provider(request):
             user.is_active = False
             user.save()
         
-            try:
-                account_activation_task.delay(user.id)
-            except Exception as e:
-                raise e
+            #try:
+            #    account_activation_task.delay(user.id)
+            #except Exception as e:
+            #    raise e
         
 
         return redirect(f"/subscriptions/customer-pricing/{user.id}/")
