@@ -44,8 +44,14 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 COPY --chown=user:group . .
 RUN sudo chmod 777 celerybeat-schedule.db
 RUN python manage.py collectstatic 
+
+# Migrations
+RUN python manage.py makemigrations
+RUN python manage.py migrate
+
 # Expose the port that the application listens on.
 EXPOSE 8000
 
 # Run the application.
-CMD gunicorn 'HotelBookingBackend.wsgi' --bind=0.0.0.0:8000
+CMD gunicorn 'HotelBookingBackend.wsgi' --bind=0.0.0.0:8000 --workers=3
+#CMD ["gunicorn", "InfluencerMarketer.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "3"]
