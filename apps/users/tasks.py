@@ -5,7 +5,7 @@ from apps.users.models import User
 @app.task(name="account_activation_task")
 def account_activation_task():
     try:
-        users = User.objects.filter(is_active=False)[10]
+        users = User.objects.filter(is_active=False)[:10]
         for user in users:
             user_activate_email(user=user)
     except Exception as e:
