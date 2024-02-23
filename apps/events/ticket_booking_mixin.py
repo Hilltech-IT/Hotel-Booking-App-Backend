@@ -3,6 +3,7 @@ from apps.events.models import Event, EventTicket, EventTicketComponent
 from apps.users.models import User
 
 from apps.payments.paystack.paystack import PaystackProcessorMixin
+from apps.core.reference_generator import generate_payment_reference
 
 class EventTicketBookingMixin(object):
     def __init__(self, booking_data):
@@ -62,7 +63,8 @@ class EventTicketBookingMixin(object):
             payment_method=payment_method,
             ticket_status="Pending Payment",
         )
-        reference = f"ticket_{user.id}_{ticket.id}"
+        #reference = f"ticket_{user.id}_{ticket.id}"
+        reference = generate_payment_reference("ticket", ticket.id, user.id)
         ticket.ticket_number = f"ETN_{user.id}_{ticket.id}"
         ticket.reference = reference
         ticket.save()

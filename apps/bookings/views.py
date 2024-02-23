@@ -13,6 +13,7 @@ from apps.users.models import User
 from apps.payments.paystack.paystack import PaystackProcessorMixin
 date_today = datetime.now().date()
 
+from apps.core.reference_generator import generate_payment_reference
 
 # Create your views here.
 def bookings(request):
@@ -187,7 +188,8 @@ def book_airbnb(request):
             is_over=False,
         )
 
-        reference = f"bnb_{user.id}_{bnb_booking.id}"
+        #reference = f"bnb_{user.id}_{bnb_booking.id}"
+        reference = generate_payment_reference("bnb", bnb_booking.id, user.id)
         bnb_booking.reference = reference
         bnb_booking.save()
         amount_to_pay = int(amount_expected) * 100
@@ -315,7 +317,8 @@ def book_event_space(request):
             is_over=False,
         )
 
-        reference = f"event_space_{user.id}_{event_space_booking.id}"
+        #reference = f"event_space_{user.id}_{event_space_booking.id}"
+        reference = generate_payment_reference("event_space", event_space_booking.id, user.id)
         event_space_booking.reference = reference
         event_space_booking.save()
         amount_to_pay = int(amount_expected) * 100

@@ -92,6 +92,7 @@ class PaystackProcessorMixin:
 
         else:
             print("Initialization failed!!")
+            print(json_data)
     
     def request_booking_payment(self, booking, payment_type):
         try:

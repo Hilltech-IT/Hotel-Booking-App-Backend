@@ -6,7 +6,7 @@ from apps.bookings.tasks import create_payment_link_task
 from apps.property.models import Property
 from apps.users.models import User
 from apps.payments.paystack.paystack import PaystackProcessorMixin
-
+from apps.core.reference_generator import generate_payment_reference
 
 class EventSpaceBookingMixin(object):
     def __init__(self, booking_data):
@@ -39,7 +39,8 @@ class EventSpaceBookingMixin(object):
             amount_paid=0,
             amount_expected=amount_expected,
         )
-        reference = f"event_space_{user.id}_{event_space_booking.id}"
+        #reference = f"event_space_{user.id}_{event_space_booking.id}"
+        reference = generate_payment_reference("event_space", event_space_booking.id, user.id)
         event_space_booking.reference = reference
         event_space_booking.save()
         amount_to_pay = int(amount_expected) * 100
