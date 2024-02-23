@@ -75,8 +75,8 @@ def new_staff(request):
                 "name": f"{first_name} {last_name}",
                 "email": email,
                 "phone_number": phone_number,
-                "redirect_url": "{0}activate-account/{1}".format(
-                    settings.DEFAULT_FRONT_URL, user.token
+                "redirect_url": "{0}/activate-account/{1}".format(
+                    settings.DEFAULT_FRONTEND_URL, user.token
                 ),
                 "subject": "Welcome to Wonder Wise",
             }
