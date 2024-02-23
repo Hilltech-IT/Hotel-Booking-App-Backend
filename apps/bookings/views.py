@@ -4,6 +4,7 @@ from decimal import Decimal
 from django.core.paginator import Paginator
 from django.db import transaction
 from django.shortcuts import redirect, render
+from django.contrib.auth.decorators import login_required
 
 from apps.bookings.models import BnBBooking, EventSpaceBooking, RoomBooking
 from apps.bookings.process_booking import RoomBookingMixin
@@ -16,8 +17,15 @@ date_today = datetime.now().date()
 from apps.core.reference_generator import generate_payment_reference
 
 # Create your views here.
+@login_required(login_url="users/user-login/")
 def bookings(request):
+    user = request.user
     bookings = RoomBooking.objects.all().order_by("-created")
+
+    if user.role == "service_provider":
+        bookings = RoomBooking.objects.filter(
+            room__property__owner=user
+        ).order_by("-created")
 
     paginator = Paginator(bookings, 10)
     page_number = request.GET.get("page")
@@ -26,7 +34,7 @@ def bookings(request):
     context = {"bookings": bookings, "page_obj": page_obj}
     return render(request, "booking/bookings.html", context)
 
-
+@login_required(login_url="users/user-login/")
 def make_booked_rooms_available(request):
     if request.method == "POST":
         booking_id = request.POST.get("booking_id")
@@ -45,6 +53,7 @@ def make_booked_rooms_available(request):
     return render(request, "booking/make_rooms_free.html")
 
 
+@login_required(login_url="users/user-login/")
 @transaction.atomic
 def reserve_hotel_room(request):
     if request.method == "POST":
@@ -108,11 +117,17 @@ def reserve_hotel_room(request):
 
     return render(request, "booking/book_room.html")
 
-
+@login_required(login_url="users/user-login/")
 def airbnb_bookings(request):
+    user = request.user
     airbnb_bookings = BnBBooking.objects.all().order_by("-created")
 
-    paginator = Paginator(airbnb_bookings, 12)
+    if user.role == "service_provider":
+        airbnb_bookings = BnBBooking.objects.filter(
+            airbnb__owner=user
+        ).order_by("-created")
+
+    paginator = Paginator(airbnb_bookings, 10)
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
 
@@ -120,7 +135,7 @@ def airbnb_bookings(request):
 
     return render(request, "airbnbs/airbnb_bookings.html", context)
 
-
+@login_required(login_url="users/user-login/")
 def book_airbnb(request):
     if request.method == "POST":
         property_id = request.POST.get("property_id")
@@ -211,7 +226,7 @@ def book_airbnb(request):
 
     return render(request, "airbnbs/book_airbnb.html")
 
-
+@login_required(login_url="users/user-login/")
 def edit_airbnb_booking(request):
     if request.method == "POST":
         booking_id = request.POST.get("booking_id")
@@ -232,16 +247,23 @@ def edit_airbnb_booking(request):
 
     return render(request, "airbnbs/edit_airbnb_booking.html")
 
-
+@login_required(login_url="users/user-login/")
 def clear_complete_bookings(request):
     bookings = RoomBooking.objects.all()
 
 
 ########## Event Space Booking
+@login_required(login_url="users/user-login/")
 def event_space_bookings(request):
+    user = request.user
     bookings = EventSpaceBooking.objects.all().order_by("-created")
 
-    paginator = Paginator(bookings, 15)
+    if user.role == "service_provider":
+        bookings = EventSpaceBooking.objects.filter(
+            event_space__owner=user
+        ).order_by("-created")
+
+    paginator = Paginator(bookings, 10)
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
 
@@ -249,7 +271,7 @@ def event_space_bookings(request):
 
     return render(request, "event_spaces/bookings.html", context)
 
-
+@login_required(login_url="users/user-login/")
 def book_event_space(request):
     if request.method == "POST":
         property_id = request.POST.get("property_id")

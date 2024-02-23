@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
@@ -152,11 +153,15 @@ def onboard_service_provider(request):
         user_by_username = User.objects.filter(username=username).first()
 
         if user_by_email and user_by_username:
-            pass
+            messages.error(request, 'Username and email provided already exists.')
+            return render(request, 'service_providers/onboarding.html')
         elif user_by_email:
-            pass
+            messages.error(request, 'Email provided already exists.')
+            return render(request, 'service_providers/onboarding.html')
         elif user_by_username:
-            pass
+            messages.error(request, 'Username provided already exists.')
+            return render(request, 'service_providers/onboarding.html')
+
         elif not user_by_username or user_by_email:
 
             user = User.objects.create(
