@@ -6,7 +6,7 @@ from django.shortcuts import redirect, render
 
 from apps.bookings.models import BnBBooking, RoomBooking
 from apps.events.models import Event, EventTicket
-from apps.payments.models import Payment
+from apps.payments.models import Payment, PaystackPayment
 
 
 # Create your views here.
@@ -174,3 +174,15 @@ def process_flutterwave_payment(request):
     print(context)
 
     return render(request, "payments/confirm_payment.html", context)
+
+
+def paystack_payments(request):
+    paystack_payments = PaystackPayment.objects.all().order_by("-created")
+    paginator = Paginator(paystack_payments, 12)
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+
+    context = {
+        "page_obj": page_obj
+    }
+    return render(request, "payments/paystack_payments.html", context)
