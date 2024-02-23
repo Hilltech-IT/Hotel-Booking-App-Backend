@@ -43,7 +43,7 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 #COPY . .
 COPY --chown=user:group . .
 RUN sudo chmod 777 celerybeat-schedule.db
-RUN python manage.py collectstatic --noinput
+RUN python manage.py collectstatic 
 # Expose the port that the application listens on.
 EXPOSE 8000
 
