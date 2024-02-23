@@ -75,8 +75,8 @@ def new_staff(request):
                 "name": f"{first_name} {last_name}",
                 "email": email,
                 "phone_number": phone_number,
-                "redirect_url": "{0}activate-account/{1}".format(
-                    settings.DEFAULT_FRONT_URL, user.token
+                "redirect_url": "{0}/activate-account/{1}".format(
+                    settings.DEFAULT_FRONTEND_URL, user.token
                 ),
                 "subject": "Welcome to Wonder Wise",
             }
@@ -148,33 +148,44 @@ def onboard_service_provider(request):
         business_email = request.POST.get("business_email")
         business_phone = request.POST.get("business_phone")
 
-        user = User.objects.create(
-            first_name=first_name,
-            last_name=last_name,
-            username=username,
-            email=email,
-            phone_number=phone_number,
-            gender=gender,
-            role="service_provider",
-            address=address,
-            business_address=business_address,
-            business_city=business_city,
-            city=city,
-            country=country,
-            business_country=business_country,
-            business_number=business_number,
-            business_name=business_name,
-            business_email=business_email,
-            business_phone=business_phone
-        )
-        user.set_password(password)
-        user.is_active = False
-        user.save()
+        user_by_email = User.objects.filter(email=email).first()
+        user_by_username = User.objects.filter(username=username).first()
+
+        if user_by_email and user_by_username:
+            pass
+        elif user_by_email:
+            pass
+        elif user_by_username:
+            pass
+        elif not user_by_username or user_by_email:
+
+            user = User.objects.create(
+                first_name=first_name,
+                last_name=last_name,
+                username=username,
+                email=email,
+                phone_number=phone_number,
+                gender=gender,
+                role="service_provider",
+                address=address,
+                business_address=business_address,
+                business_city=business_city,
+                city=city,
+                country=country,
+                business_country=business_country,
+                business_number=business_number,
+                business_name=business_name,
+                business_email=business_email,
+                business_phone=business_phone
+            )
+            user.set_password(password)
+            user.is_active = False
+            user.save()
         
-        try:
-            account_activation_task.delay(user.id)
-        except Exception as e:
-            raise e
+            try:
+                account_activation_task.delay(user.id)
+            except Exception as e:
+                raise e
         
 
         return redirect(f"/subscriptions/customer-pricing/{user.id}/")

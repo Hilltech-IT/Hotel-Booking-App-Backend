@@ -5,6 +5,7 @@ from apps.bookings.models import RoomBooking
 from apps.property.models import PropertyRoom
 from apps.users.models import User
 from apps.payments.paystack.paystack import PaystackProcessorMixin
+from apps.core.reference_generator import generate_payment_reference
 
 
 class RoomBookingMixin(object):
@@ -47,7 +48,8 @@ class RoomBookingMixin(object):
                 rooms_booked=rooms_booked,
                 status="Pending Payment"
             )
-            reference = f"room_{user.id}_{booking.id}"
+            #reference = f"room_{user.id}_{booking.id}"
+            reference = generate_payment_reference("room", booking.id, user.id)
             booking.reference = reference
             room_booked.save()
             booking.save()

@@ -35,7 +35,7 @@ class PaystackProcessorMixin:
 
         amount = payment_data.get("amount")
         email = payment_data.get("email")
-        callback_url = f"{settings.DEFAULT_BACKEND_URL}/payment-callback/"
+        callback_url = f"{settings.DEFAULT_FRONTEND_URL}/payment-callback/"
         reference = payment_data.get("reference")
         payment_type = payment_data.get("payment_type")
         user_id = payment_data.get("user_id")
@@ -92,6 +92,7 @@ class PaystackProcessorMixin:
 
         else:
             print("Initialization failed!!")
+            print(json_data)
     
     def request_booking_payment(self, booking, payment_type):
         try:

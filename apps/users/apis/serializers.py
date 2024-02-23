@@ -136,8 +136,8 @@ class RegisterSerializer(serializers.ModelSerializer):
                 "name": f"{user.first_name} {user.last_name}",
                 "email": user.email,
                 "phone_number": user.phone_number,
-                "redirect_url": "{0}activate-account/{1}".format(
-                    settings.DEFAULT_FRONT_URL, user.token
+                "redirect_url": "{0}/activate-account/{1}".format(
+                    settings.DEFAULT_FRONTEND_URL, user.token
                 ),
                 "subject": "Welcome to Wonder Wise",
             }
@@ -183,6 +183,11 @@ class ChangePasswordSerializer(serializers.Serializer):
     repeat_password = serializers.CharField()
 
     def save(self, validated_data):
+        token = self.context["token"]
+        print(f"Token: {token}")
+        print(f"Data: {validated_data}")
+
+        return 0
         self.user.set_password(validated_data["password"])
         self.user.token = None
         self.user.token_expiration_date = None
