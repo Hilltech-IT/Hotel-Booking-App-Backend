@@ -3,10 +3,10 @@ from apps.notifications.utils import user_activate_email
 from apps.users.models import User
 
 @app.task(name="account_activation_task")
-def account_activation_task():
+def account_activation_task(user_id):
     try:
-        users = User.objects.filter(is_active=False)[:10]
-        for user in users:
-            user_activate_email(user=user)
+        user = User.objects.get(id=user_id)
+        user.refresh_from_db()
+        user_activate_email(user=user)
     except Exception as e:
         raise e
