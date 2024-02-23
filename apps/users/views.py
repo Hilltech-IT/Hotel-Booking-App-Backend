@@ -186,11 +186,12 @@ def onboard_service_provider(request):
             user.set_password(password)
             user.is_active = False
             user.save()
+            user.refresh_from_db()
         
-            #try:
-            #    account_activation_task.delay(user.id)
-            #except Exception as e:
-            #    raise e
+            try:
+                account_activation_task.delay(user.id)
+            except Exception as e:
+                raise e
         
 
         return redirect(f"/subscriptions/customer-pricing/{user.id}/")
