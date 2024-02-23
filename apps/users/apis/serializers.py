@@ -187,7 +187,7 @@ class ChangePasswordSerializer(serializers.Serializer):
         print(f"Token: {token}")
         print(f"Data: {validated_data}")
 
-        return 0
+    
         self.user.set_password(validated_data["password"])
         self.user.token = None
         self.user.token_expiration_date = None

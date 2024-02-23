@@ -192,6 +192,19 @@ def onboard_service_provider(request):
             #    account_activation_task.delay(user.id)
             #except Exception as e:
             #    raise e
+            try:
+                context_data = {
+                    "name": f"{user.first_name} {user.last_name}",
+                    "email": user.email,
+                    "phone_number": user.phone_number,
+                    "redirect_url": "{0}/activate-account/{1}".format(
+                        settings.DEFAULT_FRONTEND_URL, user.token
+                    ),
+                    "subject": "Wonder Wise - Activate Account!",
+                }
+                welcome_new_user_task.delay(context_data=context_data, email=user.email)
+            except Exception as e:
+                raise e
         
         return redirect(f"/subscriptions/customer-pricing/{user.id}/")
 
