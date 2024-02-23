@@ -37,6 +37,13 @@
                                 <div class="card-body">
                                     <h3 class="h3 text-center">SERVICE PROVIDER REGISTRATION</h3>
                                     <hr />
+                                    {% if messages %}
+                                        <ul class="messages alert alert-primary" role="alert">
+                                            {% for message in messages %}
+                                                <li>{{ message }}</li>
+                                            {% endfor %}
+                                        </ul>
+                                    {% endif %}
                                     
                                     <div class="m-sm-4">
                                         <h5 class="fw-bold">Contact Person</h5>
