@@ -5,8 +5,8 @@ from apps.notifications.mixins import SendMessage
 
 def reset_mail(user):
     subject = "Reset account password"
-    redirect_url = "{0}reset-password/{1}".format(
-        settings.DEFAULT_FRONT_URL, user.token
+    redirect_url = "{0}/reset-password/{1}".format(
+        settings.DEFAULT_FRONTEND_URL, user.token
     )
     context_data = {
         "user": user,
@@ -27,7 +27,7 @@ def reset_mail(user):
 
 def user_activate_email(user):
     subject = "Account Activation"
-    redirect_url = "/{0}activate-account/{1}".format(
+    redirect_url = "{0}/activate-account/{1}".format(
         settings.DEFAULT_FRONTEND_URL, user.token
     )
     context_data = {

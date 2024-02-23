@@ -183,6 +183,11 @@ class ChangePasswordSerializer(serializers.Serializer):
     repeat_password = serializers.CharField()
 
     def save(self, validated_data):
+        token = self.context["token"]
+        print(f"Token: {token}")
+        print(f"Data: {validated_data}")
+
+        return 0
         self.user.set_password(validated_data["password"])
         self.user.token = None
         self.user.token_expiration_date = None

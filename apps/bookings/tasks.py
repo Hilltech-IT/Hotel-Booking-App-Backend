@@ -35,38 +35,37 @@ def create_payment_link_task(
 
 
 @app.task(name="event_space_booked_task")
-def event_space_booked_task():
+def event_space_booked_task(booking_id):
     try:
-        event_space_bookings = EventSpaceBooking.objects.filter(status="Paid").filter(notif_send=False)[:5]
+        booking = EventSpaceBooking.objects.get(id=booking_id)
 
-        for booking in event_space_bookings:
-            context_data = {
-                "name": f"{booking.user.first_name} {booking.user.last_name}",
-                "payment_link": booking.payment_link,
-                "date_from": booking.booked_from,
-                "date_to": booking.booked_to,
-                "property_name": booking.event_space.name,
-                "subject": "Event Space Booking",
-                "payment_status": booking.status
-            }
-            send_message = SendMessage({}, asynchronous=False)
-            send_message.send_mail(
-                context_data,
-                [
-                    booking.user.email,
-                ],
-                template="event_space_booking",
-            )
-            booking.notif_send = True
-            booking.save()
+        context_data = {
+            "name": f"{booking.user.first_name} {booking.user.last_name}",
+            "payment_link": booking.payment_link,
+            "date_from": booking.booked_from,
+            "date_to": booking.booked_to,
+            "property_name": booking.event_space.name,
+            "subject": "Event Space Booking",
+            "payment_status": booking.status
+        }
+        send_message = SendMessage({}, asynchronous=False)
+        send_message.send_mail(
+            context_data,
+            [
+                booking.user.email,
+            ],
+            template="event_space_booking",
+        )
+        booking.notif_send = True
+        booking.save()
     except Exception as e:
         raise e
 
 
 @app.task(name="hotel_room_booked_task")
-def hotel_room_booked_task():
+def hotel_room_booked_task(booking_id):
     try:
-        room_bookings = RoomBooking.objects.filter(status="Paid").filter(notif_send=False)[:5]
+        room_bookings = RoomBooking.objects.get(id=booking_id)
         for booking in room_bookings:
             context_data = {
                 "name": f"{booking.user.first_name} {booking.user.last_name}",

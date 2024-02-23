@@ -2,6 +2,7 @@ from apps.payments.models import PaystackPayment, Payment
 from apps.bookings.models import RoomBooking, EventSpaceBooking, BnBBooking
 from apps.events.models import EventTicket
 from apps.payments.tasks import payment_received_task
+from apps.bookings.tasks import event_space_booked_task
 
 
 class PaystackCallbackProcessMixin(object):
@@ -125,32 +126,37 @@ class PaystackCallbackProcessMixin(object):
 
 
     def __process_event_space_booking_payment(self):
-        reference = self.data.get("reference")
-        transaction_id = self.data.get("trxref")
+        try:
+            reference = self.data.get("reference")
+            transaction_id = self.data.get("trxref")
 
-        booking = EventSpaceBooking.objects.get(reference=reference)
-        booking.amount_paid = booking.amount_expected
-        booking.status = "Paid"
-        booking.transaction_id = transaction_id
-        booking.save()
+            booking = EventSpaceBooking.objects.get(reference=reference)
+            booking.amount_paid = booking.amount_expected
+            booking.status = "Paid"
+            booking.transaction_id = transaction_id
+            booking.save()
 
-        payment = Payment.objects.create(
-            event_space_booking=booking,
-            paid_by=booking.user,
-            paid_to=booking.event_space.owner,
-            amount=booking.amount_expected,
-            reference=reference,
-            transaction_id=transaction_id,
-            payment_reason="Event Space Booking"
-        )
+            payment = Payment.objects.create(
+                event_space_booking=booking,
+                paid_by=booking.user,
+                paid_to=booking.event_space.owner,
+                amount=booking.amount_expected,
+                reference=reference,
+                transaction_id=transaction_id,
+                payment_reason="Event Space Booking"
+            )
 
-        paystack_payment = PaystackPayment.objects.get(reference=reference)
-        paystack_payment.payment = payment
-        paystack_payment.user = booking.user
-        paystack_payment.processed = True
-        paystack_payment.save()
+            paystack_payment = PaystackPayment.objects.get(reference=reference)
+            paystack_payment.payment = payment
+            paystack_payment.user = booking.user
+            paystack_payment.processed = True
+            paystack_payment.save()
 
 
-        name = f"{booking.user.first_name} {booking.user.last_name}"
-        email = booking.user.email
-        payment_received_task.delay(name, email, "Event Space Booking", booking.amount_expected)
+            name = f"{booking.user.first_name} {booking.user.last_name}"
+            email = booking.user.email
+            payment_received_task.delay(name, email, "Event Space Booking", booking.amount_expected)
+            event_space_booked_task.delay(booking_id=booking.id)
+            
+        except Exception as e:
+            raise e

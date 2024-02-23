@@ -195,6 +195,6 @@ EMAIL_SUBJECT = "Worder Wise"
 ## SYSTEM VARIABLES
 CURRENT_EVIRONMENT = os.environ.get("CURRENT_ENVIRONMENT", "LOCAL")
 
-DEFAULT_BACKEND_URL = os.environ.get("DEFAULT_FRONTEND_URL", "http://localhost:3000")
-DEFAULT_FRONTENT_URL = os.environ.get("DEFAULT_BACKEND_URL", "http://localhost:8000")
+DEFAULT_BACKEND_URL = os.environ.get("DEFAULT_BACKEND_URL", "http://localhost:8000")
+DEFAULT_FRONTEND_URL = os.environ.get("DEFAULT_FRONTEND_URL", "http://localhost:3000")
 BROKER_URL = os.environ.get("BROKER_URL", "amqp://guest:guest@localhost:5672")
