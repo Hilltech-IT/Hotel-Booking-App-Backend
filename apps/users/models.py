@@ -55,6 +55,7 @@ class User(AbstractUser, AbstractBaseModel):
     business_number = models.CharField(max_length=255, null=True)
     business_email = models.EmailField(null=True)
     business_phone = models.CharField(max_length=255, null=True)
+    activated = models.BooleanField(default=True)
 
     def __str__(self):
         return self.username
