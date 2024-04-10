@@ -199,3 +199,48 @@ CURRENT_EVIRONMENT = os.environ.get("CURRENT_ENVIRONMENT", "LOCAL")
 DEFAULT_BACKEND_URL = os.environ.get("DEFAULT_BACKEND_URL", "http://localhost:8000")
 DEFAULT_FRONTEND_URL = os.environ.get("DEFAULT_FRONTEND_URL", "http://localhost:3000")
 BROKER_URL = os.environ.get("BROKER_URL", "amqp://guest:guest@localhost:5672")
+
+
+# Celery Configuration Options
+CELERY_BROKER_URL = f"redis://127.0.0.1:6379"
+BROKER_URL = f"redis://127.0.0.1:6379"
+CELERY_TIMEZONE = TIME_ZONE
+CELERY_TASK_TRACK_STARTED = True
+CELERY_TASK_TIME_LIMIT = 30 * 60
+CELERY_RESULT_EXTENDED = True
+CELERY_worker_state_db = True
+CELERY_result_persistent=True
+CELERY_RESULT_BACKEND = 'django-db'
+# Name of nodes to start
+# here we have a single node
+CELERYD_NODES="w1"
+# or we could have three nodes:
+#CELERYD_NODES="w1 w2 w3"
+
+# Absolute or relative path to the 'celery' command:
+CELERY_BIN="/home/paul_ndabo/HilltechBackend/hilltechenv/bin/celery"
+#home/paul_ndabo/HilltechBackend/Hotel-Booking-App-Backend
+#CELERY_BIN="/virtualenvs/def/bin/celery"
+
+# App instance to use
+# comment out this line if you don't use an app
+CELERY_APP="HotelBookingBackend.celery:app"
+# or fully qualified:
+#CELERY_APP="proj.tasks:app"
+
+# How to call manage.py
+CELERYD_MULTI="multi"
+
+# Extra command-line arguments to the worker
+CELERYD_OPTS="--time-limit=300 --concurrency=2"
+
+# - %n will be replaced with the first part of the nodename.
+# - %I will be replaced with the current child process index
+#   and is important when using the prefork pool to avoid race conditions.
+CELERYD_PID_FILE="/var/run/celery/%n.pid"
+CELERYD_LOG_FILE="/var/log/celery/%n%I.log"
+CELERYD_LOG_LEVEL="INFO"
+
+# you may wish to add these options for Celery Beat
+CELERYBEAT_PID_FILE="/var/run/celery/beat.pid"
+CELERYBEAT_LOG_FILE="/var/log/celery/beat.log"

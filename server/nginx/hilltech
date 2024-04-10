@@ -1,0 +1,19 @@
+server {
+    listen 80;
+    server_name 35.231.220.245;
+
+    location = /favicon.ico { access_log off; log_not_found off; }
+
+    location /staticfiles/ {
+        root /home/paul_ndabo/HilltechBackend/Hotel-Booking-App-Backend;
+    }
+
+    location /media/ {
+            root /home/paul_ndabo/HilltechBackend/Hotel-Booking-App-Backend;
+        }
+
+    location / {
+        include proxy_params;
+        proxy_pass http://unix:/run/gunicorn.sock;
+    }
+}
