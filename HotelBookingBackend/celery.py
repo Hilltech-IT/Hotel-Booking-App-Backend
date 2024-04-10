@@ -6,12 +6,12 @@ from celery import Celery
 # BROKER_URL = "amqps://kxdmmrcy:EGdGPUno6zXvkRlqyL6wRb2s3FTGlS1s@hummingbird.rmq.cloudamqp.com/kxdmmrcy"
 #BROKER_URL = "amqps://rluzmvaq:aFibmXkn5MoAYoOR79NL-OBgVw4BLHKX@hummingbird.rmq.cloudamqp.com/rluzmvaq"
 #BROKER_URL = "amqp://guest:guest@localhost:5672" #http://34.16.123.89/
-BROKER_URL = "amqp://guest:guest@34.16.123.89:5672" #http://34.16.123.89/
+#BROKER_URL = "amqp://guest:guest@34.16.123.89:5672" #http://34.16.123.89/
 #BROKER_URL = os.environ.get(settings.BROKER_URL)
 # Set the default Django settings module for the 'celery' program.
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "HotelBookingBackend.settings")
 #BROKER_URL = os.environ.get("BROKER_URL", settings.BROKER_URL)
-app = Celery("HotelBookingBackend", broker=BROKER_URL)
+app = Celery("HotelBookingBackend")
 
 
 # Using a string here means the worker doesn't have to serialize
