@@ -180,7 +180,6 @@ CORS_ALLOW_ALL_ORIGINS = True
 IS_REAL_EMAIL_KEY = ""
 
 
-
 EMAIL_HOST_PASSWORD = "akacnconppcdpeth"
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = "smtp.gmail.com"
@@ -198,7 +197,7 @@ CURRENT_EVIRONMENT = os.environ.get("CURRENT_ENVIRONMENT", "LOCAL")
 
 DEFAULT_BACKEND_URL = os.environ.get("DEFAULT_BACKEND_URL", "http://localhost:8000")
 DEFAULT_FRONTEND_URL = os.environ.get("DEFAULT_FRONTEND_URL", "http://localhost:3000")
-BROKER_URL = "amqps://dsdldszi:1ghNImfWvudsQIm7GHjNgojjBKYl8Kx8@hummingbird.rmq.cloudamqp.com/dsdldszi"
+BROKER_URL = "amqps://rfsezeje:ZegeGaOg_ntDdIphU_XqCTSpyS8h3IAz@hummingbird.rmq.cloudamqp.com/rfsezeje"
 
 
 # Celery Configuration Options
