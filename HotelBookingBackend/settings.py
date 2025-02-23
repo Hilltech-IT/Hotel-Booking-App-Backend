@@ -199,6 +199,7 @@ DEFAULT_BACKEND_URL = os.environ.get("DEFAULT_BACKEND_URL", "http://localhost:80
 DEFAULT_FRONTEND_URL = os.environ.get("DEFAULT_FRONTEND_URL", "http://localhost:3000")
 BROKER_URL = "amqps://rfsezeje:ZegeGaOg_ntDdIphU_XqCTSpyS8h3IAz@hummingbird.rmq.cloudamqp.com/rfsezeje"
 
+INSTALLED_APPS += ['django_celery_results']
 
 # Celery Configuration Options
 CELERY_TIMEZONE = TIME_ZONE
