@@ -3,7 +3,6 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
-from django.db import transaction
 from django.shortcuts import redirect, render
 
 from apps.notifications.tasks import welcome_new_user_task
@@ -50,7 +49,7 @@ def new_staff(request):
         phone_number = request.POST.get("phone_number")
         gender = request.POST.get("gender")
         position = request.POST.get("position")
-
+        
         city = request.POST.get("city")
         country = request.POST.get("country")
 
@@ -66,7 +65,7 @@ def new_staff(request):
             city=city,
             country=country,
         )
-
+    
         try:
             token = generate_unique_key(user.email)
             user.token = token
@@ -187,11 +186,7 @@ def onboard_service_provider(request):
             user.is_active = False
             user.activated = False
             user.save()
-            
-            #try:
-            #    account_activation_task.delay(user.id)
-            #except Exception as e:
-            #    raise e
+
             try:
                 context_data = {
                     "name": f"{user.first_name} {user.last_name}",
@@ -202,12 +197,11 @@ def onboard_service_provider(request):
                     ),
                     "subject": "Wonder Wise - Activate Account!",
                 }
-                welcome_new_user_task.delay(context_data=context_data, email=user.email)
+                welcome_new_user_task(context_data=context_data, email=user.email)
             except Exception as e:
                 raise e
         
         return redirect(f"/subscriptions/customer-pricing/{user.id}/")
-
     return render(request, "service_providers/onboarding.html")
 
 @login_required(login_url="/users/user-login/")
@@ -238,7 +232,6 @@ def edit_service_provider(request):
         user.country = country
         user.save()
         return redirect("service-providers")
-
     return render(request, "service_providers/edit_service_provider.html")
 
 @login_required(login_url="/users/user-login/")

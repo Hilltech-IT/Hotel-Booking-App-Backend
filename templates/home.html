@@ -1,69 +1,201 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="row">
-    <div class="card m-2" style="width: 16rem;">
+<div class="container-fluid p-4">
+  <h2 class="mb-4">Dashboard Overview</h2>
+  <div class="row g-4">
+    <!-- Hotels Card -->
+    <div class="col-md-6 col-lg-4 col-xl-3">
+      <div class="card dashboard-card h-100 shadow-sm">
         <div class="card-body">
-          <h5 class="card-title">Hotels</h5>
+          <div class="d-flex align-items-center mb-3">
+            <i class="fas fa-hotel text-primary me-2"></i>
+            <h5 class="card-title mb-0">Hotels</h5>
+          </div>
           <hr/>
-          <p class="card-text">Count: {{hotels_count}}</p>
-          <p class="card-text">Bookings: {{hotels_bookings}}</p>
-          <p class="card-text">Revenue: {{hotels_revenue}}</p>
-          <a href="#"></a>
+          <div class="stats-container">
+            <div class="stat-item">
+              <span class="stat-label">Total Properties</span>
+              <span class="stat-value">{{hotels_count}}</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">Total Bookings</span>
+              <span class="stat-value">{{hotels_bookings}}</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">Revenue</span>
+              <span class="stat-value">{{hotels_revenue}}</span>
+            </div>
+          </div>
         </div>
       </div>
-      <div class="card m-2" style="width: 16rem;">
-        <div class="card-body">
-          <h5 class="card-title">Event Spaces</h5>
-          <hr/>
-          <p class="card-text">Count: {{event_spaces_count}}</p>
-          <p class="card-text">Bookings: {{event_spaces_bookings}}</p>
-          <p class="card-text">Revenue: {{event_spaces_revenue}}</p>
-          
-        </div>
-      </div>
+    </div>
 
-      <div class="card m-2" style="width: 16rem;">
+    <!-- Event Spaces Card -->
+    <div class="col-md-6 col-lg-4 col-xl-3">
+      <div class="card dashboard-card h-100 shadow-sm">
         <div class="card-body">
-          <h5 class="card-title">AirBnBs</h5>
+          <div class="d-flex align-items-center mb-3">
+            <i class="fas fa-building text-success me-2"></i>
+            <h5 class="card-title mb-0">Event Spaces</h5>
+          </div>
           <hr/>
-          <p class="card-text">Count: {{airbnbs_count}}</p>
-          <p class="card-text">Bookings: {{airbnbs_bookings}}</p>
-          <p class="card-text">Revenue: {{airbnbs_revenue}}</p>
-          <a href="#"></a>
+          <div class="stats-container">
+            <div class="stat-item">
+              <span class="stat-label">Total Spaces</span>
+              <span class="stat-value">{{event_spaces_count}}</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">Total Bookings</span>
+              <span class="stat-value">{{event_spaces_bookings}}</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">Revenue</span>
+              <span class="stat-value">{{event_spaces_revenue}}</span>
+            </div>
+          </div>
         </div>
       </div>
+    </div>
 
-      <div class="card m-2" style="width: 16rem;">
-       
+    <!-- AirBnBs Card -->
+    <div class="col-md-6 col-lg-4 col-xl-3">
+      <div class="card dashboard-card h-100 shadow-sm">
         <div class="card-body">
-          <h5 class="card-title">Events</h5>
+          <div class="d-flex align-items-center mb-3">
+            <i class="fas fa-home text-info me-2"></i>
+            <h5 class="card-title mb-0">AirBnBs</h5>
+          </div>
           <hr/>
-          <p class="card-text">Count: {{events_count}}</p>
-          <p class="card-text">Bookings: {{events_bookings}}</p>
-          <p class="card-text">Revenue: {{events_revenue}}</p>
+          <div class="stats-container">
+            <div class="stat-item">
+              <span class="stat-label">Total Properties</span>
+              <span class="stat-value">{{airbnbs_count}}</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">Total Bookings</span>
+              <span class="stat-value">{{airbnbs_bookings}}</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">Revenue</span>
+              <span class="stat-value">{{airbnbs_revenue}}</span>
+            </div>
+          </div>
         </div>
       </div>
-      
-      {% if request.user.is_superuser %}
-      <div class="card m-2" style="width: 16rem; height: 150px;">
-       
-        <div class="card-body">
-          <h5 class="card-title">Customers</h5>
-          <hr/>
-          <p class="card-text">Count: {{customers_count}}</p>
-        </div>
-      </div>
+    </div>
 
-      <div class="card m-2" style="width: 16rem; height: 150px;">
-       
+    <!-- Events Card -->
+    <div class="col-md-6 col-lg-4 col-xl-3">
+      <div class="card dashboard-card h-100 shadow-sm">
         <div class="card-body">
-          <h5 class="card-title">Service Providers</h5>
+          <div class="d-flex align-items-center mb-3">
+            <i class="fas fa-calendar-alt text-warning me-2"></i>
+            <h5 class="card-title mb-0">Events</h5>
+          </div>
           <hr/>
-          <p class="card-text">Count: {{service_providers_count}}</p>
+          <div class="stats-container">
+            <div class="stat-item">
+              <span class="stat-label">Total Events</span>
+              <span class="stat-value">{{events_count}}</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">Total Bookings</span>
+              <span class="stat-value">{{events_bookings}}</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">Revenue</span>
+              <span class="stat-value">{{events_revenue}}</span>
+            </div>
+          </div>
         </div>
       </div>
-      {% endif %}
-      
+    </div>
+
+    {% if request.user.is_superuser %}
+    <!-- Customers Card -->
+    <div class="col-md-6 col-lg-4 col-xl-3">
+      <div class="card dashboard-card h-100 shadow-sm">
+        <div class="card-body">
+          <div class="d-flex align-items-center mb-3">
+            <i class="fas fa-users text-danger me-2"></i>
+            <h5 class="card-title mb-0">Customers</h5>
+          </div>
+          <hr/>
+          <div class="stats-container">
+            <div class="stat-item">
+              <span class="stat-label">Total Customers</span>
+              <span class="stat-value">{{customers_count}}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Service Providers Card -->
+    <div class="col-md-6 col-lg-4 col-xl-3">
+      <div class="card dashboard-card h-100 shadow-sm">
+        <div class="card-body">
+          <div class="d-flex align-items-center mb-3">
+            <i class="fas fa-user-tie text-secondary me-2"></i>
+            <h5 class="card-title mb-0">Service Providers</h5>
+          </div>
+          <hr/>
+          <div class="stats-container">
+            <div class="stat-item">
+              <span class="stat-label">Total Providers</span>
+              <span class="stat-value">{{service_providers_count}}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endif %}
   </div>
+</div>
+
+<style>
+.dashboard-card {
+  transition: transform 0.2s, box-shadow 0.2s;
+  border: none;
+  border-radius: 10px;
+}
+
+.dashboard-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1) !important;
+}
+
+.stats-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.stat-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.stat-label {
+  color: #6c757d;
+  font-size: 0.9rem;
+}
+
+.stat-value {
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+hr {
+  margin: 0.5rem 0 1rem 0;
+  opacity: 0.1;
+}
+
+.card-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+</style>
 {% endblock %}

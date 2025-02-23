@@ -41,7 +41,7 @@ def test_email_sending_task():
     print("Email Testing Task Ran!!!")
 
 
-@app.task(name="welcome_new_user_task")
+#@app.task(name="welcome_new_user_task")
 def welcome_new_user_task(context_data, email):
     try:
         send_message = SendMessage({}, asynchronous=False)
