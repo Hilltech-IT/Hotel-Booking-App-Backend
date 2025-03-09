@@ -174,7 +174,7 @@ REST_FRAMEWORK = {
 
 LOGOUT_REDIRECT_URL = "user-login"
 
-CORS_ALLOWED_ORIGINS = ["https://hotel-booking-frontend-beryl.vercel.app/"]
+CORS_ALLOWED_ORIGINS = ["https://stayzhub-steel.vercel.app"]
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_HEADERS = ["*"]

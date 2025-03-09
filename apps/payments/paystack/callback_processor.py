@@ -60,8 +60,8 @@ class PaystackCallbackProcessMixin(object):
             name = f"{booking.user.first_name} {booking.user.last_name}"
             email = booking.user.email
 
-            payment_received_task.delay(name, email, "Room Booking", booking.amount_expected)
-            hotel_room_booked_task.delay(booking.id)
+            payment_received_task(name, email, "Room Booking", booking.amount_expected)
+            hotel_room_booked_task(booking.id)
         except Exception as e:
             raise e
 
@@ -96,8 +96,8 @@ class PaystackCallbackProcessMixin(object):
             name = f"{booking.user.first_name} {booking.user.last_name}"
             email = booking.user.email
 
-            payment_received_task.delay(name, email, "AirBnB Booking", booking.amount_expected)
-            bnb_booked_task.delay(booking.id)
+            payment_received_task(name, email, "AirBnB Booking", booking.amount_expected)
+            bnb_booked_task(booking.id)
         except Exception as e:
             raise e
 
@@ -132,8 +132,8 @@ class PaystackCallbackProcessMixin(object):
             name = f"{booking.user.first_name} {booking.user.last_name}"
             email = booking.user.email
 
-            payment_received_task.delay(name, email, "Event Ticket Booking", booking.amount_expected)
-            ticket_purchased_task.delay(booking.id)
+            payment_received_task(name, email, "Event Ticket Booking", booking.amount_expected)
+            ticket_purchased_task(booking.id)
         except Exception as e:
             raise e
 
@@ -168,8 +168,8 @@ class PaystackCallbackProcessMixin(object):
 
             name = f"{booking.user.first_name} {booking.user.last_name}"
             email = booking.user.email
-            payment_received_task.delay(name, email, "Event Space Booking", booking.amount_expected)
-            event_space_booked_task.delay(booking_id=booking.id)
+            payment_received_task(name, email, "Event Space Booking", booking.amount_expected)
+            event_space_booked_task(booking_id=booking.id)
             
         except Exception as e:
             raise e

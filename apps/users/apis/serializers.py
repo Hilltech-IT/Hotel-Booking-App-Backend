@@ -139,9 +139,9 @@ class RegisterSerializer(serializers.ModelSerializer):
                 "redirect_url": "{0}/activate-account/{1}".format(
                     settings.DEFAULT_FRONTEND_URL, user.token
                 ),
-                "subject": "Welcome to Wonder Wise",
+                "subject": "Welcome to StayZhub",
             }
-            welcome_new_user_task.delay(context_data=context_data, email=user.email)
+            welcome_new_user_task(context_data=context_data, email=user.email)
         except Exception as e:
             raise e
 

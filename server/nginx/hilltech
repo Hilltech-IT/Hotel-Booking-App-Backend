@@ -17,3 +17,55 @@ server {
         proxy_pass http://unix:/run/gunicorn.sock;
     }
 }
+
+# Redirect all HTTP requests to HTTPS
+server {
+    listen 80;
+    server_name stayzhub.com www.stayzhub.com;
+    return 301 https://stayzhub.com$request_uri;
+}
+
+# Main HTTPS Server Block (Backend API)
+server {
+    listen 443 ssl;
+    server_name stayzhub.com www.stayzhub.com;
+
+    # SSL Certificates (Generated via Certbot)
+    ssl_certificate /etc/letsencrypt/live/stayzhub.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/stayzhub.com/privkey.pem;
+    ssl_trusted_certificate /etc/letsencrypt/live/stayzhub.com/chain.pem;
+
+    # Security Enhancements
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers HIGH:!aNULL:!MD5;
+    ssl_prefer_server_ciphers on;
+
+    # Add HSTS (HTTP Strict Transport Security) (Optional, for extra security)
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+
+    # Reverse Proxy to Backend (Change port to match your backend app)
+    location / {
+        # proxy_pass http://127.0.0.1:8000;  # Change if your backend runs on another port
+        proxy_pass http://unix:/run/gunicorn.sock;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    # Handle Static Files (Optional, if your backend serves static files)
+    location /static/ {
+        # root /var/www/stayzhub;  # Update to the correct static files path
+        root /home/paul_ndabo/Backend;
+    }
+
+    location /media/ {
+        # root /var/www/stayzhub;  # Update if serving media files
+        root /home/paul_ndabo/Backend;
+    }
+
+    # Enable Gzip Compression (for faster performance)
+    gzip on;
+    gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript;
+    gzip_vary on;
+}
