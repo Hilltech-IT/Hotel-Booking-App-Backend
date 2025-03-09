@@ -174,7 +174,7 @@ REST_FRAMEWORK = {
 
 LOGOUT_REDIRECT_URL = "user-login"
 
-CORS_ALLOWED_ORIGINS = ["https://stayzhub-steel.vercel.app"]
+CORS_ALLOWED_ORIGINS = ["*"]
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_HEADERS = ["*"]
@@ -199,8 +199,8 @@ EMAIL_SUBJECT = "Worder Wise"
 ## SYSTEM VARIABLES
 CURRENT_EVIRONMENT = os.environ.get("CURRENT_ENVIRONMENT", "LOCAL")
 
-DEFAULT_BACKEND_URL = os.environ.get("DEFAULT_BACKEND_URL", "http://localhost:8000")
-DEFAULT_FRONTEND_URL = os.environ.get("DEFAULT_FRONTEND_URL", "http://localhost:3000")
+DEFAULT_BACKEND_URL = "https://stayzhub.com"
+DEFAULT_FRONTEND_URL = "https://stayzhub-steel.vercel.app"
 BROKER_URL = "amqps://rfsezeje:ZegeGaOg_ntDdIphU_XqCTSpyS8h3IAz@hummingbird.rmq.cloudamqp.com/rfsezeje"
 
 INSTALLED_APPS += ['django_celery_results']
