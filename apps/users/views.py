@@ -80,7 +80,7 @@ def new_staff(request):
                 ),
                 "subject": "Welcome to Wonder Wise",
             }
-            welcome_new_user_task.delay(context_data=context_data, email=email)
+            welcome_new_user_task(context_data=context_data, email=email)
         except Exception as e:
             raise e
 

@@ -100,7 +100,7 @@ class PaystackProcessorMixin:
             email = booking.user.email
             payment_link = booking.payment_link
             amount = booking.amount_expected
-            request_booking_payment_task.delay(
+            request_booking_payment_task(
                 name=name, 
                 email=email, 
                 payment_type=payment_type, 
