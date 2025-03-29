@@ -6,6 +6,7 @@ from django.utils import timezone
 from rest_framework import serializers
 from rest_framework.authtoken.serializers import AuthTokenSerializer
 from rest_framework.exceptions import AuthenticationFailed
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 from apps.bookings.apis.serializers import (BnBBookingSerializer,
                                             EventSpaceBookingSerializer,
@@ -148,33 +149,21 @@ class RegisterSerializer(serializers.ModelSerializer):
         return user
 
 
-class UserLoginSerializer(AuthTokenSerializer):
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     def validate(self, attrs):
-        username = attrs.get("username")
-        password = attrs.get("password")
-
-        if username and password:
-            user = authenticate(username=username, password=password)
-
-            if user:
-                # From Django 1.10 onwards the `authenticate` call simply
-                # returns `None` for is_active=False users.
-                # (Assuming the default `ModelBackend` authentication backend.)
-                if not user.is_active:
-                    raise serializers.ValidationError(
-                        "User account is disabled.", code="authorization"
-                    )
-            else:
-                raise AuthenticationFailed(
-                    "Unable to log in with provided credentials.", code="authorization"
-                )
-        else:
-            raise serializers.ValidationError(
-                'Must include "username" and "password".', code="authorization"
-            )
-
-        attrs["user"] = user
-        return attrs
+        data = super().validate(attrs)
+        
+        # Add custom data to the response
+        data['user'] = {
+            'id': self.user.id,
+            'username': self.user.username,
+            'email': self.user.email,
+            'first_name': self.user.first_name,
+            'last_name': self.user.last_name,
+            'role': self.user.role,
+        }
+        
+        return data
 
 
 class ChangePasswordSerializer(serializers.Serializer):

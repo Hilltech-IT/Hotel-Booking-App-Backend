@@ -5,6 +5,7 @@ from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework_simplejwt.views import TokenObtainPairView
 
 from apps.users.apis.serializers import (ChangePasswordSerializer,
                                          EditUserProfileSerializer,
@@ -12,7 +13,7 @@ from apps.users.apis.serializers import (ChangePasswordSerializer,
                                          RegisterSerializer,
                                          UserActivationSerializer,
                                          UserListSerializer,
-                                         UserLoginSerializer)
+                                         CustomTokenObtainPairSerializer)
 from apps.users.models import User
 
 
@@ -37,34 +38,8 @@ class EditUserProfileAPIView(generics.UpdateAPIView):
     lookup_field = "pk"
 
 
-class UserLoginAPIView(ObtainAuthToken):
-    serializer_class = UserLoginSerializer
-    permission_classes = [AllowAny]
-
-    def get_serializer(self):
-        return self.serializer_class()
-
-    def post(self, request, *args, **kwargs):
-        serializer = self.serializer_class(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        user = serializer.validated_data["user"]
-        token = Token.objects.get(user=user).key
-
-        # Update last_login of the current user
-        user.last_login = timezone.now()
-        user.save()
-
-        response = {
-            "token": token,
-            "pk": user.pk,
-            "role": user.role,
-            "username": user.username,
-            "email": user.email,
-            "name": f"{user.first_name} {user.last_name}"
-            #'view_id': user.get_view_id,
-        }
-
-        return Response(response)
+class UserLoginAPIView(TokenObtainPairView):
+    serializer_class = CustomTokenObtainPairSerializer
 
 
 class RegisterUserAPIView(generics.CreateAPIView):
