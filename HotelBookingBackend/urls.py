@@ -24,11 +24,11 @@ from drf_yasg import openapi
 schema_view = get_schema_view(
     openapi.Info(
         title="HillTech Backend API",
-        default_version="v1",
+        default_version="v2",
          description="HillTech Backend API",
         terms_of_service="",
-        contact=openapi.Contact(email=""),
-        license=openapi.License(name=""),
+        contact=openapi.Contact(email="paulkadabo@gmail.com"),
+        license=openapi.License(name="MIT"),
     ),
 )
 urlpatterns = [
@@ -40,8 +40,11 @@ urlpatterns = [
     path("events/", include("apps.events.urls")),
     path("payments/", include("apps.payments.urls")),
     path("bookings/", include("apps.bookings.urls")),
+    path("service-providers/", include("apps.users.service_providers.urls")),
+    path("customers/", include("apps.users.customers.urls")),
+    path("staff/", include("apps.users.staff.urls")),
 
-     path('swagger<format>/', schema_view.without_ui(cache_timeout=0), name='schema-json'),
+    path('swagger<format>/', schema_view.without_ui(cache_timeout=0), name='schema-json'),
     path('docs/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
 ]

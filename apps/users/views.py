@@ -1,291 +1,135 @@
-from django.conf import settings
-from django.contrib import messages
-from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.decorators import login_required
-from django.core.paginator import Paginator
-from django.db import transaction
-from django.shortcuts import redirect, render
+from django.utils import timezone
+from rest_framework import generics, status
+from rest_framework.authtoken.models import Token
+from rest_framework.authtoken.views import ObtainAuthToken
+from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework_simplejwt.tokens import RefreshToken
 
-from apps.notifications.tasks import welcome_new_user_task
-from apps.users.tasks import account_activation_task
-from apps.subscriptions.models import Pricing
+from apps.users.serializers import (ChangePasswordSerializer,
+                                         EditUserProfileSerializer,
+                                         ForgotPasswordSerializer,
+                                         RegisterSerializer,
+                                         UserActivationSerializer,
+                                         UserListSerializer,
+                                         CustomTokenObtainPairSerializer)
 from apps.users.models import User
-from apps.users.utils import generate_unique_key
 
 
-# Create your views here.
-def user_login(request):
-    if request.method == "POST":
-        username = request.POST.get("username")
-        password = request.POST.get("password")
-        user = authenticate(request, username=username, password=password)
-        if user is not None:
-            login(request, user)
+class UserListAPIView(generics.ListAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserListSerializer
 
-            return redirect("home")
-    return render(request, "accounts/login.html")
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        user = request.user
+        user_data = self.queryset.get(id=user.id)
+        print(user_data)
+        serializer = self.serializer_class(instance=user_data, many=False)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-def user_logout(request):
-    logout(request)
-    return redirect("user-login")
+class EditUserProfileAPIView(generics.UpdateAPIView):
+    queryset = User.objects.all()
+    serializer_class = EditUserProfileSerializer
 
-@login_required(login_url="/users/user-login/")
-def staff(request):
-    staff = User.objects.filter(role="admin")
-    paginator = Paginator(staff, 10)
-    page_number = request.GET.get("page")
-    page_obj = paginator.get_page(page_number)
+    lookup_field = "pk"
 
-    context = {"users": staff, "page_obj": page_obj}
-    return render(request, "staff/staff.html", context)
 
-@login_required(login_url="/users/user-login/")
-def new_staff(request):
-    if request.method == "POST":
-        email = request.POST.get("email")
-        username = request.POST.get("username")
-        first_name = request.POST.get("first_name")
-        last_name = request.POST.get("last_name")
-        phone_number = request.POST.get("phone_number")
-        gender = request.POST.get("gender")
-        position = request.POST.get("position")
+class UserLoginAPIView(TokenObtainPairView):
+    serializer_class = CustomTokenObtainPairSerializer
 
-        city = request.POST.get("city")
-        country = request.POST.get("country")
 
-        user = User.objects.create(
-            email=email,
-            username=username,
-            first_name=first_name,
-            last_name=last_name,
-            phone_number=phone_number,
-            gender=gender,
-            role="admin",
-            position=position,
-            city=city,
-            country=country,
+class RegisterUserAPIView(generics.CreateAPIView):
+    serializer_class = RegisterSerializer
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.erros, status=status.HTTP_400_BAD_REQUEST)
+
+
+class UserLogoutAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        try:
+            refresh_token = request.data["refresh"]
+            token = RefreshToken(refresh_token)
+            token.blacklist()  # Add token to blacklist
+            return Response({"message": "Logout successful"}, status=200)
+        except Exception as e:
+            return Response({"error": "Invalid token"}, status=400)
+
+class UserRetrieveUpdateDeleteAPIView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = User.objects.all()
+    serializer_class = EditUserProfileSerializer
+
+    lookup_field = "pk"
+
+
+class ForgotPasswordAPIView(APIView):
+    serializer_class = ForgotPasswordSerializer
+    permission_classes = [
+        AllowAny,
+    ]
+
+    def get_serializer_class(self):
+        return self.serializer_class()
+
+    def post(self, request):
+        serializer = self.serializer_class(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        serializer.send_email()
+
+        return Response(
+            {"message": "Password reset link will be send to your email!"},
+            status=status.HTTP_200_OK,
         )
 
-        try:
-            token = generate_unique_key(user.email)
-            user.token = token
-            user.save()
 
-            context_data = {
-                "name": f"{first_name} {last_name}",
-                "email": email,
-                "phone_number": phone_number,
-                "redirect_url": "{0}/activate-account/{1}".format(
-                    settings.DEFAULT_FRONTEND_URL, user.token
-                ),
-                "subject": "Welcome to Wonder Wise",
-            }
-            welcome_new_user_task.delay(context_data=context_data, email=email)
-        except Exception as e:
-            raise e
+class ChangePasswordAPIView(APIView):
+    serializer_class = ChangePasswordSerializer
+    permission_classes = [
+        AllowAny,
+    ]
 
-        return redirect("staff")
+    def get_serializer_class(self):
+        return self.serializer_class()
 
-    return render(request, "staff/new_staff.html")
-
-@login_required(login_url="/users/user-login/")
-def edit_staff(request):
-    if request.method == "POST":
-        user_id = request.POST.get("user_id")
-        email = request.POST.get("email")
-        username = request.POST.get("username")
-        first_name = request.POST.get("first_name")
-        last_name = request.POST.get("last_name")
-        phone_number = request.POST.get("phone_number")
-        city = request.POST.get("city")
-        country = request.POST.get("country")
-        gender = request.POST.get("gender")
-        position = request.POST.get("position")
-
-        date_of_birth = request.POST.get("date_of_birth")
-        address = request.POST.get("address")
-        id_number = request.POST.get("id_number")
-
-        user = User.objects.get(id=user_id)
-        user.email = email
-        user.username = username
-        user.first_name = first_name
-        user.last_name = last_name
-        user.phone_number = phone_number
-        user.city = city
-        user.country = country
-        user.gender = gender
-        user.date_of_birth = date_of_birth
-        user.address = address
-        user.id_number = id_number
-        user.postion = position
-        user.save()
-
-        return redirect("staff")
-
-    return render(request, "staff/edit_staff.html")
-
-
-def onboard_service_provider(request):
-    if request.method == "POST":
-        email = request.POST.get("email")
-        username = request.POST.get("username")
-        first_name = request.POST.get("first_name")
-        last_name = request.POST.get("last_name")
-        phone_number = request.POST.get("phone_number")
-        gender = request.POST.get("gender")
-        password = request.POST.get("password")
-        
-        address = request.POST.get("address")
-        business_address = request.POST.get("business_address")
-        city = request.POST.get("city")
-        business_city = request.POST.get("business_city")
-        country = request.POST.get("country")
-        business_country = request.POST.get("business_country")
-
-        business_number = request.POST.get("business_number")
-        business_name = request.POST.get("business_name")
-        business_email = request.POST.get("business_email")
-        business_phone = request.POST.get("business_phone")
-
-        user_by_email = User.objects.filter(email=email).first()
-        user_by_username = User.objects.filter(username=username).first()
-
-        if user_by_email and user_by_username:
-            messages.error(request, 'Username and email provided already exists.')
-            return render(request, 'service_providers/onboarding.html')
-        elif user_by_email:
-            messages.error(request, 'Email provided already exists.')
-            return render(request, 'service_providers/onboarding.html')
-        elif user_by_username:
-            messages.error(request, 'Username provided already exists.')
-            return render(request, 'service_providers/onboarding.html')
-
-        elif not user_by_username or user_by_email:
-
-            user = User.objects.create(
-                first_name=first_name,
-                last_name=last_name,
-                username=username,
-                email=email,
-                phone_number=phone_number,
-                gender=gender,
-                role="service_provider",
-                address=address,
-                business_address=business_address,
-                business_city=business_city,
-                city=city,
-                country=country,
-                business_country=business_country,
-                business_number=business_number,
-                business_name=business_name,
-                business_email=business_email,
-                business_phone=business_phone
+    def post(self, request, token):
+        context = {"request": request, "token": token}
+        serializer = self.serializer_class(data=request.data, context=context)
+        if serializer.is_valid():
+            serializer.save(serializer.validated_data)
+            return Response(
+                {"message": "Password has been successfully changed"},
+                status=status.HTTP_201_CREATED,
             )
-            user.set_password(password)
-            user.is_active = False
-            user.activated = False
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class UserActivationAPIView(APIView):
+    serializer_class = UserActivationSerializer
+    permission_classes = [
+        AllowAny,
+    ]
+
+    def post(self, request, *args, **kwargs):
+        data = request.data
+
+        serializer = self.serializer_class(data=data)
+
+        if serializer.is_valid(raise_exception=True):
+            user = User.objects.get(token=data["token"])
+            user.is_active = True
             user.save()
-            
-            #try:
-            #    account_activation_task.delay(user.id)
-            #except Exception as e:
-            #    raise e
-            try:
-                context_data = {
-                    "name": f"{user.first_name} {user.last_name}",
-                    "email": user.email,
-                    "phone_number": user.phone_number,
-                    "redirect_url": "{0}/activate-account/{1}".format(
-                        settings.DEFAULT_FRONTEND_URL, user.token
-                    ),
-                    "subject": "Wonder Wise - Activate Account!",
-                }
-                welcome_new_user_task.delay(context_data=context_data, email=user.email)
-            except Exception as e:
-                raise e
-        
-        return redirect(f"/subscriptions/customer-pricing/{user.id}/")
-
-    return render(request, "service_providers/onboarding.html")
-
-@login_required(login_url="/users/user-login/")
-def edit_service_provider(request):
-    if request.method == "POST":
-        user_id = int(request.POST.get("user_id"))
-        email = request.POST.get("email")
-        username = request.POST.get("username")
-        first_name = request.POST.get("first_name")
-        last_name = request.POST.get("last_name")
-        phone_number = request.POST.get("phone_number")
-        gender = request.POST.get("gender")
-        id_number = request.POST.get("id_number")
-        address = request.POST.get("address")
-        city = request.POST.get("city")
-        country = request.POST.get("country")
-
-        user = User.objects.get(id=user_id)
-        user.first_name = first_name
-        user.last_name = last_name
-        user.username = username
-        user.email = email
-        user.phone_number = phone_number
-        user.gender = gender
-        user.id_number = id_number
-        user.address = address
-        user.city = city
-        user.country = country
-        user.save()
-        return redirect("service-providers")
-
-    return render(request, "service_providers/edit_service_provider.html")
-
-@login_required(login_url="/users/user-login/")
-def service_providers(request):
-    providers = User.objects.filter(role="service_provider")
-    paginator = Paginator(providers, 10)
-    page_number = request.GET.get("page")
-    page_obj = paginator.get_page(page_number)
-    return render(
-        request,
-        "service_providers/providers.html",
-        {"providers": providers, "page_obj": page_obj},
-    )
-
-@login_required(login_url="/users/user-login/")
-def customers(request):
-    customers = User.objects.filter(role__in=["Customer", "customer"])
-
-    paginator = Paginator(customers, 10)
-    page_number = request.GET.get("page")
-    page_obj = paginator.get_page(page_number)
-
-    context = {"customers": customers, "page_obj": page_obj}
-    return render(request, "accounts/customers.html", context)
-
-@login_required(login_url="/users/user-login/")
-def service_provider_profile(request, service_provider_id=None):
-
-    user = request.user
-
-    service_provider = User.objects.get(id=service_provider_id)
-
-    if not user.is_superuser:
-        service_provider = User.objects.get(id=user.id)
-
-    properties = service_provider.listedproperties.all()
-    events = service_provider.userevents.all()
-
-    context = {
-        "service_provider": service_provider,
-        "properties": properties,
-        "events": events
-    }
-    return render(request, "service_providers/profile.html", context)
-
-
-def activate_user_account(request, token):
-    print(f"Token: {token}")
-
-    return redirect("login")
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_404_NOT_FOUND)

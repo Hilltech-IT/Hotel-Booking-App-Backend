@@ -1,3 +1,4 @@
+from rest_framework import serializers
 from datetime import datetime
 
 from django.conf import settings
@@ -18,35 +19,21 @@ from apps.notifications.utils import reset_mail
 from apps.users.models import User
 from apps.users.utils import generate_unique_key
 
+from apps.users.models import User
 
-class UserListSerializer(serializers.ModelSerializer):
+class UserBaseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = "__all__"
+
+
+class UserListSerializer(UserBaseSerializer):
     hotel_bookings = serializers.SerializerMethodField()
     payments = serializers.SerializerMethodField()
     tickets = serializers.SerializerMethodField()
     airbnb_bookings = serializers.SerializerMethodField()
     event_space_bookings = serializers.SerializerMethodField()
 
-    class Meta:
-        model = User
-        fields = [
-            "id",
-            "username",
-            "email",
-            "first_name",
-            "last_name",
-            "id_number",
-            "role",
-            "phone_number",
-            "gender",
-            "date_of_birth",
-            "address",
-            "country",
-            "hotel_bookings",
-            "tickets",
-            "airbnb_bookings",
-            "event_space_bookings",
-            "payments",
-        ]
 
     def get_hotel_bookings(self, obj):
         data = obj.customerbookings.all()
@@ -150,6 +137,20 @@ class RegisterSerializer(serializers.ModelSerializer):
 
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    @classmethod
+    def get_token(cls, user):
+        token = super().get_token(user)
+        token["user"] = {}
+        token["user"]["id"] = user.id
+        #token["id"] = user.id
+        token["user"]["username"] = user.username
+        token["user"]["email"] = user.email
+        token["user"]["first_name"] = user.first_name
+        token["user"]["last_name"] = user.last_name
+        token["user"]["role"] = user.role
+
+        return token
+
     def validate(self, attrs):
         data = super().validate(attrs)
         

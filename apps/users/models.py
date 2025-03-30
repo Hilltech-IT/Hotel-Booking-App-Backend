@@ -6,12 +6,14 @@ from django.urls import reverse
 from rest_framework.authtoken.models import Token
 
 from apps.core.models import AbstractBaseModel
+from apps.core.constants import UserRoles
 
 # Create your models here.
 ROLE_CHOICES = (
     ("admin", "Admin"),
-    ("service_provider", "Service Provider"),
+    ("Service Provider", "Service Provider"),
     ("customer", "Customer"),
+    ("staff", "Staff"),
 )
 
 GENDER_CHOICES = (
@@ -31,7 +33,7 @@ STAFF_POSITION_CHOICES = (
 
 
 class User(AbstractUser, AbstractBaseModel):
-    role = models.CharField(choices=ROLE_CHOICES, max_length=32, null=True)
+    role = models.CharField(choices=UserRoles.choices(), max_length=32, null=True)
     phone_number = models.CharField(max_length=255, null=True)
     id_number = models.CharField(max_length=255, null=True)
     gender = models.CharField(max_length=255, null=True, choices=GENDER_CHOICES)
