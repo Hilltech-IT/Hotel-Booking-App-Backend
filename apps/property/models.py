@@ -63,9 +63,7 @@ class Property(AbstractBaseModel):
     number_of_rooms = models.IntegerField(default=0, null=True)
     capacity = models.IntegerField(default=0)
     profile_image = models.ImageField(upload_to="property_images/", null=True)
-    approval_status = models.CharField(
-        max_length=255, default="Pending", choices=APPROVAL_CHOICES
-    )
+    approval_status = models.CharField(max_length=255, default="Pending", choices=APPROVAL_CHOICES)
     children_allowed = models.IntegerField(default=0)
     adults_allowed = models.IntegerField(default=0)
     amenities = models.JSONField(default=list)
@@ -140,9 +138,7 @@ class Property(AbstractBaseModel):
 
                     for x in dates_range_str:
                         dates_list.append(x)
-               
-            
-                    
+                       
             return list(set(dates_list))
 
             
@@ -161,9 +157,7 @@ class PropertyRoom(AbstractBaseModel):
     check_in_time = models.TimeField(null=True)
     check_out_time = models.TimeField(null=True)
     available = models.BooleanField(default=True)
-    status = models.CharField(
-        max_length=255, choices=ROOM_STATUS_CHOICES, default="Available"
-    )  # Available, Reserved, Canceled, etc
+    status = models.CharField(max_length=255, choices=ROOM_STATUS_CHOICES, default="Available")
     booked = models.IntegerField(default=0)
     charge_per_night = models.DecimalField(max_digits=100, decimal_places=2, default=0)
 

@@ -9,3 +9,14 @@ class UserRoles(Enum):
     @classmethod
     def choices(cls):
         return [(choice.name, choice.value) for choice in cls]
+    
+
+class PropertyTypes(Enum):
+    HOTEL = "Hotel"
+    AIRBNB = "AirBnB"
+    EVENT_SPACE = "Event Space"
+    OFFICE_SPACE = "Office Space"
+
+    @classmethod
+    def choices(cls):
+        return [(choice.name, choice.value) for choice in cls]

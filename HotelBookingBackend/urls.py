@@ -44,6 +44,10 @@ urlpatterns = [
     path("customers/", include("apps.users.customers.urls")),
     path("staff/", include("apps.users.staff.urls")),
 
+    path("airbnbs/", include("apps.property.airbnbs.urls")),
+    path("event-spaces/", include("apps.property.event_spaces.urls")),
+    path("hotels/", include("apps.property.hotels.urls")),
+
     path('swagger<format>/', schema_view.without_ui(cache_timeout=0), name='schema-json'),
     path('docs/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
