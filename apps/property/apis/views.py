@@ -5,35 +5,46 @@ from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
+from apps.constants import IsAdminOrAuthenticated
 from apps.core.custom_permissions import IsOwnerOrReadOnly
 from apps.property.apis.filter_airbnbs import filter_airbnb
 from apps.property.apis.filter_event_space import filter_event_space
 from apps.property.apis.filter_hotels import filter_hotels
 from apps.property.apis.filters import PropertyFilter
-from apps.property.apis.serializers import (PropertyImageSerializer,
+from apps.property.apis.serializers import (AmenitySerializer, PropertyImageSerializer,
                                             PropertyRoomImageSerializer,
                                             PropertyRoomSerializer,
                                             PropertySerializer,
                                             ReviewAndRatingSerializer)
-from apps.property.models import (Property, PropertyImage, PropertyRoom,
+from apps.property.models import (Amenity, Property, PropertyImage, PropertyRoom,
                                   PropertyRoomImage, ReviewAndRating)
 
-
+from django.db.models import Q
 class PropertyModelViewSet(ModelViewSet):
     queryset = Property.objects.all()
     serializer_class = PropertySerializer
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     search_fields = ["name", "location", "city", "country", "property_type", "cost"]
 
-    permission_classes = [IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
+    # permission_classes = [IsAuthenticatedOrReadOnly, IsAdminOrAuthenticated, IsOwnerOrReadOnly]
+    permission_classes = [ IsAdminOrAuthenticated]
 
     def get_queryset(self):
+        user = self.request.user
+        queryset = super().get_queryset()
+    
+    
+        if not user.is_staff and not user.is_superuser:
+            queryset = queryset.filter(owner=user)
+
         start_date = self.request.query_params.get("start_date")
         end_date = self.request.query_params.get("end_date")
         property_type = self.request.query_params.get("property_type")
         min_cost = self.request.query_params.get("min_cost")
         max_cost = self.request.query_params.get("max_cost")
+        status_filter = self.request.query_params.get("status")
 
+        
         if property_type:
             if property_type.lower() == "hotel":
                 queryset = self.queryset.filter(property_type="Hotel")
@@ -50,10 +61,14 @@ class PropertyModelViewSet(ModelViewSet):
             elif property_type.lower() == "event space":
                 queryset = self.queryset.filter(property_type__in=["Event Space", "Event", "Event_Space"])
                 return filter_event_space(queryset, min_cost, max_cost, start_date, end_date)
-
+        if status_filter:
+                queryset = self.queryset.filter(Q(approval_status__icontains=status_filter))
+                return queryset    
         print(f"Start Date: {start_date}, End Date: {end_date}")
 
-        return super().get_queryset()
+        return queryset
+        # return super().get_queryset()
+        
 
 
 class PropertyImageViewSet(ModelViewSet):
@@ -85,3 +100,11 @@ class PropertyRoomImageViewSet(ModelViewSet):
 class ReviewAndRatingViewSet(ModelViewSet):
     queryset = ReviewAndRating.objects.all()
     serializer_class = ReviewAndRatingSerializer
+
+class AmenityViewSet(ModelViewSet):
+    queryset = Amenity.objects.all()
+    serializer_class = AmenitySerializer
+    
+
+
+

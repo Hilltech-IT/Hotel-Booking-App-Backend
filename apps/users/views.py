@@ -6,7 +6,7 @@ from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.views import TokenObtainPairView
-from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.tokens import RefreshToken, TokenError
 
 from apps.users.serializers import (ChangePasswordSerializer,
                                          EditUserProfileSerializer,
@@ -60,12 +60,26 @@ class UserLogoutAPIView(APIView):
 
     def post(self, request):
         try:
-            refresh_token = request.data["refresh"]
-            token = RefreshToken(refresh_token)
-            token.blacklist()  # Add token to blacklist
-            return Response({"message": "Logout successful"}, status=200)
+            refresh_token = request.data.get("refresh")
+            # print("Received refresh token:", refresh_token[:20] + "..." if refresh_token else None)
+            
+            if not refresh_token:
+                return Response({"error": "Refresh token is missing"}, status=400)
+            
+            try:
+                token = RefreshToken(refresh_token)
+                # print("Token validated successfully")
+                token.blacklist()
+                # print("Token blacklisted successfully")
+                return Response({"message": "Logout successful"}, status=200)
+            except TokenError as te:
+                # print("Token Error:", str(te))
+                return Response({"error": f"Token Error: {str(te)}"}, status=400)
+            
         except Exception as e:
-            return Response({"error": "Invalid token"}, status=400)
+            print("Unexpected error:", str(e))
+            return Response({"error": f"Unexpected error: {str(e)}"}, status=400)
+
 
 class UserRetrieveUpdateDeleteAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = User.objects.all()
@@ -130,6 +144,8 @@ class UserActivationAPIView(APIView):
         if serializer.is_valid(raise_exception=True):
             user = User.objects.get(token=data["token"])
             user.is_active = True
+            user.activated = True
+            user.activation_date = timezone.now()
             user.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_404_NOT_FOUND)
