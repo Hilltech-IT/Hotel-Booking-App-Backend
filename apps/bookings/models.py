@@ -1,4 +1,5 @@
 from django.db import models
+from django.core.exceptions import ValidationError
 
 from apps.core.models import AbstractBaseModel
 from apps.payments.models import Payment
@@ -43,7 +44,8 @@ class RoomBooking(AbstractBaseModel):
 
     def __str__(self):
         return str(self.id)
-
+    
+    
 
 # Create your models here.
 class BnBBooking(AbstractBaseModel):

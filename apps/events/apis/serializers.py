@@ -11,13 +11,17 @@ class EventSerializer(serializers.ModelSerializer):
 
 class EventTicketSerializer(serializers.ModelSerializer):
     event_name = serializers.SerializerMethodField()
-
+    event_date = serializers.SerializerMethodField()
+    
     class Meta:
         model = EventTicket
         fields = "__all__"
 
     def get_event_name(self, obj):
         return obj.event.title
+    
+    def get_event_date(self, obj):
+        return obj.event.event_date
 
 TICKET_CHOICES = (
     ("Single", "Single"),

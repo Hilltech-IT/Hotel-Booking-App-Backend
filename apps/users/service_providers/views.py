@@ -1,6 +1,6 @@
 from django.conf import settings
 
-
+from rest_framework.response import Response
 from apps.notifications.tasks import welcome_new_user_task
 
 from apps.users.models import User
@@ -17,12 +17,21 @@ class ServiceProviderAPIView(generics.ListCreateAPIView):
 
     def post(self, request, *args, **kwargs):
         data = request.data
+        username = data.get('username')
+        if username and User.objects.filter(username=username).exists():
+            return Response(
+                {"error": "A user with that username already exists."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+            
         serializer = self.serializer_class(data=data)
         if serializer.is_valid(raise_exception=True):
             user = serializer.save()
-            user.role = UserRoles.SERVICE_PROVIDER.value
             token = generate_unique_key(user.email)
             user.token = token
+            print("user", user.role)
+            user.role = "Service Provider"
+            user.set_password(user.password)
             user.save()
             try:
                 context_data = {
@@ -35,9 +44,19 @@ class ServiceProviderAPIView(generics.ListCreateAPIView):
                     "subject": "Wonder Wise - Activate Account!",
                 }
                 welcome_new_user_task(context_data=context_data, email=user.email)
+                return Response(
+                        {
+                            "message": "Registration successful. Please check your email to activate your account.",
+                            "email": user.email,
+                            "activationToken": token,
+                        },
+                        status=status.HTTP_201_CREATED,
+                    )
             except Exception as e:
                 raise e
-        return super().post(request, *args, **kwargs)
+        return Response(
+            serializer.errors, status=status.HTTP_400_BAD_REQUEST
+        )
 
 
 class ServiceProviderDetailAPIView(generics.RetrieveUpdateDestroyAPIView):

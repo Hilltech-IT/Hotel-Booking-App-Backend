@@ -1,7 +1,7 @@
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
-from apps.property.apis.views import (PropertyImageViewSet,
+from apps.property.apis.views import (AmenityViewSet, PropertyImageViewSet,
                                       PropertyModelViewSet,
                                       PropertyRoomImageViewSet,
                                       PropertyRoomViewSet,
@@ -18,6 +18,9 @@ router.register("rooms", PropertyRoomViewSet, basename="rooms")
 router.register("room-images", PropertyRoomImageViewSet, basename="room-images")
 router.register(
     "reviews-and-ratings", ReviewAndRatingViewSet, basename="reviews-and-ratings"
+)
+router.register(
+    "amenities", AmenityViewSet, basename="amenities"
 )
 
 

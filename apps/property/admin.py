@@ -1,8 +1,15 @@
 from django.contrib import admin
 
-from apps.property.models import Property, PropertyRoom
+from apps.property.models import Amenity, Property, PropertyRoom
 
-
+@admin.register(Amenity)
+class PropertyRoomAdmin(admin.ModelAdmin):
+    list_display = [
+        "id",
+        "name",
+       
+        
+    ]
 # Register your models here.
 @admin.register(PropertyRoom)
 class PropertyRoomAdmin(admin.ModelAdmin):

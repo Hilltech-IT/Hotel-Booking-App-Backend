@@ -47,7 +47,15 @@ APPROVAL_CHOICES = (
     ("Approved", "Approved"),
     ("Declined", "Declined"),
 )
-
+class Amenity(AbstractBaseModel):
+    name = models.CharField(max_length=255, unique=True)
+    # owner = models.ForeignKey("users.User", on_delete=models.CASCADE, related_name="amenities")
+    def __str__(self):
+        return self.name
+    
+    class Meta:
+        verbose_name_plural = "Amenities"
+        # unique_together = ("name", "owner") 
 
 class Property(AbstractBaseModel):
     owner = models.ForeignKey("users.User", on_delete=models.SET_NULL, null=True, related_name="listedproperties")
@@ -66,9 +74,9 @@ class Property(AbstractBaseModel):
     approval_status = models.CharField(max_length=255, default="Pending", choices=APPROVAL_CHOICES)
     children_allowed = models.IntegerField(default=0)
     adults_allowed = models.IntegerField(default=0)
-    amenities = models.JSONField(default=list)
-    pets_allowed = models.BooleanField(default=True)
-    smoking_allowed = models.BooleanField(default=True)
+    # amenities = models.JSONField(default=list)
+    amenities = models.ManyToManyField(Amenity, related_name="properties", blank=True)
+
 
     def __str__(self):
         return self.name
@@ -149,7 +157,8 @@ class PropertyRoom(AbstractBaseModel):
     room_type = models.CharField(max_length=255, choices=ROOM_TYPES, null=True)
     rooms_number = models.IntegerField(default=0)
     occupancy_capacity = models.PositiveIntegerField(null=True)
-    amenities = models.JSONField(default=list)
+    # amenities = models.JSONField(default=list)
+    amenities = models.ManyToManyField(Amenity, related_name="rooms", blank=True)
     view = models.CharField(max_length=255, choices=VIEW_CHOICES, blank=True, null=True)
     smoking_room = models.BooleanField(default=False)
     accessibility_features = models.BooleanField(default=False)

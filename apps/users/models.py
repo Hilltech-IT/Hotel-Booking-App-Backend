@@ -33,7 +33,7 @@ STAFF_POSITION_CHOICES = (
 
 
 class User(AbstractUser, AbstractBaseModel):
-    role = models.CharField(choices=UserRoles.choices(), max_length=32, null=True)
+    role = models.CharField(choices=ROLE_CHOICES, max_length=32, null=True)
     phone_number = models.CharField(max_length=255, null=True)
     id_number = models.CharField(max_length=255, null=True)
     gender = models.CharField(max_length=255, null=True, choices=GENDER_CHOICES)
@@ -66,9 +66,9 @@ class User(AbstractUser, AbstractBaseModel):
         return f"{self.first_name} {self.last_name}"
 
 
-@receiver(post_save, sender=User)
-def create_user_token(sender, instance, created, **kwargs):
-    if created:
-        token = Token.objects.create(user=instance)
-        instance.token = token.key
-        instance.save()
+# @receiver(post_save, sender=User)
+# def create_user_token(sender, instance, created, **kwargs):
+#     if created:
+#         token = Token.objects.create(user=instance)
+#         instance.token = token.key
+#         instance.save()
