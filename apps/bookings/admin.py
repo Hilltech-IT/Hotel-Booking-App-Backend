@@ -8,9 +8,11 @@ from apps.bookings.models import BnBBooking, RoomBooking, EventSpaceBooking
 class RoomBookingAdmin(admin.ModelAdmin):
     list_display = [
         "created",
+        "modified",
         "id",
         "user",
         "room",
+        "rooms_booked",
         "booked_from",
         "booked_to",
         "days_booked",

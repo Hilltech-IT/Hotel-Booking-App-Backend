@@ -129,7 +129,7 @@ class RegisterSerializer(serializers.ModelSerializer):
                 ),
                 "subject": "Welcome to Wonder Wise",
             }
-            welcome_new_user_task.delay(context_data=context_data, email=user.email)
+            welcome_new_user_task(context_data=context_data, email=user.email)
         except Exception as e:
             raise e
 

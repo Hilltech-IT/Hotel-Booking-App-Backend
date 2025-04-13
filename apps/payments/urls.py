@@ -8,8 +8,9 @@ from apps.payments.views import (
     paystack_payments,
 )
 
-from apps.payments.apis.views import (LipaNaMpesaAPIView, PaystackCallbackDataAPIView,
+from apps.payments.apis.views import (LipaNaMpesaAPIView, PaymentListAPIView, PaystackCallbackDataAPIView,
                                       LipaNaMpesaCallbackAPIView, PaystackAPIView, PaystackCallbackAPIView)
+
 
 urlpatterns = [
     path("", payments, name="payments"),
@@ -24,6 +25,7 @@ urlpatterns = [
 
 
     # Paystack
+    path("all-payments/", PaymentListAPIView.as_view(), name="paystack-pay"),
     path("paystack-pay/", PaystackAPIView.as_view(), name="paystack-pay"),
     path("paystack-callback/", PaystackCallbackAPIView.as_view(), name="paystack-callback"),
     path("process-paystack-callback/", PaystackCallbackDataAPIView.as_view(), name="process-paystack-callback"),

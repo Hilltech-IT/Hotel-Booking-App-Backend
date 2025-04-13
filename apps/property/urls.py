@@ -2,8 +2,8 @@ from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
 from apps.property.apis.views import (AmenityViewSet, PropertyImageViewSet,
-                                      PropertyModelViewSet,
-                                      PropertyRoomImageViewSet,
+                                      PropertyModelViewSet, PropertyRoomCreateAPIView,
+                                      PropertyRoomImageViewSet, PropertyRoomUpdateAPIView,
                                       PropertyRoomViewSet,
                                       ReviewAndRatingViewSet)
 from apps.property.views import (airbnb_details, bnb_properties, delete_room,
@@ -26,6 +26,8 @@ router.register(
 
 urlpatterns = [
     path("api/", include(router.urls)),
+    path("rooms/create/", PropertyRoomCreateAPIView.as_view(), name="create-room" ),
+    path("rooms/update/<int:pk>/", PropertyRoomUpdateAPIView.as_view(), name="create-room" ),
     path("", properties, name="properties"),
     path("airbns/", bnb_properties, name="airbnbs"),
     path("airbnbs/<int:airbnb_id>/", airbnb_details, name="airbnb-details"),

@@ -3,13 +3,14 @@ from django.contrib import admin
 from apps.property.models import Amenity, Property, PropertyRoom
 
 @admin.register(Amenity)
-class PropertyRoomAdmin(admin.ModelAdmin):
+class AmenityAdmin(admin.ModelAdmin):
     list_display = [
         "id",
         "name",
        
         
     ]
+
 # Register your models here.
 @admin.register(PropertyRoom)
 class PropertyRoomAdmin(admin.ModelAdmin):
@@ -19,11 +20,12 @@ class PropertyRoomAdmin(admin.ModelAdmin):
         "room_type",
         "rooms_number",
         "rooms_count",
+        "available_rooms",
         "booked",
         "rate",
         
     ]
-
+    
 
 @admin.register(Property)
 class PropertyAdmin(admin.ModelAdmin):

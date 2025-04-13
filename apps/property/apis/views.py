@@ -1,17 +1,18 @@
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import status
+from rest_framework import status, generics
 from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
-from rest_framework.viewsets import ModelViewSet
+from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 
 from apps.constants import IsAdminOrAuthenticated
+from apps.core.constants import PropertyTypes
 from apps.core.custom_permissions import IsOwnerOrReadOnly
 from apps.property.apis.filter_airbnbs import filter_airbnb
 from apps.property.apis.filter_event_space import filter_event_space
 from apps.property.apis.filter_hotels import filter_hotels
 from apps.property.apis.filters import PropertyFilter
-from apps.property.apis.serializers import (AmenitySerializer, PropertyImageSerializer,
+from apps.property.apis.serializers import (AmenitySerializer, CreatePropertyRoomSerializer, PropertyImageSerializer,
                                             PropertyRoomImageSerializer,
                                             PropertyRoomSerializer,
                                             PropertySerializer,
@@ -84,13 +85,20 @@ class PropertyImageViewSet(ModelViewSet):
     ]
 
 
-class PropertyRoomViewSet(ModelViewSet):
+class PropertyRoomViewSet(ReadOnlyModelViewSet):
     queryset = PropertyRoom.objects.all()
     serializer_class = PropertyRoomSerializer
 
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     search_fields = ["property__name", "room_type"]
+class PropertyRoomCreateAPIView(generics.CreateAPIView):
+    serializer_class = CreatePropertyRoomSerializer
 
+class PropertyRoomUpdateAPIView(generics.UpdateAPIView):
+    serializer_class = CreatePropertyRoomSerializer
+    queryset = PropertyRoom.objects.filter(property__property_type=PropertyTypes.HOTEL.value)
+    lookup_field = "pk"
+    
 
 class PropertyRoomImageViewSet(ModelViewSet):
     queryset = PropertyRoomImage.objects.all()

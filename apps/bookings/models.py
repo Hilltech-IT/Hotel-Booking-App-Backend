@@ -33,6 +33,7 @@ class RoomBooking(AbstractBaseModel):
     reference = models.CharField(max_length=255, null=True)
     transaction_id = models.CharField(max_length=255, null=True)
     is_over = models.BooleanField(default=False)
+    booked_dates = models.JSONField(default=list)
     status = models.CharField(
         max_length=255,
         null=True,
@@ -44,6 +45,19 @@ class RoomBooking(AbstractBaseModel):
 
     def __str__(self):
         return str(self.id)
+
+    def update_payment_status(self):
+       
+        self.fully_paid = self.amount_paid >= self.amount_expected
+
+        if self.amount_paid == 0:
+            self.status = "Pending Payment"
+        elif 0 < self.amount_paid < self.amount_expected:
+            self.status = "Paying"
+        elif self.fully_paid:
+            self.status = "Paid"
+
+
     
     
 
@@ -62,9 +76,10 @@ class BnBBooking(AbstractBaseModel):
     booked_to = models.DateField()
     amount_expected = models.DecimalField(max_digits=100, decimal_places=2, default=0)
     amount_paid = models.DecimalField(max_digits=100, decimal_places=2)
-    days_booked = models.IntegerField(default=0)
+    days_booked = models.IntegerField(default=0, null=True, blank=True)
+    booked_dates = models.JSONField(default=list)
     fully_paid = models.BooleanField(default=False)
-    rooms_booked = models.IntegerField(default=1)
+    rooms_booked = models.IntegerField(default=1, null=True, blank=True)
     payment_link = models.URLField(null=True)
     reference = models.CharField(max_length=255, null=True)
     transaction_id = models.CharField(max_length=255, null=True)
@@ -91,11 +106,12 @@ class EventSpaceBooking(AbstractBaseModel):
     amount_paid = models.DecimalField(max_digits=100, decimal_places=2)
     days_booked = models.IntegerField(default=0)
     fully_paid = models.BooleanField(default=False)
-    rooms_booked = models.IntegerField(default=1)
+    rooms_booked = models.IntegerField(default=1, blank=True, null=True)
     payment_link = models.URLField(null=True)
     reference = models.CharField(max_length=255, null=True)
     transaction_id = models.CharField(max_length=255, null=True)
     is_over = models.BooleanField(default=False)
+    booked_dates = models.JSONField(default=list)
     status = models.CharField(
         max_length=255,
         null=True,

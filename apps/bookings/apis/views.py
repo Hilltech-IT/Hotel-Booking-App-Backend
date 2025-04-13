@@ -1,26 +1,37 @@
 from datetime import datetime
 from decimal import Decimal
+from apps.bookings.generate_booking_dates import calculate_days_booked, generate_booked_dates
+from apps.core.constants import PropertyTypes
+from apps.events.models import Event, EventTicket
+from apps.users.models import User
 from rest_framework.decorators import action
 from rest_framework import generics, status
 from rest_framework.permissions import IsAuthenticated, BasePermission
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from django.db import transaction
 from rest_framework.mixins import RetrieveModelMixin, UpdateModelMixin
-from rest_framework.viewsets import ModelViewSet,GenericViewSet
+from rest_framework.viewsets import ModelViewSet, GenericViewSet
 from rest_framework.pagination import PageNumberPagination
 from apps.bookings.apis.serializers import (BnBBookingSerializer, BookAirBnBSerializer,
-                                            BookARoomSerializer,
+                                            BookARoomSerializer, BookAndUpdateAirBnBSerializer, BookAndUpdateEventSpaceSerializer,
                                             BookEventSpaceSerializer,
-                                            BookingFeeCalculationSerializer, EventSpaceBookingSerializer,
+                                            BookingFeeCalculationSerializer, CreateAndUpdateBookRoomSerializer, EventSpaceBookingSerializer,
                                             RoomBookingSerializer)
 from apps.bookings.models import RoomBooking, EventSpaceBooking, BnBBooking
 from apps.bookings.process_airbnb_booking import AirBnBBookingMixin
 from apps.bookings.process_booking import RoomBookingMixin
 from apps.bookings.process_event_space_booking import EventSpaceBookingMixin
 from apps.constants import IsAdminOrAuthenticated
-from apps.property.models import PropertyRoom
+from apps.property.models import Property, PropertyRoom
 from django.db.models import Q
-from django.core.exceptions import ValidationError
+from rest_framework.exceptions import ValidationError
+from rest_framework.exceptions import PermissionDenied
+from django.db.models import Sum, Count
+from datetime import datetime
+from django.db.models.functions import TruncMonth
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
 
 
 class BookingFeeCalculationAPIView(APIView):
@@ -83,36 +94,38 @@ class RoomBookingAPIView(generics.ListAPIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
         # return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
 class RoomBookingsModelViewSet(RetrieveModelMixin, UpdateModelMixin, GenericViewSet):
     queryset = RoomBooking.objects.all()
     serializer_class = RoomBookingSerializer
     pagination_class = PageNumberPagination
     permission_classes = [IsAdminOrAuthenticated]
-    
+
     def get_queryset(self):
         user = self.request.user
         booking_no = self.request.query_params.get('booking_no')
         status_filter = self.request.query_params.get('status')
-        
 
         if user.role == 'admin':
             room_bookings = self.queryset
         elif user.role == 'Service Provider':
             # room_bookings = self.queryset.filter(user=user)
             room_bookings = self.queryset.filter(
-            room__property__owner=user 
+                room__property__owner=user
             )
         else:
             room_bookings = self.queryset.filter(user=user)
-        
+
         if booking_no:
-            room_bookings = room_bookings.filter(Q(reference__icontains=booking_no))
+            room_bookings = room_bookings.filter(
+                Q(reference__icontains=booking_no))
 
         if status_filter:
-            room_bookings = room_bookings.filter(Q(status__icontains=status_filter))
-            
+            room_bookings = room_bookings.filter(
+                Q(status__icontains=status_filter))
+
         return room_bookings
-    
+
     def list(self, request, *args, **kwargs):
         room_bookings = self.get_queryset()
         page = self.paginate_queryset(room_bookings)
@@ -122,8 +135,8 @@ class RoomBookingsModelViewSet(RetrieveModelMixin, UpdateModelMixin, GenericView
 
         serializer = self.serializer_class(instance=room_bookings, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
-   
-  
+
+
 class BookARoomAPIView(generics.CreateAPIView):
     serializer_class = BookARoomSerializer
     permission_classes = [IsAuthenticated]
@@ -140,6 +153,171 @@ class BookARoomAPIView(generics.CreateAPIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+
+
+
+class CreateRoomBookingAPIView(generics.CreateAPIView):
+    queryset = RoomBooking.objects.all()
+    serializer_class = CreateAndUpdateBookRoomSerializer
+
+    def create(self, request, *args, **kwargs):
+        try:
+            with transaction.atomic():
+
+                room = PropertyRoom.objects.get(id=request.data['room'])
+                booked_from = request.data['booked_from']
+                booked_to = request.data['booked_to']
+                rooms_booked = int(request.data['rooms_booked'])
+
+                requested_dates = generate_booked_dates(booked_from, booked_to)
+                existing_dates = room.booked_dates or []
+
+          
+                conflict_dates = list(set(existing_dates) & set(requested_dates))
+                if conflict_dates:
+                    raise ValidationError({
+                        "error": "Room is already booked for some of these dates.",
+                        "conflicts": conflict_dates
+                    })
+
+                
+                user_data = {
+                    'username': request.data['id_number'],
+                    'first_name': request.data['first_name'],
+                    'last_name': request.data['last_name'],
+                    'email': request.data['email'],
+                    'id_number': request.data['id_number'],
+                    'gender': request.data['gender'],
+                }
+                user, _ = User.objects.get_or_create(
+                    email=request.data['email'],
+                    id_number=request.data['id_number'],
+                    defaults=user_data
+                )
+
+                
+                days_booked = calculate_days_booked(booked_from, booked_to)
+                amount_expected = room.charge_per_night * rooms_booked * days_booked
+                # amount_paid = request.data.get('amount_paid', 0)
+
+                
+                booking_data = {
+                    'user': user,
+                    'room': room,
+                    'booked_from': booked_from,
+                    'booked_to': booked_to,
+                    'rooms_booked': rooms_booked,
+                    'booked_dates': requested_dates,
+                    'days_booked': days_booked,
+                    'amount_expected': amount_expected,
+                    'amount_paid': 0,
+                }
+                booking = RoomBooking.objects.create(**booking_data)
+
+        
+                room.booked_dates = list(set(existing_dates + requested_dates))
+                room.save()
+
+              
+                serializer = self.get_serializer(booking)
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        except PropertyRoom.DoesNotExist:
+            return Response({"error": "Room not found."}, status=status.HTTP_404_NOT_FOUND)
+        except KeyError as e:
+            return Response({"error": f"Missing required field: {str(e)}"}, status=status.HTTP_400_BAD_REQUEST)
+        except ValidationError as ve:
+            return Response(ve.detail, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({"error": f"Unexpected error: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class UpdateRoomBookingAPIView(generics.UpdateAPIView):
+    serializer_class = CreateAndUpdateBookRoomSerializer
+    permission_classes = [IsAdminOrAuthenticated]
+    lookup_field = 'pk'
+
+    def get_queryset(self):
+        user = self.request.user
+        if user.role == "admin":
+            return RoomBooking.objects.all()
+        return RoomBooking.objects.filter(room__property__owner=user)
+
+    def update(self, request, *args, **kwargs):
+       
+        try:
+            booking = self.get_object()
+            room = booking.room
+
+            booked_from = request.data.get('booked_from', booking.booked_from)
+            booked_to = request.data.get('booked_to', booking.booked_to)
+            rooms_booked = int(request.data.get('rooms_booked', booking.rooms_booked))
+            booking_status = request.data.get('status', booking.status)
+
+            if 'booked_from' in request.data or 'booked_to' in request.data:
+                requested_dates = generate_booked_dates(booked_from, booked_to)
+
+                existing_bookings = RoomBooking.objects.filter(room=room).exclude(id=booking.id)
+
+                conflict_dates = set()
+                for existing in existing_bookings:
+                    conflict_dates |= set(existing.booked_dates) & set(requested_dates)
+
+                if conflict_dates:
+                    return Response(
+                        {
+                            "error": "The room is already booked for some of the selected dates.",
+                            "conflicts": list(conflict_dates)
+                        },
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+
+                
+                booking.booked_from = booked_from
+                booking.booked_to = booked_to
+                booking.booked_dates = requested_dates
+             
+            if 'rooms_booked' in request.data or 'booked_from' in request.data or 'booked_to' in request.data:
+                booking.rooms_booked = rooms_booked
+                booking.amount_expected = room.charge_per_night * rooms_booked * booking.days_booked
+
+                
+                # if 'amount_paid' in request.data:
+                #     booking.amount_paid = float(request.data['amount_paid'])
+                # else:
+                #     booking.amount_paid = booking.amount_expected
+            if 'amount_paid' in request.data:
+                print("Incoming amount_paid:", request.data.get('amount_paid'))
+                try:
+                    
+                    booking.amount_paid = float(request.data['amount_paid'])
+                except ValueError:
+                    return Response(
+                        {"error": "Invalid value for amount_paid."},
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+
+                booking.update_payment_status()
+            # if 'status' in request.data:
+            #     booking.status = booking_status
+
+            booking.save()
+
+            serializer = self.get_serializer(booking)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return Response(
+                {"error": f"Unexpected error: {str(e)}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+class DeleteRoomBookingAPIView(generics.DestroyAPIView):
+    queryset = RoomBooking.objects.all()
+    serializer_class = RoomBookingSerializer
+    permission_classes = [IsAdminOrAuthenticated]
+    lookup_field = 'pk'
+
+
 class AirBnBBookingsAPIView(generics.CreateAPIView):
     serializer_class = BnBBookingSerializer
     permission_classes = [IsAdminOrAuthenticated]
@@ -150,21 +328,44 @@ class AirBnBBookingsAPIView(generics.CreateAPIView):
         user = request.user
         ticket_no = request.query_params.get('ticket_no', None)
         status_filter = request.query_params.get('status', None)
-        if user.is_staff or user.is_superuser or user.role == 'admin':
+        if user.role == 'admin':
             bookings = self.queryset.all()
-      
+
         elif user.role == 'Service Provider':
             bookings = self.queryset.filter(airbnb__owner=user)
         else:
             bookings = self.queryset.filter(user=user)
-        
+
         if ticket_no:
             bookings = bookings.filter(Q(reference__icontains=ticket_no))
         if status_filter:
             bookings = bookings.filter(Q(status__icontains=status_filter))
-        
+
         serializer = self.serializer_class(instance=bookings, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class AirBnBBookingDetailAPIView(generics.RetrieveAPIView):
+    serializer_class = BnBBookingSerializer
+    permission_classes = [IsAdminOrAuthenticated]
+    queryset = BnBBooking.objects.all()
+    lookup_field = 'pk'
+
+    def get_object(self):
+        booking = super().get_object()
+        user = self.request.user
+
+        if user.role == 'admin':
+            return booking
+
+        if user.role == 'Service Provider' and booking.airbnb.owner == user:
+            return booking
+
+        if booking.user == user:
+            return booking
+
+        raise PermissionDenied(
+            "You do not have permission to view this booking.")
 
 
 class BookAirBnBAPIView(generics.CreateAPIView):
@@ -183,6 +384,150 @@ class BookAirBnBAPIView(generics.CreateAPIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+class BookAnAirBnBAPIView(generics.CreateAPIView):
+    queryset = BnBBooking.objects.all()
+    serializer_class = BookAndUpdateAirBnBSerializer
+
+    def create(self, request, *args, **kwargs):
+        print("data", request.data)
+        try:
+
+            user_data = {
+                'username': request.data['id_number'],
+                'first_name': request.data['first_name'],
+                'last_name': request.data['last_name'],
+                'email': request.data['email'],
+                'id_number': request.data['id_number'],
+                'gender': request.data['gender'],
+            }
+
+            with transaction.atomic():
+                user, _ = User.objects.get_or_create(
+                    email=request.data['email'],
+                    id_number=request.data['id_number'],
+                    defaults=user_data
+                )
+
+                try:
+                    airbnb = Property.objects.get(id=request.data['airbnb'])
+                    print("airbnb", airbnb)
+                except Property.DoesNotExist:
+                    return Response(
+                        {"error": "Airbnb property not found."},
+                        status=status.HTTP_404_NOT_FOUND
+                    )
+
+                booked_from = request.data['booked_from']
+                booked_to = request.data['booked_to']
+                requested_dates = generate_booked_dates(booked_from, booked_to)
+
+                existing_dates = airbnb.dates_booked
+                conflict_dates = list(set(existing_dates)
+                                      & set(requested_dates))
+
+                if conflict_dates:
+                    return Response(
+                        {"error": "The Airbnb is already booked for some of the selected dates.",
+                            "conflicts": conflict_dates},
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+
+                days_booked = calculate_days_booked(booked_from, booked_to)
+                amount_expected = airbnb.cost * days_booked
+                amount_paid = request.data.get('amount_paid', amount_expected)
+
+                bnb_booking_data = {
+                    'user': user,
+                    'airbnb': airbnb,
+                    'booked_from': booked_from,
+                    'booked_to': booked_to,
+                    'amount_expected': amount_expected,
+                    'amount_paid': amount_paid,
+                    'days_booked': days_booked,
+                    'booked_dates': requested_dates,
+                }
+
+                bnb_booking = BnBBooking.objects.create(**bnb_booking_data)
+                serializer = self.get_serializer(bnb_booking)
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        except KeyError as e:
+            return Response(
+                {"error": f"Missing required field: {str(e)}"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        except Exception as e:
+            return Response(
+                {"error": f"Unexpected error: {str(e)}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+
+class UpdateAirbnbBookingAPIView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = BnBBooking.objects.all()
+    serializer_class = BookAndUpdateAirBnBSerializer
+    lookup_field = 'pk'
+
+    def update(self, request, *args, **kwargs):
+        try:
+            booking = self.get_object()
+            airbnb = booking.airbnb
+
+            booked_from = request.data.get('booked_from', booking.booked_from)
+            booked_to = request.data.get('booked_to', booking.booked_to)
+            booking_status = request.data.get('status', booking.status)
+
+            if 'booked_from' in request.data or 'booked_to' in request.data:
+
+                requested_dates = generate_booked_dates(booked_from, booked_to)
+
+                existing_bookings = BnBBooking.objects.filter(
+                    airbnb=airbnb
+                ).exclude(
+                    id=booking.id
+                )
+
+                conflicts = False
+                conflict_dates = []
+
+                for existing_booking in existing_bookings:
+                    conflict_dates_with_booking = list(
+                        set(existing_booking.booked_dates) & set(
+                            requested_dates)
+                    )
+                    if conflict_dates_with_booking:
+                        conflicts = True
+                        conflict_dates.extend(conflict_dates_with_booking)
+
+                if conflicts:
+                    return Response(
+                        {"error": "The Airbnb is already booked for some of the selected dates.",
+                         "conflicts": list(set(conflict_dates))},
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+
+                days_booked = calculate_days_booked(booked_from, booked_to)
+                amount_expected = airbnb.cost * days_booked
+
+                booking.booked_from = booked_from
+                booking.booked_to = booked_to
+                booking.days_booked = days_booked
+                booking.amount_expected = amount_expected
+                booking.booked_dates = requested_dates
+
+            if 'status' in request.data:
+                booking.status = booking_status
+
+            booking.save()
+
+            serializer = self.get_serializer(booking)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return Response(
+                {"error": f"Unexpected error: {str(e)}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
 
 class BookEventSpaceAPIView(generics.CreateAPIView):
@@ -207,25 +552,29 @@ class EventSpaceBookingsModelViewSet(RetrieveModelMixin, UpdateModelMixin, Gener
     serializer_class = EventSpaceBookingSerializer
     pagination_class = PageNumberPagination
     permission_classes = [IsAdminOrAuthenticated]
-    
+
     def get_queryset(self):
         user = self.request.user
         ticekt_no = self.request.query_params.get('ticekt_no')
         status_filter = self.request.query_params.get('status')
-        
+
         if user.role == 'admin':
-            ticket_bookings = self.queryset
+            espace_bookings = self.queryset
+        elif user.role == "Service Provider":
+            espace_bookings = self.queryset.filter(event_space__owner=user)
         else:
-            ticket_bookings = self.queryset.filter(user=user)
+            espace_bookings = self.queryset.filter(user=user)
 
         if ticekt_no:
-            ticket_bookings = ticket_bookings.filter(Q(reference__icontains=ticekt_no))
+            espace_bookings = espace_bookings.filter(
+                Q(reference__icontains=ticekt_no))
 
         if status_filter:
-            ticket_bookings = ticket_bookings.filter(Q(status__icontains=status_filter))
-            
-        return ticket_bookings
-    
+            espace_bookings = espace_bookings.filter(
+                Q(status__icontains=status_filter))
+
+        return espace_bookings
+
     def list(self, request, *args, **kwargs):
         ticket_bookings = self.get_queryset()
         page = self.paginate_queryset(ticket_bookings)
@@ -235,3 +584,362 @@ class EventSpaceBookingsModelViewSet(RetrieveModelMixin, UpdateModelMixin, Gener
 
         serializer = self.serializer_class(instance=ticket_bookings, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class EventSpaceBookingDetailAPIView(generics.RetrieveAPIView):
+    serializer_class = EventSpaceBookingSerializer
+    permission_classes = [IsAdminOrAuthenticated]
+    queryset = EventSpaceBooking.objects.all()
+    lookup_field = 'pk'
+
+    def get_object(self):
+        booking = super().get_object()
+        user = self.request.user
+
+        # Admins can see all
+        if user.role == 'admin':
+            return booking
+
+        # Service Providers can see their own property bookings
+        if user.role == 'Service Provider' and booking.event_space.owner == user:
+            return booking
+
+        # Customers can see their own bookings
+        if booking.user == user:
+            return booking
+
+        raise PermissionDenied(
+            "You do not have permission to view this booking.")
+
+
+
+
+
+class BookAnEventSpaceAPIView(generics.CreateAPIView):
+    queryset = EventSpaceBooking.objects.all()
+    serializer_class = BookAndUpdateEventSpaceSerializer
+
+    def create(self, request, *args, **kwargs):
+        print("data", request.data)
+        event_space_id = request.data['event_space']
+        booked_from = request.data['booked_from']
+        booked_to = request.data['booked_to']
+        try:
+            
+            try:
+                event_space = Property.objects.get(id=event_space_id)
+                print("event_space", event_space)
+            except Property.DoesNotExist:
+                return Response(
+                    {"error": "Event space not found."},
+                    status=status.HTTP_404_NOT_FOUND
+                )
+            
+            """Confirm availability before creating user"""
+
+            requested_dates = generate_booked_dates(booked_from, booked_to)
+            requested_dates = [str(d) for d in requested_dates]
+            existing_dates = [str(d) for d in event_space.dates_booked or []]
+
+            conflict_dates = list(set(existing_dates) & set(requested_dates))
+
+            if conflict_dates:
+                return Response(
+                    {
+                        "error": "The Event space is already booked for some of the selected dates.",
+                        "conflicts": conflict_dates
+                    },
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+            """Proceed with user creation and booking"""
+            user_data = {
+                'username': request.data['phone_number'],
+                'first_name': request.data['first_name'],
+                'last_name': request.data['last_name'],
+                'email': request.data['email'],
+                'id_number': request.data['id_number'],
+                'gender': request.data['gender'],
+                'phone_number': request.data['phone_number']
+            }
+
+            with transaction.atomic():
+                user, _ = User.objects.get_or_create(
+                    id_number=request.data['id_number'], 
+                    defaults=user_data
+                )
+
+                if event_space.cost is None:
+                    return Response({"error": "Event space cost is not set."}, status=400)
+
+                days_booked = calculate_days_booked(booked_from, booked_to)
+                amount_expected = event_space.cost * days_booked
+                amount_paid = request.data.get('amount_paid', amount_expected)
+
+                event_space_booking_data = {
+                    'user': user,
+                    'event_space': event_space,
+                    'booked_from': booked_from,
+                    'booked_to': booked_to,
+                    'amount_expected': amount_expected,
+                    'amount_paid': amount_paid,
+                    'days_booked': days_booked,
+                    'booked_dates': requested_dates,
+                }
+
+                event_space_booking = EventSpaceBooking.objects.create(**event_space_booking_data)
+                serializer = self.get_serializer(event_space_booking)
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        except KeyError as e:
+            return Response(
+                {"error": f"Missing required field: {str(e)}"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        except Exception as e:
+            import traceback
+            print(traceback.format_exc())
+            return Response(
+                {"error": f"Unexpected error: {str(e)}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+class UpdateEventSpaceBookingAPIView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = EventSpaceBooking.objects.all()
+    serializer_class = BookAndUpdateEventSpaceSerializer
+    lookup_field = 'pk'
+
+    def update(self, request, *args, **kwargs):
+        try:
+            booking = self.get_object()
+            event_space = booking.event_space
+
+            booked_from = request.data.get('booked_from', booking.booked_from)
+            booked_to = request.data.get('booked_to', booking.booked_to)
+            booking_status = request.data.get('status', booking.status)
+
+            if 'booked_from' in request.data or 'booked_to' in request.data:
+
+                requested_dates = generate_booked_dates(booked_from, booked_to)
+
+                existing_bookings = EventSpaceBooking.objects.filter(
+                    event_space=event_space
+                ).exclude(
+                    id=booking.id
+                )
+
+                conflicts = False
+                conflict_dates = []
+
+                for existing_booking in existing_bookings:
+                    conflict_dates_with_booking = list(
+                        set(existing_booking.booked_dates) & set(
+                            requested_dates)
+                    )
+                    if conflict_dates_with_booking:
+                        conflicts = True
+                        conflict_dates.extend(conflict_dates_with_booking)
+
+                if conflicts:
+                    return Response(
+                        {"error": "The Event space is already booked for some of the selected dates.",
+                         "conflicts": list(set(conflict_dates))},
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+
+                days_booked = calculate_days_booked(booked_from, booked_to)
+                amount_expected = even_space.cost * days_booked
+
+                booking.booked_from = booked_from
+                booking.booked_to = booked_to
+                booking.days_booked = days_booked
+                booking.amount_expected = amount_expected
+                booking.booked_dates = requested_dates
+
+            if 'status' in request.data:
+                booking.status = booking_status
+
+            booking.save()
+
+            serializer = self.get_serializer(booking)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return Response(
+                {"error": f"Unexpected error: {str(e)}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+
+"""Metrics Api"""
+
+
+class RevenueMetricsAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    @swagger_auto_schema(
+        manual_parameters=[
+            openapi.Parameter('year', openapi.IN_QUERY, description="Year to filter by (e.g., 2025)",
+                              type=openapi.TYPE_INTEGER, required=False),
+            openapi.Parameter('month', openapi.IN_QUERY, description="Month to filter by (1-12)",
+                              type=openapi.TYPE_INTEGER, required=False),
+        ]
+    )
+    def get(self, request):
+        user = request.user
+        
+        is_admin = getattr(user, "role", None) == "admin"
+        is_servicer_provider = getattr(user, "role", None) == "Service Provider"
+        print("is_servicer_provider", is_servicer_provider)
+        # Filters for ownership
+        room_filter = {} if is_admin else {"room__property__owner": user}
+        event_space_filter = {} if is_admin else {"event_space__owner": user}
+        bnb_filter = {} if is_admin else {"airbnb__owner": user}
+        ticket_filter = {} if is_admin else {"event__owner": user}
+        event_filter = {} if is_admin else {"owner": user}
+        property_filter = {} if is_admin else {"owner": user}
+
+        # Optional filters from query params
+        year = request.query_params.get("year")
+        month = request.query_params.get("month")
+
+        try:
+            year = int(year) if year else datetime.now().year
+            month = int(month) if month else None
+        except ValueError:
+            return Response({"detail": "Invalid year or month"}, status=400)
+
+        def apply_date_filter(queryset, date_field):
+            filter_kwargs = {
+                f"{date_field}__year": year
+            }
+            if month:
+                filter_kwargs[f"{date_field}__month"] = month
+            return queryset.filter(**filter_kwargs)
+
+        def get_monthly_data(queryset, date_field):
+            filtered_qs = apply_date_filter(queryset, date_field)
+
+            # If month is specified, only get data for that month
+            if month:
+                aggregate = filtered_qs.aggregate(
+                    revenue=Sum("amount_paid"), count=Count("id")
+                )
+                revenue_by_month = [0] * 12
+                count_by_month = [0] * 12
+                month_index = month - 1
+                revenue_by_month[month_index] = aggregate["revenue"] or 0
+                count_by_month[month_index] = aggregate["count"] or 0
+                return revenue_by_month, count_by_month
+
+            # Else, return full 12 months
+            monthly = (
+                filtered_qs
+                .annotate(month=TruncMonth(date_field))
+                .values("month")
+                .annotate(
+                    monthly_revenue=Sum("amount_paid"),
+                    monthly_count=Count("id")
+                )
+                .order_by("month")
+            )
+
+            revenue_by_month = [0] * 12
+            count_by_month = [0] * 12
+
+            for entry in monthly:
+                idx = entry["month"].month - 1
+                revenue_by_month[idx] = entry["monthly_revenue"] or 0
+                count_by_month[idx] = entry["monthly_count"] or 0
+
+            return revenue_by_month, count_by_month
+
+        def summarize(queryset, date_field):
+            filtered = apply_date_filter(queryset, date_field)
+            aggregate = filtered.aggregate(
+                revenue=Sum("amount_paid"),
+                count=Count("id")
+            )
+            return {
+                "revenue": aggregate["revenue"] or 0,
+                "count": aggregate["count"] or 0
+            }
+
+        # Querysets
+        room_queryset = RoomBooking.objects.filter(**room_filter)
+        event_queryset = EventSpaceBooking.objects.filter(**event_space_filter)
+        bnb_queryset = BnBBooking.objects.filter(**bnb_filter)
+        ticket_queryset = EventTicket.objects.filter(**ticket_filter)
+
+        # Metrics
+        room_metrics = summarize(room_queryset, "created")
+        room_revenue_monthly, room_count_monthly = get_monthly_data(
+            room_queryset, "created")
+
+        event_metrics = summarize(event_queryset, "created")
+        event_revenue_monthly, event_count_monthly = get_monthly_data(
+            event_queryset, "created")
+
+        bnb_metrics = summarize(bnb_queryset, "created")
+        bnb_revenue_monthly, bnb_count_monthly = get_monthly_data(
+            bnb_queryset, "created")
+
+        ticket_metrics = summarize(ticket_queryset, "created")
+        ticket_revenue_monthly, ticket_count_monthly = get_monthly_data(
+            ticket_queryset, "created")
+
+        total_revenue = (
+            room_metrics["revenue"]
+            + event_metrics["revenue"]
+            + bnb_metrics["revenue"]
+            + ticket_metrics["revenue"]
+        )
+
+        total_bookings = (
+            room_metrics["count"]
+            + event_metrics["count"]
+            + bnb_metrics["count"]
+            + ticket_metrics["count"]
+        )
+        hotel_count = Property.objects.filter(
+            property_type="Hotel", **property_filter)
+        airbnb_count = Property.objects.filter(
+            property_type="AirBnB", **property_filter)
+        event_space_count = Property.objects.filter(
+            property_type="Event Space", **property_filter)
+        events_count = Event.objects.filter(**property_filter)
+
+        hotel_count = apply_date_filter(hotel_count, "created").count()
+        airbnb_count = apply_date_filter(airbnb_count, "created").count()
+        event_space_count = apply_date_filter(
+            event_space_count, "created").count()
+        events_count = apply_date_filter(events_count, "created").count()
+        return Response({
+            "room": {
+                **room_metrics,
+                "monthly_revenue": room_revenue_monthly,
+                "monthly_counts": room_count_monthly
+            },
+            "event": {
+                **event_metrics,
+                "monthly_revenue": event_revenue_monthly,
+                "monthly_counts": event_count_monthly
+            },
+            "airbnb": {
+                **bnb_metrics,
+                "monthly_revenue": bnb_revenue_monthly,
+                "monthly_counts": bnb_count_monthly
+            },
+            "tickets": {
+                **ticket_metrics,
+                "monthly_revenue": ticket_revenue_monthly,
+                "monthly_counts": ticket_count_monthly
+            },
+            "property_counts": {
+                "hotels": hotel_count,
+                "airbnbs": airbnb_count,
+                "event_spaces": event_space_count,
+                "events": events_count
+            },
+            "total_revenue": total_revenue,
+            "total_bookings": total_bookings
+        })

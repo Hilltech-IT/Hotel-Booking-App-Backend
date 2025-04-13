@@ -1,3 +1,4 @@
+from apps.constants import IsAdminOrAuthenticated
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status, generics
 from rest_framework.filters import OrderingFilter, SearchFilter
@@ -14,16 +15,54 @@ from apps.property.apis.filters import PropertyFilter
 from apps.property.models import Property
 
 
-from apps.property.airbnbs.serializers import AirBnBSerializer
+from apps.property.airbnbs.serializers import AirBnBCreateSerializer, AirBnBSerializer
 from apps.core.constants import PropertyTypes
 
-class AirBnBAPIView(generics.ListCreateAPIView):
+class AirBnBAPIView(generics.ListAPIView):
     queryset = Property.objects.filter(property_type=PropertyTypes.AIRBNB.value)
     serializer_class = AirBnBSerializer
+    permission_classes = [IsAdminOrAuthenticated]
+    def get(self, request, *args, **kwargs):
+        user = request.user
+        
+
+        if user.role == 'admin':
+            hotels = self.get_queryset()
+
+        elif user.role == "Service Provider":
+            hotels = self.get_queryset().filter(owner=user)
+        else:
+            hotels = self.get_queryset().filter(user=user)
+
+        
+        page = self.paginate_queryset(hotels)
+        if page is not None:
+            serializer = self.serializer_class(instance=page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.serializer_class(instance=hotels, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+
+    
 
 
-class AirBnBDetailAPIView(generics.ListCreateAPIView):
+class AirBnBDetailAPIView(generics.RetrieveDestroyAPIView):
     queryset = Property.objects.filter(property_type=PropertyTypes.AIRBNB.value)
     serializer_class = AirBnBSerializer
 
     lookup_field = "pk"
+
+class AirBnBCreateAPIView(generics.CreateAPIView):
+    serializer_class = AirBnBCreateSerializer
+
+    def perform_create(self, serializer):
+        serializer.save(property_type='AirBnB')
+
+class AirBnBUpdateView(generics.UpdateAPIView):
+    serializer_class = AirBnBCreateSerializer
+    queryset = Property.objects.filter(property_type=PropertyTypes.AIRBNB.value)
+    lookup_field = "pk"
+
+    def perform_create(self, serializer):
+        serializer.save(property_type='AirBnB')

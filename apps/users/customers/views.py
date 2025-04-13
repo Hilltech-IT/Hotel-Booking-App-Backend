@@ -10,7 +10,7 @@ from apps.core.constants import UserRoles
 
 
 class CustomersAPIView(generics.ListAPIView):
-    queryset = User.objects.filter(role=UserRoles.CUSTOMER.value)
+    queryset = User.objects.filter(role="customer")
     serializer_class = CustomerSerializer
 
     

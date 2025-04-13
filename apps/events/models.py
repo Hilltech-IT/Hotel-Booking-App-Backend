@@ -31,6 +31,13 @@ EVENT_TICKET_TYPE_CHOICES = (
     ("Multiple", "Multiple"),
 )
 
+class AllowedPaymentMethods(AbstractBaseModel):
+    name = models.CharField(max_length=255, unique=True)
+    def __str__(self):
+        return self.name
+    
+    class Meta:
+        verbose_name_plural = "paymentmethods"
 class Event(AbstractBaseModel):
     owner = models.ForeignKey(
         "users.User", on_delete=models.CASCADE, related_name="userevents"
@@ -45,12 +52,13 @@ class Event(AbstractBaseModel):
     couples_ticket_price = models.DecimalField(max_digits=20, decimal_places=2, default=0)
     students_ticket_price = models.DecimalField(max_digits=20, decimal_places=2, default=0)
     group_ticket_price = models.DecimalField(max_digits=20, decimal_places=2, default=0)
-    age_limit = models.FloatField(default=0)
+    age_limit = models.FloatField(default=0, null=True, blank=True)
     children_allowed = models.BooleanField(default=True)
     description = models.TextField()
     location = models.CharField(max_length=1000)
     event_banner = models.ImageField(upload_to="event_banners/", null=True)
-    allowed_payment_methods = models.JSONField(default=list)
+    # allowed_payment_methods = models.JSONField(default=list)
+    allowed_payment_methods = models.ManyToManyField(AllowedPaymentMethods, related_name="events", blank=True)
     total_tickets = models.IntegerField(default=1)
 
     def __str__(self):
@@ -85,6 +93,18 @@ class EventTicket(AbstractBaseModel):
     transaction_id = models.CharField(max_length=255, null=True)
     payment_notif_send = models.BooleanField(default=False)
     notif_send = models.BooleanField(default=False)
+
+    # is_refundable = models.BooleanField(default=True)
+    # refund_requested = models.BooleanField(default=False)
+    # refund_approved = models.BooleanField(default=False)
+    # refund_processed = models.BooleanField(default=False)
+    # refund_amount = models.DecimalField(max_digits=20, decimal_places=2, null=True, blank=True)
+    # refund_reason = models.TextField(null=True, blank=True)
+    # refund_requested_at = models.DateTimeField(null=True, blank=True)
+    # refund_processed_at = models.DateTimeField(null=True, blank=True)
+
+    cancelled_at = models.DateTimeField(null=True, blank=True)
+
 
     def __str__(self):
         return f"{self.user.username} has purchased a {self.ticket_type} for {self.event.title}"

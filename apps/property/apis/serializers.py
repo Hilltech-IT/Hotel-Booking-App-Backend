@@ -4,6 +4,7 @@ from rest_framework import serializers
 
 from apps.property.models import (Amenity, Property, PropertyImage, PropertyRoom,
                                   PropertyRoomImage, ReviewAndRating)
+from apps.users.models import User
 
 date_today = datetime.now().date()
 
@@ -19,7 +20,10 @@ class AmenitySerializer(serializers.ModelSerializer):
         model = Amenity
         fields = "__all__"
 
-
+class OwnerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'first_name', 'last_name', 'email', "username", "business_name", "phone_number"] 
 class PropertySerializer(serializers.ModelSerializer):
     single_rooms = serializers.SerializerMethodField()
     double_rooms = serializers.SerializerMethodField()
@@ -28,8 +32,8 @@ class PropertySerializer(serializers.ModelSerializer):
     booked_dates = serializers.ReadOnlyField(source="dates_booked")
     profile_image = serializers.ImageField(required=False, allow_null=True)
     #amenities = serializers.JSONField(default=list, required=False)
-    # amenities = AmenitySerializer(many=True, required=False)
-
+    amenities = AmenitySerializer(many=True, required=False)
+    owner = OwnerSerializer(read_only=True)
     #amenities = serializers.PrimaryKeyRelatedField(
     #    queryset=Amenity.objects.all(),
     #    many=True,
@@ -57,7 +61,7 @@ class PropertySerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         representation = super().to_representation(instance)
-        print("Representation Data: ", representation)
+        # print("Representation Data: ", representation)
         request = self.context.get("request")
 
         if request is not None:
@@ -70,10 +74,43 @@ class PropertySerializer(serializers.ModelSerializer):
         return representation
 
 
+class CreatePropertyRoomSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PropertyRoom
+        fields = [
+            'property',
+            'room_type',
+            'rooms_number',
+            'occupancy_capacity',
+            'amenities',
+            'view',
+            'smoking_room',
+            'accessibility_features',
+            'check_in_time',
+            'check_out_time',
+            'available',
+            'status',
+            'booked',
+            'charge_per_night'
+        ]
+      
+        
+        extra_kwargs = {
+            "amenities": {"required": False},
+            "available": {"required": False},
+            "status": {"required": False},
+            "view": {"required": False},
+            "booked": {"required": False},
+            "check_in_time": {"required": False},
+            "check_out_time": {"required": False},
+            "occupancy_capacity": {"required": False},
+        }
+        partial = True
 class PropertyRoomSerializer(serializers.ModelSerializer):
     rooms_count = serializers.SerializerMethodField()
     dates_booked = serializers.SerializerMethodField()
-
+    property_name = serializers.CharField(source='property.name') 
+    available_rooms = serializers.SerializerMethodField()
     class Meta:
         model = PropertyRoom
         fields = "__all__"
@@ -98,6 +135,9 @@ class PropertyRoomSerializer(serializers.ModelSerializer):
                 dates_list.append(x)
 
         return list(set(dates_list))
+    def get_available_rooms(self, obj):
+        """Expose available rooms in the API."""
+        return obj.available_rooms()
 
 
 class PropertyRoomImageSerializer(serializers.ModelSerializer):

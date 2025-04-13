@@ -1,5 +1,11 @@
 from rest_framework import serializers
 
+from apps.bookings.apis.serializers import BnBBookingSerializer, EventSpaceBookingSerializer, RoomBookingSerializer
+from apps.events.apis.serializers import EventTicketSerializer
+from apps.payments.models import Payment, PaystackPayment
+from apps.property.apis.serializers import PropertyRoomSerializer
+from apps.users.serializers import UserBaseSerializer
+
 
 class LipaNaMpesaSerializer(serializers.Serializer):
     phone_number = serializers.CharField(max_length=15)
@@ -20,3 +26,15 @@ class PaystackSerializer(serializers.Serializer):
 class PaystackCallbackSerializer(serializers.Serializer):
     referece = serializers.CharField(max_length=255)
     trxref = serializers.CharField(max_length=255)
+
+class PaymentsSerializer(serializers.ModelSerializer):
+    paid_by = UserBaseSerializer(read_only=True)
+    paid_to = UserBaseSerializer(read_only=True)
+    bnb_booking = BnBBookingSerializer(read_only=True)
+    event_space_booking = EventSpaceBookingSerializer(read_only=True)
+    room_booking = RoomBookingSerializer(read_only=True)
+    ticket = EventTicketSerializer(read_only=True)
+    room = PropertyRoomSerializer(read_only=True)
+    class Meta:
+        model = Payment
+        fields = "__all__"

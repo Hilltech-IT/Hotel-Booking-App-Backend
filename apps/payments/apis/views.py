@@ -5,13 +5,15 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from apps.payments.apis.serializers import (LipaNaMpesaCallbackSerializer,
-                                            LipaNaMpesaSerializer, PaystackSerializer, PaystackCallbackSerializer)
-from apps.payments.models import MpesaTransaction, PaystackPayment
+                                            LipaNaMpesaSerializer, PaymentsSerializer, PaystackSerializer, PaystackCallbackSerializer)
+from apps.payments.models import MpesaTransaction, Payment, PaystackPayment
 from apps.payments.mpesa.mpesa_callback_data import mpesa_callback_data_distructure
 from apps.payments.mpesa.utils import MpesaGateWay
 from apps.payments.paystack.paystack import PaystackProcessorMixin
 from apps.payments.paystack.callback_processor import PaystackCallbackProcessMixin
-
+from rest_framework.mixins import RetrieveModelMixin, UpdateModelMixin
+from rest_framework.viewsets import ModelViewSet,GenericViewSet
+from django.db.models import Q
 
 BASE_BACKEND_URL = ""
 
@@ -146,3 +148,32 @@ class LipaNaMpesaAPIView(generics.CreateAPIView):
             )
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)  
+
+
+"""payments listing"""
+
+
+class PaymentListAPIView(generics.ListAPIView):
+    queryset = Payment.objects.all()
+    serializer_class = PaymentsSerializer
+    permission_classes = [AllowAny]
+    
+    def get_queryset(self):
+        user = self.request.user
+        transc_code = self.request.query_params.get('transaction_code')
+        status_filter = self.request.query_params.get('status')
+
+        
+        if user.role == 'admin':
+            payments = self.queryset
+        else:
+            payments = self.queryset.filter(user=user)
+
+        
+        if transc_code:
+            payments = payments.filter(Q(transaction_id__icontains=transc_code))
+
+        if status_filter:
+            payments = payments.filter(Q(transaction_id__icontains=status_filter))
+
+        return payments

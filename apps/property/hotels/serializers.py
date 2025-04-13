@@ -1,5 +1,111 @@
 from rest_framework import serializers
-from apps.property.serializers import PropertySerializer
+
+from apps.bookings.apis.serializers import RoomBookingSerializer
+from apps.bookings.models import RoomBooking
+from apps.property.apis.serializers import PropertyRoomSerializer, PropertySerializer
+from apps.property.models import Amenity, Property, PropertyRoom
+# from apps.property.serializers import PropertySerializer
+
+
+class HotelRoomSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = PropertyRoom
+        fields = "__all__"
+class CreateAndUpdateRoomSerializer(serializers.ModelSerializer):
+    amenities = serializers.PrimaryKeyRelatedField(
+        queryset=Amenity.objects.all(),
+        many=True
+    )
+    class Meta:
+        model = PropertyRoom
+        fields = [
+            "property",
+            "room_type",
+            "rooms_number",
+            "occupancy_capacity",
+            "amenities",
+            "view",
+            "smoking_room",
+            "accessibility_features",
+            "rate",
+            "check_in_time",
+            "check_out_time",
+            "available",
+            "status",
+            "charge_per_night",
+            "rate",
+            "booked_dates",
+            "booked",
+
+        ]
+        extra_kwargs = {
+            "amenities": {"required": False},
+            "rate": {"required": False},
+            "status": {"required": False},
+            "booked": {"required": False},
+            "booked_dates": {"required": False},
+        }
+
+
+class HotelCreateSerializer(serializers.ModelSerializer):
+    profile_image = serializers.ImageField(max_length=255, allow_null=True, required=False)
+
+    class Meta:
+        model = Property
+        fields = [
+            "owner",
+            "name",
+            "location",
+            "city",
+            "country",
+            "property_type",
+            "address",
+            "contact_number",
+            "email",
+            "cost",
+            "capacity",
+            "children_allowed",
+            "adults_allowed",
+            "profile_image",
+            "amenities",
+        ]
+        extra_kwargs = {
+            "amenities": {"required": False},
+            "adults_allowed": {"required": False},
+            "children_allowed": {"required": False},
+            "capacity": {"required": False},
+            "cost": {"required": False},
+            "property_type": {"required": False},
+        }
+        partial = True
+    
+
 
 class HotelSerializer(PropertySerializer):
-    pass
+    rooms = serializers.SerializerMethodField()
+    bookings = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Property
+        fields = '__all__'
+
+    # def get_rooms(self, obj):
+    #     rooms = obj.propertyrooms.select_related('property').prefetch_related('amenities')
+    #     return PropertyRoomSerializer(rooms, many=True).data
+    def get_rooms(self, obj):
+        """Returns the rooms with available_rooms added."""
+        rooms = obj.propertyrooms.select_related('property').prefetch_related('amenities')
+        # Serialize each room and include available_rooms
+        rooms_data = PropertyRoomSerializer(rooms, many=True).data
+        
+        # Add available_rooms to each room
+        for room, room_data in zip(rooms, rooms_data):
+            room_data['available_rooms'] = room.available_rooms()
+
+        return rooms_data
+
+    def get_bookings(self, obj):
+        rooms = obj.propertyrooms.all()
+        bookings = RoomBooking.objects.filter(room__in=rooms)
+        return RoomBookingSerializer(bookings, many=True).data
