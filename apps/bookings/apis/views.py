@@ -24,6 +24,7 @@ from apps.bookings.process_booking import RoomBookingMixin
 from apps.bookings.process_event_space_booking import EventSpaceBookingMixin
 from apps.constants import IsAdminOrAuthenticated
 from apps.property.models import Property, PropertyRoom
+from apps.core.reference_generator import generate_payment_reference
 from django.db.models import Q
 from rest_framework.exceptions import ValidationError
 from rest_framework.exceptions import PermissionDenied
@@ -213,8 +214,9 @@ class CreateRoomBookingAPIView(generics.CreateAPIView):
                     'amount_paid': 0,
                 }
                 booking = RoomBooking.objects.create(**booking_data)
-
-        
+                reference = generate_payment_reference("HTR", booking.id, user.id)
+                booking.reference = reference
+                booking.save()
                 room.booked_dates = list(set(existing_dates + requested_dates))
                 room.save()
 
@@ -434,7 +436,7 @@ class BookAnAirBnBAPIView(generics.CreateAPIView):
 
                 days_booked = calculate_days_booked(booked_from, booked_to)
                 amount_expected = airbnb.cost * days_booked
-                amount_paid = request.data.get('amount_paid', amount_expected)
+                amount_paid = request.data.get('amount_paid', 0)
 
                 bnb_booking_data = {
                     'user': user,
@@ -448,6 +450,10 @@ class BookAnAirBnBAPIView(generics.CreateAPIView):
                 }
 
                 bnb_booking = BnBBooking.objects.create(**bnb_booking_data)
+                reference = generate_payment_reference("BNB", bnb_booking.id, user.id)
+                bnb_booking.reference = reference
+                bnb_booking.save()
+
                 serializer = self.get_serializer(bnb_booking)
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
 
@@ -688,6 +694,9 @@ class BookAnEventSpaceAPIView(generics.CreateAPIView):
                 }
 
                 event_space_booking = EventSpaceBooking.objects.create(**event_space_booking_data)
+                reference = generate_payment_reference("EST", event_space_booking.id, user.id)
+                event_space_booking.reference = reference
+                event_space_booking.save()
                 serializer = self.get_serializer(event_space_booking)
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
 

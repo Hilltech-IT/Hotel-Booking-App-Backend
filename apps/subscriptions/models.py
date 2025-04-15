@@ -37,4 +37,7 @@ class Subscription(AbstractBaseModel):
     end_date = models.DateField(null=True)
 
     def __str__(self):
-        return f"{self.user.username} has subscribed to {self.package.name}"
+        username = self.user.username if self.user else "Unknown User"
+        package_name = self.package.name if self.package else "No Package"
+        return f"{username} has subscribed to {package_name}"
+

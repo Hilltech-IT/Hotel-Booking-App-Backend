@@ -1,3 +1,4 @@
+from apps.subscriptions.models import Subscription
 from rest_framework import serializers
 from datetime import datetime
 
@@ -155,7 +156,15 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         data = super().validate(attrs)
         
         # Add custom data to the response
-        data['user'] = {
+        # data['user'] = {
+        #     'id': self.user.id,
+        #     'username': self.user.username,
+        #     'email': self.user.email,
+        #     'first_name': self.user.first_name,
+        #     'last_name': self.user.last_name,
+        #     'role': self.user.role,
+        # }
+        user_data = {
             'id': self.user.id,
             'username': self.user.username,
             'email': self.user.email,
@@ -163,6 +172,19 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
             'last_name': self.user.last_name,
             'role': self.user.role,
         }
+        try:
+            subscription = Subscription.objects.get(user=self.user)
+            # Optional: use serializer if you want clean nested structure
+            user_data['subscription'] = {
+                'package': subscription.package.name if subscription.package else None,
+                'status': subscription.status,
+                'start_date': subscription.start_date,
+                'end_date': subscription.end_date,
+            }
+        except Subscription.DoesNotExist:
+            user_data['subscription'] = None
+
+        data['user'] = user_data
         
         return data
 

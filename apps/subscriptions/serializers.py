@@ -28,3 +28,18 @@ class SubscriptionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Subscription
         fields = "__all__"
+
+class CreateAndUpdateSubscriptionSerializer(serializers.ModelSerializer):
+    user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), required=False)
+    package = serializers.PrimaryKeyRelatedField(queryset=Pricing.objects.all(), required=True)
+    start_date = serializers.DateField(required=False, allow_null=True)
+    end_date = serializers.DateField(required=False, allow_null=True)
+
+    class Meta:
+        model = Subscription
+        fields = ['user', 'package', 'status', 'start_date', 'end_date']
+        extra_kwargs = {
+            'status': {'default': 'Active'}, 
+            'start_date': {'required': False, 'allow_null': True},  
+            'end_date': {'required': False, 'allow_null': True},    
+        }
