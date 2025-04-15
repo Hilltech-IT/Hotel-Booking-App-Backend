@@ -21,3 +21,4 @@ whitenoise==6.9.0
 requests==2.32.3
 celery==5.4.0
 pytest-django==4.9.0
+django-celery-results==2.6.0
