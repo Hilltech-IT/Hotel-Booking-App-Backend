@@ -1,4 +1,5 @@
 
+from apps.constants import IsAdminOrAuthenticated
 from rest_framework import generics, status
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
@@ -156,24 +157,59 @@ class LipaNaMpesaAPIView(generics.CreateAPIView):
 class PaymentListAPIView(generics.ListAPIView):
     queryset = Payment.objects.all()
     serializer_class = PaymentsSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [IsAdminOrAuthenticated]
     
     def get_queryset(self):
         user = self.request.user
         transc_code = self.request.query_params.get('transaction_code')
-        status_filter = self.request.query_params.get('status')
-
+        reference_no = self.request.query_params.get('reference')
         
-        if user.role == 'admin':
+        
+        if hasattr(user, 'role') and user.role == 'admin':
             payments = self.queryset
+
+        elif user.role == 'Service Provider':
+            payments = self.queryset.filter(
+                Q(room_booking__room__property__owner=user)  |
+                Q(bnb_booking__airbnb__owner=user) |
+                Q(event_space_booking__event_space__owner=user) |
+                Q(ticket__event__owner=user) |
+                Q(paid_to=user)
+            ).distinct()
+
+
+
         else:
-            payments = self.queryset.filter(user=user)
+            
+            payments = self.queryset.none()
+
+        if transc_code:
+            payments = payments.filter(transaction_id__icontains=transc_code)
+        if reference_no:
+            payments = payments.filter(reference__icontains=reference_no)
 
         
-        if transc_code:
-            payments = payments.filter(Q(transaction_id__icontains=transc_code))
-
-        if status_filter:
-            payments = payments.filter(Q(transaction_id__icontains=status_filter))
-
         return payments
+
+class PaymentDetailAPIView(generics.RetrieveAPIView):
+    queryset = Payment.objects.all()
+    serializer_class = PaymentsSerializer
+    permission_classes = [IsAdminOrAuthenticated]
+    lookup_field = 'pk'  
+
+    def get_queryset(self):
+        user = self.request.user
+
+        if hasattr(user, 'role') and user.role == 'admin':
+            return self.queryset
+
+        elif user.role == 'Service Provider':
+            return self.queryset.filter(
+                Q(room_booking__room__property__owner=user) |
+                Q(bnb_booking__airbnb__owner=user) |
+                Q(event_space_booking__event_space__owner=user) |
+                Q(ticket__event__owner=user) |
+                Q(paid_to=user)
+            ).distinct()
+
+        return self.queryset.none()

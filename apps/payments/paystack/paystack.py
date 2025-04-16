@@ -12,7 +12,8 @@ PAYSTACK_BASE_URL = "https://api.paystack.co"
 
 headersList = {
     "Accept": "*/*",
-    "Authorization":f"Bearer {PAYSTACK_SECRET_KEY}"
+    "Authorization":f"Bearer {PAYSTACK_SECRET_KEY}",
+    "Content-Type": "application/json"
 }
 
 class PaystackProcessorMixin:

@@ -1,8 +1,11 @@
 from datetime import datetime
 from decimal import Decimal
+from apps.bookings.filters import BnBBookingFilter, EventSpaceBookingFilter, RoomBookingFilter
 from apps.bookings.generate_booking_dates import calculate_days_booked, generate_booked_dates
 from apps.core.constants import PropertyTypes
 from apps.events.models import Event, EventTicket
+from apps.payments.models import Payment
+from apps.payments.paystack.paystack import PaystackProcessorMixin
 from apps.users.models import User
 from rest_framework.decorators import action
 from rest_framework import generics, status
@@ -34,6 +37,7 @@ from django.db.models.functions import TruncMonth
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 
+from django_filters.rest_framework import DjangoFilterBackend
 
 class BookingFeeCalculationAPIView(APIView):
     def get(self, request, *args, **kwargs):
@@ -70,22 +74,17 @@ class RoomBookingAPIView(generics.ListAPIView):
     queryset = RoomBooking.objects.all()
     serializer_class = RoomBookingSerializer
     permission_classes = [IsAdminOrAuthenticated]
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = RoomBookingFilter
 
     def get(self, request, *args, **kwargs):
         user = request.user
-        booking_no = request.query_params.get('booking_no')
-        status_filter = request.query_params.get('status')
-
         if user.role == 'admin':
             bookings = self.get_queryset()
         else:
             bookings = self.get_queryset().filter(user=user)
 
-        if booking_no:
-            bookings = bookings.filter(Q(reference__icontains=booking_no))
-
-        if status_filter:
-            bookings = bookings.filter(Q(status__icontains=status_filter))
+        bookings = self.filter_queryset(bookings)
         page = self.paginate_queryset(bookings)
         if page is not None:
             serializer = self.serializer_class(instance=page, many=True)
@@ -93,7 +92,7 @@ class RoomBookingAPIView(generics.ListAPIView):
 
         serializer = self.serializer_class(instance=bookings, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
-        # return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
 
 
 class RoomBookingsModelViewSet(RetrieveModelMixin, UpdateModelMixin, GenericViewSet):
@@ -101,34 +100,24 @@ class RoomBookingsModelViewSet(RetrieveModelMixin, UpdateModelMixin, GenericView
     serializer_class = RoomBookingSerializer
     pagination_class = PageNumberPagination
     permission_classes = [IsAdminOrAuthenticated]
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = RoomBookingFilter
 
     def get_queryset(self):
         user = self.request.user
-        booking_no = self.request.query_params.get('booking_no')
-        status_filter = self.request.query_params.get('status')
 
         if user.role == 'admin':
             room_bookings = self.queryset
         elif user.role == 'Service Provider':
-            # room_bookings = self.queryset.filter(user=user)
             room_bookings = self.queryset.filter(
                 room__property__owner=user
             )
         else:
             room_bookings = self.queryset.filter(user=user)
-
-        if booking_no:
-            room_bookings = room_bookings.filter(
-                Q(reference__icontains=booking_no))
-
-        if status_filter:
-            room_bookings = room_bookings.filter(
-                Q(status__icontains=status_filter))
-
         return room_bookings
 
     def list(self, request, *args, **kwargs):
-        room_bookings = self.get_queryset()
+        room_bookings = self.filter_queryset(self.get_queryset())
         page = self.paginate_queryset(room_bookings)
         if page is not None:
             serializer = self.serializer_class(instance=page, many=True)
@@ -219,6 +208,16 @@ class CreateRoomBookingAPIView(generics.CreateAPIView):
                 booking.save()
                 room.booked_dates = list(set(existing_dates + requested_dates))
                 room.save()
+                # payment_data = {
+                # "amount": int(amount_expected * 100),  # in kobo
+                # "email": user.email,
+                # "reference": reference,
+                # "user_id": user.id,
+                # "payment_type": "room"
+                # }
+
+                # paystack = PaystackProcessorMixin()
+                # paystack.initialize_payment(payment_data=payment_data)
 
               
                 serializer = self.get_serializer(booking)
@@ -283,15 +282,13 @@ class UpdateRoomBookingAPIView(generics.UpdateAPIView):
                 booking.amount_expected = room.charge_per_night * rooms_booked * booking.days_booked
 
                 
-                # if 'amount_paid' in request.data:
-                #     booking.amount_paid = float(request.data['amount_paid'])
-                # else:
-                #     booking.amount_paid = booking.amount_expected
+                
             if 'amount_paid' in request.data:
                 print("Incoming amount_paid:", request.data.get('amount_paid'))
                 try:
-                    
-                    booking.amount_paid = float(request.data['amount_paid'])
+                    amount = float(request.data['amount_paid'])
+                    booking.amount_paid = amount
+                    # booking.amount_paid = float(request.data['amount_paid'])
                 except ValueError:
                     return Response(
                         {"error": "Invalid value for amount_paid."},
@@ -299,8 +296,18 @@ class UpdateRoomBookingAPIView(generics.UpdateAPIView):
                     )
 
                 booking.update_payment_status()
-            # if 'status' in request.data:
-            #     booking.status = booking_status
+                Payment.objects.create(
+                room_booking=booking,
+                room=booking.room,
+                paid_by=booking.user,  
+                paid_to=booking.room.property.owner,  
+                payment_reason="Room Booking",
+                amount=amount,
+                payment_link=booking.payment_link,
+                reference=booking.reference,
+                transaction_id=booking.transaction_id
+            )
+           
 
             booking.save()
 
@@ -325,11 +332,11 @@ class AirBnBBookingsAPIView(generics.CreateAPIView):
     permission_classes = [IsAdminOrAuthenticated]
     queryset = BnBBooking.objects.all()
     pagination_class = PageNumberPagination
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = BnBBookingFilter
 
     def get(self, request, *args, **kwargs):
         user = request.user
-        ticket_no = request.query_params.get('ticket_no', None)
-        status_filter = request.query_params.get('status', None)
         if user.role == 'admin':
             bookings = self.queryset.all()
 
@@ -337,12 +344,7 @@ class AirBnBBookingsAPIView(generics.CreateAPIView):
             bookings = self.queryset.filter(airbnb__owner=user)
         else:
             bookings = self.queryset.filter(user=user)
-
-        if ticket_no:
-            bookings = bookings.filter(Q(reference__icontains=ticket_no))
-        if status_filter:
-            bookings = bookings.filter(Q(status__icontains=status_filter))
-
+        bookings = self.filter_queryset(bookings)
         serializer = self.serializer_class(instance=bookings, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -521,8 +523,30 @@ class UpdateAirbnbBookingAPIView(generics.RetrieveUpdateDestroyAPIView):
                 booking.amount_expected = amount_expected
                 booking.booked_dates = requested_dates
 
-            if 'status' in request.data:
-                booking.status = booking_status
+            if 'amount_paid' in request.data:
+                print("Incoming amount_paid:", request.data.get('amount_paid'))
+                try:
+                    amount = float(request.data['amount_paid'])
+                    booking.amount_paid = amount
+                    # booking.amount_paid = float(request.data['amount_paid'])
+                except ValueError:
+                    return Response(
+                        {"error": "Invalid value for amount_paid."},
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+
+                booking.update_payment_status()
+                Payment.objects.create(
+                bnb_booking=booking,
+                paid_by=booking.user,  
+                paid_to=booking.airbnb.owner,  
+                payment_reason="Airbnb Booking",
+                amount=amount,
+                payment_link=booking.payment_link,
+                reference=booking.reference,
+                transaction_id=booking.transaction_id
+            )
+           
 
             booking.save()
 
@@ -558,11 +582,12 @@ class EventSpaceBookingsModelViewSet(RetrieveModelMixin, UpdateModelMixin, Gener
     serializer_class = EventSpaceBookingSerializer
     pagination_class = PageNumberPagination
     permission_classes = [IsAdminOrAuthenticated]
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = EventSpaceBookingFilter
 
     def get_queryset(self):
         user = self.request.user
-        ticekt_no = self.request.query_params.get('ticekt_no')
-        status_filter = self.request.query_params.get('status')
+        
 
         if user.role == 'admin':
             espace_bookings = self.queryset
@@ -571,24 +596,19 @@ class EventSpaceBookingsModelViewSet(RetrieveModelMixin, UpdateModelMixin, Gener
         else:
             espace_bookings = self.queryset.filter(user=user)
 
-        if ticekt_no:
-            espace_bookings = espace_bookings.filter(
-                Q(reference__icontains=ticekt_no))
-
-        if status_filter:
-            espace_bookings = espace_bookings.filter(
-                Q(status__icontains=status_filter))
-
+        
         return espace_bookings
 
     def list(self, request, *args, **kwargs):
-        ticket_bookings = self.get_queryset()
-        page = self.paginate_queryset(ticket_bookings)
+        base_queryset = self.get_queryset()
+        filtered_queryset = self.filter_queryset(base_queryset)
+
+        page = self.paginate_queryset(filtered_queryset)
         if page is not None:
             serializer = self.serializer_class(instance=page, many=True)
             return self.get_paginated_response(serializer.data)
 
-        serializer = self.serializer_class(instance=ticket_bookings, many=True)
+        serializer = self.serializer_class(instance=filtered_queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
@@ -680,7 +700,7 @@ class BookAnEventSpaceAPIView(generics.CreateAPIView):
 
                 days_booked = calculate_days_booked(booked_from, booked_to)
                 amount_expected = event_space.cost * days_booked
-                amount_paid = request.data.get('amount_paid', amount_expected)
+                amount_paid = request.data.get('amount_paid', 0)
 
                 event_space_booking_data = {
                     'user': user,
@@ -756,7 +776,7 @@ class UpdateEventSpaceBookingAPIView(generics.RetrieveUpdateDestroyAPIView):
                     )
 
                 days_booked = calculate_days_booked(booked_from, booked_to)
-                amount_expected = even_space.cost * days_booked
+                amount_expected = event_space.cost * days_booked
 
                 booking.booked_from = booked_from
                 booking.booked_to = booked_to
@@ -764,8 +784,30 @@ class UpdateEventSpaceBookingAPIView(generics.RetrieveUpdateDestroyAPIView):
                 booking.amount_expected = amount_expected
                 booking.booked_dates = requested_dates
 
-            if 'status' in request.data:
-                booking.status = booking_status
+            if 'amount_paid' in request.data:
+                print("Incoming amount_paid:", request.data.get('amount_paid'))
+                try:
+                    amount = float(request.data['amount_paid'])
+                    booking.amount_paid = amount
+                    
+                except ValueError:
+                    return Response(
+                        {"error": "Invalid value for amount_paid."},
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+
+                booking.update_payment_status()
+                Payment.objects.create(
+                event_space_booking=booking,
+                paid_by=booking.user,  
+                paid_to=booking.event_space.owner,  
+                payment_reason="Event space Booking",
+                amount=amount,
+                payment_link=booking.payment_link,
+                reference=booking.reference,
+                transaction_id=booking.transaction_id
+            )
+
 
             booking.save()
 

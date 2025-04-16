@@ -2,7 +2,7 @@ from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
 from apps.events.apis.views import (AllowedEventPaymentMethodsAPIView, BuyEventTicketAPIView, CancelTicketAPIView, EventCreateAPIViIew, EventDeleteAPIView, EventModelViewSet, EventTickedBookingDetailAPIView,
-                                    EventTicketModelViewSet, EventUpdateAPIVIew)
+                                    EventTicketModelViewSet, EventUpdateAPIVIew, PayEventTicketAPIView)
 from apps.events.views import (cancel_event_ticket, delete_event, edit_event,
                                event_details, event_tickets, events, new_event,
                                new_event_ticket, print_event_ticket)
@@ -31,4 +31,5 @@ urlpatterns = [
 
     path("buy-event-ticket/", BuyEventTicketAPIView.as_view(), name="buy-event-ticket"),
     path("cancel-event-ticket/<int:pk>/", CancelTicketAPIView.as_view(), name="cancel-event-ticket"),
+    path("pay-event-ticket/<int:pk>/", PayEventTicketAPIView.as_view(), name="pay-event-ticket"),
 ]

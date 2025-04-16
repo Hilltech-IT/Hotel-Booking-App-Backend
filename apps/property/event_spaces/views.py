@@ -5,7 +5,7 @@ from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
-
+from django.db.models import Q
 
 
 from apps.core.custom_permissions import IsOwnerOrReadOnly
@@ -21,7 +21,8 @@ class EventSpaceAPIView(generics.ListAPIView):
     permission_classes = [IsAdminOrAuthenticated]
     def get(self, request, *args, **kwargs):
         user = request.user
-        
+        search_filter = request.query_params.get('search')
+        status_filter = request.query_params.get('status')
 
         if user.role == 'admin':
             espaces = self.get_queryset()
@@ -30,7 +31,13 @@ class EventSpaceAPIView(generics.ListAPIView):
             espaces = self.get_queryset().filter(owner=user)
         else:
             espaces = self.get_queryset().filter(user=user)
-
+        if status_filter:
+            espaces = espaces.filter(Q(approval_status__icontains=status_filter))
+        if search_filter:
+            espaces = espaces.filter(
+                Q(name__icontains=search_filter) |
+                Q(location__icontains=search_filter)
+            )
         
         page = self.paginate_queryset(espaces)
         if page is not None:

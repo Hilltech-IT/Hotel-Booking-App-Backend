@@ -127,9 +127,10 @@ class CreateAndUpdateBookRoomSerializer(serializers.ModelSerializer):
             'booked_dates',
             "days_booked",
             'status',
-            'fully_paid'
+            'fully_paid',
+            'payment_link',
         ]
-        read_only_fields = ['booked_dates', 'days_booked', 'fully_paid']
+        read_only_fields = ['booked_dates', 'days_booked', 'fully_paid', 'payment_link']
         extra_kwargs = {
             "amount_expected": {"required": False},
             "amount_paid": {"required": False},

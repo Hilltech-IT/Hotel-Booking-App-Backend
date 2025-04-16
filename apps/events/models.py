@@ -94,21 +94,20 @@ class EventTicket(AbstractBaseModel):
     payment_notif_send = models.BooleanField(default=False)
     notif_send = models.BooleanField(default=False)
 
-    # is_refundable = models.BooleanField(default=True)
-    # refund_requested = models.BooleanField(default=False)
-    # refund_approved = models.BooleanField(default=False)
-    # refund_processed = models.BooleanField(default=False)
-    # refund_amount = models.DecimalField(max_digits=20, decimal_places=2, null=True, blank=True)
-    # refund_reason = models.TextField(null=True, blank=True)
-    # refund_requested_at = models.DateTimeField(null=True, blank=True)
-    # refund_processed_at = models.DateTimeField(null=True, blank=True)
+
 
     cancelled_at = models.DateTimeField(null=True, blank=True)
 
 
     def __str__(self):
         return f"{self.user.username} has purchased a {self.ticket_type} for {self.event.title}"
-
+    def update_payment_status(self):
+        if self.amount_paid == 0:
+            self.ticket_status = "Pending Payment"  
+        elif 0 < self.amount_paid < self.amount_expected:
+            self.ticket_status = "Pending Payment" 
+        elif self.amount_paid >= self.amount_expected:
+            self.ticket_status = "Active" 
     @property
     def is_fully_paid(self):
         return True if self.amount_paid == self.amount_expected else False

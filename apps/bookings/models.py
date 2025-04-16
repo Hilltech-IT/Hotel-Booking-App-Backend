@@ -90,6 +90,16 @@ class BnBBooking(AbstractBaseModel):
 
     def __str__(self):
         return str(self.id)
+    def update_payment_status(self):
+       
+        self.fully_paid = self.amount_paid >= self.amount_expected
+
+        if self.amount_paid == 0:
+            self.status = "Pending Payment"
+        elif 0 < self.amount_paid < self.amount_expected:
+            self.status = "Paying"
+        elif self.fully_paid:
+            self.status = "Paid"
 
 
 class EventSpaceBooking(AbstractBaseModel):
@@ -123,6 +133,17 @@ class EventSpaceBooking(AbstractBaseModel):
 
     def __str__(self):
         return str(self.id)
+    
+    def update_payment_status(self):
+       
+        self.fully_paid = self.amount_paid >= self.amount_expected
+
+        if self.amount_paid == 0:
+            self.status = "Pending Payment"
+        elif 0 < self.amount_paid < self.amount_expected:
+            self.status = "Paying"
+        elif self.fully_paid:
+            self.status = "Paid"
 
 
 """

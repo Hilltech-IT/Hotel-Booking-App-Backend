@@ -134,3 +134,9 @@ class CancelTicketSerializer(serializers.ModelSerializer):
         model = EventTicket
         fields = ['ticket_status', 'cancelled_at']  
         read_only_fields = ['ticket_status', 'cancelled_at']
+class PayTicketSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = EventTicket
+        fields = ['amount_paid']  
+        
+

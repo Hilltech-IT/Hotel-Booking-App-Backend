@@ -69,6 +69,7 @@ class HotelCreateSerializer(serializers.ModelSerializer):
             "adults_allowed",
             "profile_image",
             "amenities",
+            "approval_status",
         ]
         extra_kwargs = {
             "amenities": {"required": False},
@@ -77,6 +78,7 @@ class HotelCreateSerializer(serializers.ModelSerializer):
             "capacity": {"required": False},
             "cost": {"required": False},
             "property_type": {"required": False},
+            "approval_status": {"required": False},
         }
         partial = True
     

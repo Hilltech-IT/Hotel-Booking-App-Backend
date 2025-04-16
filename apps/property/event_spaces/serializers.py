@@ -55,9 +55,11 @@ class EventSpaceCreateAndUpdateSerializer(serializers.ModelSerializer):
             "adults_allowed",
             "profile_image",
             "amenities",
+            "approval_status",
         ]
         extra_kwargs = {
             "amenities": {"required": False},
+            "approval_status": {"required": False},
             "property_type": {"required": False},
         }
         partial = True

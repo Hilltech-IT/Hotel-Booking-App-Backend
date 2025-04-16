@@ -1,3 +1,5 @@
+from apps.bookings.filters import EventTicketFilter
+from apps.payments.models import Payment
 from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet,ReadOnlyModelViewSet
@@ -5,13 +7,13 @@ from rest_framework.pagination import PageNumberPagination
 from apps.constants import IsAdminOrAuthenticated
 from apps.events.apis.serializers import (AllowedEventPaymentMethodsSerializer, BuyEventTicketSerializer, CancelTicketSerializer, EventCreateAndUpdateSerializer,
                                           EventSerializer,
-                                          EventTicketSerializer)
+                                          EventTicketSerializer, PayTicketSerializer)
 from apps.events.models import AllowedPaymentMethods, Event, EventTicket
 from apps.events.ticket_booking_mixin import EventTicketBookingMixin
 from django.db.models import Q
 from rest_framework.exceptions import PermissionDenied
 from django.utils import timezone
-
+from django_filters.rest_framework import DjangoFilterBackend
 
 
 class AllowedEventPaymentMethodsAPIView(generics.ListAPIView):
@@ -19,24 +21,46 @@ class AllowedEventPaymentMethodsAPIView(generics.ListAPIView):
     serializer_class = AllowedEventPaymentMethodsSerializer
 
 
+
 class EventModelViewSet(ReadOnlyModelViewSet):
-    queryset = Event.objects.all()
     serializer_class = EventSerializer
     permission_classes = [IsAdminOrAuthenticated]
+
     def get_queryset(self):
         user = self.request.user
 
         if user.is_anonymous:
-            return Event.objects.none()  
-        
-        if user.role == 'admin':
-            return Event.objects.all()
+            return Event.objects.none()
 
+        queryset = Event.objects.all()
+
+        if user.role == "admin":
+            return queryset
         elif user.role == "Service Provider":
-            return Event.objects.filter(owner=user)
-
+            return queryset.filter(owner=user)
         else:
-            return Event.objects.filter(user=user)
+            return queryset.filter(user=user)
+
+    def list(self, request, *args, **kwargs):
+        search_filter = request.query_params.get('search')
+        events = self.get_queryset()
+
+        if search_filter:
+            events = events.filter(
+                Q(title__icontains=search_filter) |
+                Q(location__icontains=search_filter)
+            )
+        page = self.paginate_queryset(events)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(events, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+        # serializer = self.get_serializer(events, many=True)
+        # return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 class EventCreateAPIViIew(generics.CreateAPIView):
     serializer_class = EventCreateAndUpdateSerializer
@@ -56,31 +80,30 @@ class EventTicketModelViewSet(ModelViewSet):
     serializer_class = EventTicketSerializer
     pagination_class = PageNumberPagination
     permission_classes = [IsAdminOrAuthenticated]
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = EventTicketFilter
+
+    def get_queryset(self):
+        user = self.request.user
+
+        if user.role == 'admin':
+            return self.queryset
+        elif user.role == "Service Provider":
+            return self.queryset.filter(event__owner=user)
+        else:
+            return self.queryset.filter(user=user)
 
     def list(self, request, *args, **kwargs):
-        user = request.user
-        ticekt_no = request.query_params.get('ticekt_no')
-        status_filter = request.query_params.get('status')
-        print("ticket_no", ticekt_no, "status", status_filter)
-        if user.role == 'admin':
-            ticket_bookings = self.queryset
-        elif user.role == "Service Provider":
-            ticket_bookings = self.queryset.filter(event__owner=user)
-        else:
-            ticket_bookings = self.queryset.filter(user=user)
+        queryset = self.filter_queryset(self.get_queryset())
 
-        if ticekt_no:
-            ticket_bookings = ticket_bookings.filter(Q(reference__icontains=ticekt_no))
-
-        if status_filter:
-            ticket_bookings = ticket_bookings.filter(Q(ticket_status__icontains=status_filter))
-        page = self.paginate_queryset(ticket_bookings)
+        page = self.paginate_queryset(queryset)
         if page is not None:
             serializer = self.serializer_class(instance=page, many=True)
             return self.get_paginated_response(serializer.data)
 
-        serializer = self.serializer_class(instance=ticket_bookings, many=True)
+        serializer = self.serializer_class(instance=queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
 class EventTickedBookingDetailAPIView(generics.RetrieveAPIView):
     serializer_class = EventTicketSerializer
     permission_classes = [IsAdminOrAuthenticated]
@@ -119,6 +142,51 @@ class BuyEventTicketAPIView(generics.CreateAPIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
+class PayEventTicketAPIView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = EventTicket.objects.all()
+    serializer_class = PayTicketSerializer
+    lookup_field = 'pk'
+    def update(self, request, *args, **kwargs):
+        try:
+            booking = self.get_object()
+
+            if 'amount_paid' in request.data:
+                print("Incoming amount_paid:", request.data.get('amount_paid'))
+                try:
+                    amount = float(request.data['amount_paid'])
+                    booking.amount_paid = amount
+                    
+                except ValueError:
+                    return Response(
+                        {"error": "Invalid value for amount_paid."},
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+
+                booking.update_payment_status()
+                Payment.objects.create(
+                ticket=booking,
+                paid_by=booking.user,  
+                paid_to=booking.event.owner,  
+                payment_reason="Event ticket Booking",
+                amount=amount,
+                payment_link=booking.payment_link,
+                reference=booking.reference,
+                transaction_id=booking.transaction_id
+            )
+
+
+            booking.save()
+
+            serializer = self.get_serializer(booking)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return Response(
+                {"error": f"Unexpected error: {str(e)}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+
 
 
 class CancelTicketAPIView(generics.UpdateAPIView):
