@@ -8,7 +8,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.tokens import RefreshToken, TokenError
-
+from drf_yasg.utils import swagger_auto_schema
 from apps.users.serializers import (ChangePasswordSerializer,
                                          EditUserProfileSerializer,
                                          ForgotPasswordSerializer,
@@ -99,9 +99,9 @@ class ForgotPasswordAPIView(APIView):
     permission_classes = [
         AllowAny,
     ]
-
-    def get_serializer_class(self):
-        return self.serializer_class()
+   
+    # def get_serializer_class(self):
+    #     return self.serializer_class()
 
     def post(self, request):
         serializer = self.serializer_class(data=request.data)
@@ -121,8 +121,8 @@ class ChangePasswordAPIView(APIView):
         AllowAny,
     ]
 
-    def get_serializer_class(self):
-        return self.serializer_class()
+    # def get_serializer_class(self):
+    #     return self.serializer_class()
 
     def post(self, request, token):
         context = {"request": request, "token": token}
