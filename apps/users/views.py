@@ -1,4 +1,5 @@
 from django.utils import timezone
+from apps.constants import IsAdminOrAuthenticated
 from rest_framework import generics, status
 from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
@@ -87,6 +88,11 @@ class UserRetrieveUpdateDeleteAPIView(generics.RetrieveUpdateDestroyAPIView):
 
     lookup_field = "pk"
 
+class LoggedInUserProfileAPIView(generics.RetrieveUpdateAPIView):
+    serializer_class = EditUserProfileSerializer
+    permission_classes = [IsAdminOrAuthenticated]
+    def get_object(self):
+        return self.request.user
 
 class ForgotPasswordAPIView(APIView):
     serializer_class = ForgotPasswordSerializer

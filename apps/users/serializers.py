@@ -76,8 +76,29 @@ class EditUserProfileSerializer(serializers.ModelSerializer):
             "address",
             "city",
             "country",
-        ]
 
+            
+            "business_name",
+            "business_address",
+            "business_city",
+            "business_country",
+            "business_phone",
+            "business_email",
+            "business_number",
+            
+        ]
+        read_only_fields = ["role"]
+    # def validate(self, data):
+    #     user = self.context["request"].user
+    #     if user.role != "Service Provider":
+    #         business_fields = [
+    #             "business_name", "business_address", "business_city",
+    #             "business_country", "business_phone", "business_email", "business_number"
+    #         ]
+    #         for field in business_fields:
+    #             if field in data:
+    #                 raise serializers.ValidationError(f"{field} is not allowed for your role.")
+    #     return data
 
 class RegisterSerializer(serializers.ModelSerializer):
     class Meta:
