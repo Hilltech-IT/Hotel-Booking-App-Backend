@@ -1,9 +1,9 @@
-from django.utils import timezone
 from apps.constants import IsAdminOrAuthenticated
 from rest_framework import generics, status
+from django.utils import timezone
+from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
-from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.views import TokenObtainPairView

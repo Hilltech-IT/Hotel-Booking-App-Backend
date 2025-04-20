@@ -22,22 +22,24 @@ from apps.property.models import (Amenity, Property, PropertyImage, PropertyRoom
 
 from django.db.models import Q
 class PropertyModelViewSet(ModelViewSet):
-    queryset = Property.objects.all()
+    queryset = Property.objects.all().order_by("-created")
     serializer_class = PropertySerializer
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     search_fields = ["name", "location", "city", "country", "property_type", "cost"]
 
-    # permission_classes = [IsAuthenticatedOrReadOnly, IsAdminOrAuthenticated, IsOwnerOrReadOnly]
-    permission_classes = [ IsAdminOrAuthenticated]
+    permission_classes = [IsOwnerOrReadOnly]
+    #permission_classes = [ IsAdminOrAuthenticated]
+    #permission_classes = [AllowAny]
+
+    def get_permissions(self):
+        if self.request.method == "GET":
+            return [AllowAny()]
+        return super().get_permissions()
 
     def get_queryset(self):
-        user = self.request.user
+        
         queryset = super().get_queryset()
     
-    
-        if not user.is_staff and not user.is_superuser:
-            queryset = queryset.filter(owner=user)
-
         start_date = self.request.query_params.get("start_date")
         end_date = self.request.query_params.get("end_date")
         property_type = self.request.query_params.get("property_type")
@@ -80,9 +82,7 @@ class PropertyImageViewSet(ModelViewSet):
     search_fields = ["property__name", "id"]
 
     # permission_classes = [IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
-    permission_classes = [
-        AllowAny,
-    ]
+    permission_classes = [AllowAny]
 
 
 class PropertyRoomViewSet(ReadOnlyModelViewSet):
@@ -91,8 +91,10 @@ class PropertyRoomViewSet(ReadOnlyModelViewSet):
 
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     search_fields = ["property__name", "room_type"]
+
 class PropertyRoomCreateAPIView(generics.CreateAPIView):
     serializer_class = CreatePropertyRoomSerializer
+
 
 class PropertyRoomUpdateAPIView(generics.UpdateAPIView):
     serializer_class = CreatePropertyRoomSerializer
@@ -109,10 +111,7 @@ class ReviewAndRatingViewSet(ModelViewSet):
     queryset = ReviewAndRating.objects.all()
     serializer_class = ReviewAndRatingSerializer
 
+
 class AmenityViewSet(ModelViewSet):
     queryset = Amenity.objects.all()
     serializer_class = AmenitySerializer
-    
-
-
-
