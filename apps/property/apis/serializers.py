@@ -13,6 +13,10 @@ class PropertyImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = PropertyImage
         fields = "__all__"
+class PropertyRoomImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PropertyRoomImage
+        fields = "__all__"
 
 
 class AmenitySerializer(serializers.ModelSerializer):

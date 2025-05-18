@@ -841,7 +841,6 @@ class RevenueMetricsAPIView(APIView):
         is_admin = getattr(user, "role", None) == "admin"
         is_servicer_provider = getattr(user, "role", None) == "Service Provider"
         print("is_servicer_provider", is_servicer_provider)
-        # Filters for ownership
         room_filter = {} if is_admin else {"room__property__owner": user}
         event_space_filter = {} if is_admin else {"event_space__owner": user}
         bnb_filter = {} if is_admin else {"airbnb__owner": user}
@@ -957,7 +956,7 @@ class RevenueMetricsAPIView(APIView):
             property_type="AirBnB", **property_filter)
         event_space_count = Property.objects.filter(
             property_type="Event Space", **property_filter)
-        events_count = Event.objects.filter(**property_filter)
+        events_count = Event.objects.filter(**event_filter)
 
         hotel_count = apply_date_filter(hotel_count, "created").count()
         airbnb_count = apply_date_filter(airbnb_count, "created").count()

@@ -2,13 +2,15 @@ from rest_framework import serializers
 
 from apps.bookings.apis.serializers import RoomBookingSerializer
 from apps.bookings.models import RoomBooking
-from apps.property.apis.serializers import PropertyRoomSerializer, PropertySerializer
+from apps.property.apis.serializers import AmenitySerializer, PropertyImageSerializer, PropertyRoomImageSerializer, PropertyRoomSerializer, PropertySerializer
 from apps.property.models import Amenity, Property, PropertyRoom
 # from apps.property.serializers import PropertySerializer
 
 
 class HotelRoomSerializer(serializers.ModelSerializer):
-    
+    amenities=AmenitySerializer(many=True)
+    property_name=serializers.CharField(source='property.name')
+    roomimages = PropertyRoomImageSerializer(many=True, read_only=True)
     class Meta:
         model = PropertyRoom
         fields = "__all__"
@@ -87,6 +89,7 @@ class HotelCreateSerializer(serializers.ModelSerializer):
 class HotelSerializer(PropertySerializer):
     rooms = serializers.SerializerMethodField()
     bookings = serializers.SerializerMethodField()
+    propertyimages = PropertyImageSerializer(many=True)
 
     class Meta:
         model = Property

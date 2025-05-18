@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from apps.property.models import Amenity, Property, PropertyRoom
+from apps.property.models import Amenity, Property, PropertyImage, PropertyRoom, PropertyRoomImage
 
 @admin.register(Amenity)
 class AmenityAdmin(admin.ModelAdmin):
@@ -38,4 +38,20 @@ class PropertyAdmin(admin.ModelAdmin):
         "email",
         "cost",
         "property_address",
+    ]
+@admin.register(PropertyImage)
+class PropertyImageAdmin(admin.ModelAdmin):
+    list_display = [
+        "id",
+        "property",
+        "image",
+        
+    ]
+@admin.register(PropertyRoomImage)
+class PropertyRoomImageAdmin(admin.ModelAdmin):
+    list_display = [
+        "id",
+        "room",
+        "image",
+        
     ]

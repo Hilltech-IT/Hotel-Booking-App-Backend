@@ -1,9 +1,12 @@
 from django.contrib import admin
 
-from apps.users.models import User
+from apps.users.models import PropertyType, User
 
 
 # Register your models here.
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):
     list_display = ["id", "username", "is_active", "activated", "name", "email", "role", "token"]
+@admin.register(PropertyType)
+class PropertyTypeAdmin(admin.ModelAdmin):
+    list_display = ["id", "name"]

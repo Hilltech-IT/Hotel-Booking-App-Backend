@@ -99,15 +99,8 @@ class CreateHotelRoomView(generics.CreateAPIView):
         amenities = serializer.validated_data.pop("amenities", [])
         room = serializer.save()
         room.amenities.set(amenities)
-    # def perform_create(self, serializer):
-    #     validated_data = serializer.validated_data
-    #     amenities = validated_data.pop("amenities", [])
-    #     rooms_number = validated_data.get("rooms_number", 0)
-
-    #     for _ in range(rooms_number):
-    #         room = PropertyRoom.objects.create(**validated_data)
-    #         room.amenities.set(amenities)
-class UpdateHotelRoomView(generics.RetrieveUpdateDestroyAPIView):
+   
+class UpdateHotelRoomView(generics.UpdateAPIView, generics.DestroyAPIView):
     queryset = PropertyRoom.objects.filter(property__property_type=PropertyTypes.HOTEL.value)  
     serializer_class = CreateAndUpdateRoomSerializer
     lookup_field = 'pk'
@@ -145,7 +138,12 @@ class UpdateHotelRoomView(generics.RetrieveUpdateDestroyAPIView):
         except Exception as e:
             print("Error saving room:", str(e))
             raise
-
+class HotelRoomDetailView(generics.RetrieveAPIView):
+    queryset = PropertyRoom.objects.filter(property__property_type=PropertyTypes.HOTEL.value)
+    # print(queryset)
+    serializer_class = HotelRoomSerializer  
+    lookup_field = 'pk'
+    permission_classes = [IsAdminOrAuthenticated]
 
 class HotelRoomListView(generics.ListAPIView):
     queryset = PropertyRoom.objects.filter(property__property_type=PropertyTypes.HOTEL.value)

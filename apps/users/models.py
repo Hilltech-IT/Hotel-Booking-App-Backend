@@ -30,8 +30,11 @@ STAFF_POSITION_CHOICES = (
     ("DCP", "Director Corporate And Business"),
     ("DCSA", "Director Client Services And Administration"),
 )
+class PropertyType(models.Model):
+    name = models.CharField(max_length=50, unique=True)
 
-
+    def __str__(self):
+        return self.name
 class User(AbstractUser, AbstractBaseModel):
     role = models.CharField(choices=ROLE_CHOICES, max_length=32, null=True)
     phone_number = models.CharField(max_length=255, null=True)
@@ -58,6 +61,8 @@ class User(AbstractUser, AbstractBaseModel):
     business_email = models.EmailField(null=True)
     business_phone = models.CharField(max_length=255, null=True)
     activated = models.BooleanField(default=False)
+    preferred_property_types = models.ManyToManyField(PropertyType, blank=True)
+
 
     def __str__(self):
         return self.username

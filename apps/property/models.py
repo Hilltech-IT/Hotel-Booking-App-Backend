@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 
 from django.db import models
-
+from rest_framework.parsers import MultiPartParser, FormParser
 # from apps.bookings.models import RoomBooking
 from apps.property.apis.get_booked_dates import (get_booked_dates,
                                                  get_date_range)
@@ -50,13 +50,11 @@ APPROVAL_CHOICES = (
 )
 class Amenity(AbstractBaseModel):
     name = models.CharField(max_length=255, unique=True)
-    # owner = models.ForeignKey("users.User", on_delete=models.CASCADE, related_name="amenities")
     def __str__(self):
         return self.name
     
     class Meta:
         verbose_name_plural = "Amenities"
-        # unique_together = ("name", "owner") 
 
 class Property(AbstractBaseModel):
     owner = models.ForeignKey("users.User", on_delete=models.SET_NULL, null=True, related_name="listedproperties")

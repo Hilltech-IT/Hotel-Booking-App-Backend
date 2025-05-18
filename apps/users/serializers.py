@@ -118,7 +118,11 @@ class RegisterSerializer(serializers.ModelSerializer):
             "country",
             "address",
         )
-        extra_kwargs = {"password": {"write_only": True}}
+        extra_kwargs = {
+            "password": {"write_only": True},
+            "country": {"required": False},
+            "address": {"required": False},
+            }
 
     def create(self, validated_data):
         user = User.objects.create_user(
@@ -131,8 +135,8 @@ class RegisterSerializer(serializers.ModelSerializer):
         user.id_number = validated_data["id_number"]
         user.role = validated_data["role"]
         user.phone_number = validated_data["phone_number"]
-        user.country = validated_data["country"]
-        user.address = validated_data["address"]
+        # user.country = validated_data["country"]
+        # user.address = validated_data["address"]
         user.date_of_birth = validated_data["date_of_birth"]
         user.gender = validated_data["gender"]
         user.save()
@@ -162,14 +166,15 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
     def get_token(cls, user):
         token = super().get_token(user)
-        token["user"] = {}
-        token["user"]["id"] = user.id
-        #token["id"] = user.id
-        token["user"]["username"] = user.username
-        token["user"]["email"] = user.email
-        token["user"]["first_name"] = user.first_name
-        token["user"]["last_name"] = user.last_name
-        token["user"]["role"] = user.role
+        token["user"] = {
+            "id": user.id,
+            "username": user.username,
+            "email": user.email,
+            "first_name": user.first_name,
+            "last_name": user.last_name,
+            "role": user.role,
+            "preferred_property_types": list(user.preferred_property_types.values("id", "name")),
+        }
 
         return token
 
@@ -192,18 +197,18 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
             'first_name': self.user.first_name,
             'last_name': self.user.last_name,
             'role': self.user.role,
+            "preferred_property_types": list(self.user.preferred_property_types.values("id", "name")),
         }
-        try:
-            subscription = Subscription.objects.get(user=self.user)
-            # Optional: use serializer if you want clean nested structure
-            user_data['subscription'] = {
-                'package': subscription.package.name if subscription.package else None,
-                'status': subscription.status,
-                'start_date': subscription.start_date,
-                'end_date': subscription.end_date,
-            }
-        except Subscription.DoesNotExist:
-            user_data['subscription'] = None
+        # try:
+        #     subscription = Subscription.objects.get(user=self.user)
+        #     user_data['subscription'] = {
+        #         'package': subscription.package.name if subscription.package else None,
+        #         'status': subscription.status,
+        #         'start_date': subscription.start_date,
+        #         'end_date': subscription.end_date,
+        #     }
+        # except Subscription.DoesNotExist:
+        #     user_data['subscription'] = None
 
         data['user'] = user_data
         

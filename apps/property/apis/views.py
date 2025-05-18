@@ -1,10 +1,12 @@
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status, generics
+
+from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
-
+from django.shortcuts import get_object_or_404
 from apps.constants import IsAdminOrAuthenticated
 from apps.core.constants import PropertyTypes
 from apps.core.custom_permissions import IsOwnerOrReadOnly
@@ -84,7 +86,63 @@ class PropertyImageViewSet(ModelViewSet):
     # permission_classes = [IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
     permission_classes = [AllowAny]
 
+class PropertyImageUploadAPIView(generics.CreateAPIView):
+    serializer_class = PropertyImageSerializer
+    parser_classes = [MultiPartParser, FormParser]
+    permission_classes = [AllowAny]
 
+    def create(self, request, *args, **kwargs):
+        property_id = self.kwargs.get("pk")
+        property_instance = get_object_or_404(Property, id=property_id)
+
+        images = request.FILES.getlist("images")
+        if not images:
+            return Response({"error": "No images uploaded."}, status=status.HTTP_400_BAD_REQUEST)
+
+        created_images = []
+        for img in images:
+            image_obj = PropertyImage.objects.create(property=property_instance, image=img)
+            created_images.append(self.get_serializer(image_obj).data)
+
+        return Response(created_images, status=status.HTTP_201_CREATED)
+    
+class PropertyImageDeleteAPIView(generics.DestroyAPIView):
+    queryset = PropertyImage.objects.all()
+    serializer_class = PropertyImageSerializer
+    permission_classes = [AllowAny]
+    lookup_field = 'pk'
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        return Response({"message": "Image deleted successfully."}, status=status.HTTP_200_OK)
+class PropertyRoomImageUploadAPIView(generics.CreateAPIView):
+    serializer_class = PropertyRoomImageSerializer
+    parser_classes = [MultiPartParser, FormParser]
+    permission_classes = [AllowAny]
+
+    def create(self, request, *args, **kwargs):
+        room_id = self.kwargs.get("pk")
+        room_instance = get_object_or_404(PropertyRoom, id=room_id)
+
+        images = request.FILES.getlist("images")
+        if not images:
+            return Response({"error": "No images uploaded."}, status=status.HTTP_400_BAD_REQUEST)
+
+        created_images = []
+        for img in images:
+            image_obj = PropertyRoomImage.objects.create(room=room_instance, image=img)
+            created_images.append(self.get_serializer(image_obj).data)
+
+        return Response(created_images, status=status.HTTP_201_CREATED)
+class PropertyRoomImageDeleteAPIView(generics.DestroyAPIView):
+    queryset = PropertyRoomImage.objects.all()
+    serializer_class = PropertyRoomImageSerializer
+    permission_classes = [AllowAny]
+    lookup_field = 'pk'
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        return Response({"message": "Image deleted successfully."}, status=status.HTTP_200_OK)
 class PropertyRoomViewSet(ReadOnlyModelViewSet):
     queryset = PropertyRoom.objects.all()
     serializer_class = PropertyRoomSerializer

@@ -2,13 +2,13 @@ from rest_framework import serializers
 
 from apps.bookings.apis.serializers import BnBBookingSerializer
 from apps.bookings.models import BnBBooking
-from apps.property.apis.serializers import PropertySerializer
+from apps.property.apis.serializers import PropertyImageSerializer, PropertySerializer
 from apps.property.models import Property
 # from apps.property.serializers import PropertySerializer
 
 class AirBnBSerializer(PropertySerializer):
     bnbbookings = BnBBookingSerializer(many=True, read_only=True)
-    
+    propertyimages = PropertyImageSerializer(many=True)
     class Meta:
         model = Property
         fields = '__all__'

@@ -86,7 +86,7 @@ class EventTicketModelViewSet(ModelViewSet):
     def get_queryset(self):
         user = self.request.user
 
-        if user.role == 'admin':
+        if self.request.user.role == 'admin':
             return self.queryset
         elif user.role == "Service Provider":
             return self.queryset.filter(event__owner=user)

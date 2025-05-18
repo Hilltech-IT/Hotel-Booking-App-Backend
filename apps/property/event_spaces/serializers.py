@@ -1,3 +1,4 @@
+from apps.property.apis.serializers import PropertyImageSerializer
 from rest_framework import serializers
 
 from apps.bookings.apis.serializers import EventSpaceBookingSerializer
@@ -12,6 +13,7 @@ class EventSpaceSerializer(PropertySerializer):
     eventspacebookings = EventSpaceBookingSerializer(many=True, read_only=True)
     rooms = serializers.SerializerMethodField()
     owner= serializers.SerializerMethodField()
+    propertyimages = PropertyImageSerializer(many=True)
     
     class Meta:
         model = Property

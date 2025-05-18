@@ -3,11 +3,11 @@ from django.conf import settings
 from rest_framework.response import Response
 from apps.notifications.tasks import welcome_new_user_task
 
-from apps.users.models import User
+from apps.users.models import PropertyType, User
 from apps.users.utils import generate_unique_key
 
 from rest_framework import status, generics
-from apps.users.service_providers.serializers import ServiceProviderSerializer
+from apps.users.service_providers.serializers import  PropertyTypeSerializer, PropertyTypeUpdateSerializer, ServiceProviderSerializer
 from apps.core.constants import UserRoles
 
 
@@ -58,7 +58,19 @@ class ServiceProviderAPIView(generics.ListCreateAPIView):
             serializer.errors, status=status.HTTP_400_BAD_REQUEST
         )
 
+class SelectPropertyTypeView(generics.UpdateAPIView):
+    serializer_class = PropertyTypeUpdateSerializer
 
+    def get_object(self):
+        return self.request.user
+
+    def patch(self, request, *args, **kwargs):
+        return self.partial_update(request, *args, **kwargs)
+class PropertyTypesAPIView(generics.ListAPIView):
+    queryset = PropertyType.objects.all() 
+    serializer_class = PropertyTypeSerializer
+    
+    
 class ServiceProviderDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = User.objects.filter(role=UserRoles.SERVICE_PROVIDER.value)
     serializer_class = ServiceProviderSerializer
