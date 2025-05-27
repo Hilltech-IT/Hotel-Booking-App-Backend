@@ -19,6 +19,7 @@ class CreateAndUpdateRoomSerializer(serializers.ModelSerializer):
         queryset=Amenity.objects.all(),
         many=True
     )
+    profile_image = serializers.ImageField(max_length=255, allow_null=True, required=False)
     class Meta:
         model = PropertyRoom
         fields = [
@@ -39,6 +40,7 @@ class CreateAndUpdateRoomSerializer(serializers.ModelSerializer):
             "rate",
             "booked_dates",
             "booked",
+            "profile_image"
 
         ]
         extra_kwargs = {
@@ -47,6 +49,7 @@ class CreateAndUpdateRoomSerializer(serializers.ModelSerializer):
             "status": {"required": False},
             "booked": {"required": False},
             "booked_dates": {"required": False},
+            "profile_image": {"required": False},
         }
 
 

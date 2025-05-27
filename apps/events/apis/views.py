@@ -21,10 +21,9 @@ class AllowedEventPaymentMethodsAPIView(generics.ListAPIView):
     serializer_class = AllowedEventPaymentMethodsSerializer
 
 
-
-class EventModelViewSet(ReadOnlyModelViewSet):
+class EventListAPIView(generics.ListAPIView):
     serializer_class = EventSerializer
-    permission_classes = [IsAdminOrAuthenticated]
+    # permission_classes = [IsAdminOrAuthenticated]
 
     def get_queryset(self):
         user = self.request.user
@@ -42,25 +41,89 @@ class EventModelViewSet(ReadOnlyModelViewSet):
             return queryset.filter(user=user)
 
     def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
         search_filter = request.query_params.get('search')
-        events = self.get_queryset()
 
         if search_filter:
-            events = events.filter(
+            queryset = queryset.filter(
                 Q(title__icontains=search_filter) |
                 Q(location__icontains=search_filter)
             )
-        page = self.paginate_queryset(events)
+
+        page = self.paginate_queryset(queryset)
         if page is not None:
             serializer = self.get_serializer(page, many=True)
             return self.get_paginated_response(serializer.data)
 
-        serializer = self.get_serializer(events, many=True)
+        serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-        # serializer = self.get_serializer(events, many=True)
-        # return Response(serializer.data, status=status.HTTP_200_OK)
 
+from rest_framework import generics, status
+from rest_framework.response import Response
+from django.db.models import Q
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
+
+class EventListAPIView(generics.ListAPIView):
+    serializer_class = EventSerializer
+    # permission_classes = [IsAdminOrAuthenticated]  
+    pagination_class = PageNumberPagination  
+
+    def get_queryset(self):
+        # user = self.request.user
+
+        # if user.is_anonymous:
+        #     return Event.objects.none()
+
+        queryset = Event.objects.all().order_by("-created")
+        return queryset
+
+        # if user.role == "admin":
+        #     return queryset
+        # elif user.role == "Service Provider":
+        #     return queryset.filter(owner=user)
+        # else:
+        #     return queryset.filter(user=user)
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        search_filter = request.query_params.get('search')
+
+        if search_filter:
+            queryset = queryset.filter(
+                Q(title__icontains=search_filter) |
+                Q(location__icontains=search_filter)
+            )
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class EventDetailAPIView(generics.RetrieveAPIView):
+    queryset=Event.objects.all().order_by('-created')
+    serializer_class = EventSerializer
+    # permission_classes = [IsAdminOrAuthenticated]  
+    lookup_field = 'pk'  
+
+    # def get_queryset(self):
+    #     user = self.request.user
+
+    #     if user.is_anonymous:
+    #         return Event.objects.none()
+
+    #     queryset = Event.objects.all()
+
+    #     if user.role == "admin":
+    #         return queryset
+    #     elif user.role == "Service Provider":
+    #         return queryset.filter(owner=user)
+    #     else:
+    #         return queryset.filter(user=user)
 
 class EventCreateAPIViIew(generics.CreateAPIView):
     serializer_class = EventCreateAndUpdateSerializer
@@ -74,9 +137,7 @@ class EventDeleteAPIView(generics.DestroyAPIView):
     queryset = Event.objects.all()
     serializer_class = EventSerializer
     lookup_field = "pk"
-
-class EventTicketModelViewSet(ModelViewSet):
-    queryset = EventTicket.objects.all()
+class EventTicketListAPIView(generics.ListAPIView):
     serializer_class = EventTicketSerializer
     pagination_class = PageNumberPagination
     permission_classes = [IsAdminOrAuthenticated]
@@ -86,22 +147,22 @@ class EventTicketModelViewSet(ModelViewSet):
     def get_queryset(self):
         user = self.request.user
 
-        if self.request.user.role == 'admin':
-            return self.queryset
+        if user.role == 'admin':
+            return EventTicket.objects.all()
         elif user.role == "Service Provider":
-            return self.queryset.filter(event__owner=user)
+            return EventTicket.objects.filter(event__owner=user)
         else:
-            return self.queryset.filter(user=user)
+            return EventTicket.objects.filter(user=user)
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
 
         page = self.paginate_queryset(queryset)
         if page is not None:
-            serializer = self.serializer_class(instance=page, many=True)
+            serializer = self.get_serializer(page, many=True)
             return self.get_paginated_response(serializer.data)
 
-        serializer = self.serializer_class(instance=queryset, many=True)
+        serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 class EventTickedBookingDetailAPIView(generics.RetrieveAPIView):

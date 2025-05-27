@@ -168,6 +168,7 @@ class PropertyRoom(AbstractBaseModel):
     booked = models.IntegerField(default=0)
     charge_per_night = models.DecimalField(max_digits=100, decimal_places=2, default=0)
     booked_dates = models.JSONField(default=list)
+    profile_image = models.ImageField(upload_to="propertyroom_images/", null=True)
 
     def __str__(self):
         return f"Room {str(self.id)} - {self.room_type} - {self.property.name}"

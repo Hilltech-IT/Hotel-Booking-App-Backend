@@ -58,8 +58,9 @@ class EventSerializer(serializers.ModelSerializer):
     owner = OwnerSerializer(read_only=True)
     booked_tickets = serializers.SerializerMethodField()
     pending_tickets = serializers.SerializerMethodField()
-    tickets = EventTicketSerializer(many=True, read_only=True, source='eventtickets') 
-    
+    tickets = EventTicketSerializer(many=True, read_only=True, source='eventtickets')
+    allowed_payment_methods = AllowedEventPaymentMethodsSerializer(many=True, read_only=True)
+
     class Meta:
         model = Event
         fields = "__all__"
