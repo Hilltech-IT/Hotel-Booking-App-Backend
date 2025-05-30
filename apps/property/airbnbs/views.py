@@ -27,14 +27,16 @@ class AirBnBAPIView(generics.ListAPIView):
         search_filter = request.query_params.get('search')
         status_filter = request.query_params.get('status')
         
-
-        if user.role == 'admin':
+        if user is None or not user.is_authenticated:
             airbnbs = self.get_queryset()
-
-        elif user.role == "Service Provider":
-            airbnbs = self.get_queryset().filter(owner=user)
         else:
-            airbnbs = self.get_queryset().filter(user=user)
+            if user.role == 'admin':
+                 airbnbs = self.get_queryset()
+
+            elif user.role == "Service Provider":
+                airbnbs = self.get_queryset().filter(owner=user)
+            else:
+                airbnbs = self.get_queryset()
 
         if status_filter:
             airbnbs = airbnbs.filter(Q(approval_status__icontains=status_filter))

@@ -10,8 +10,8 @@ class EventSapceRoomSerializer(serializers.ModelSerializer):
         model = PropertyRoom
         fields = "__all__"
 class EventSpaceSerializer(PropertySerializer):
-    eventspacebookings = EventSpaceBookingSerializer(many=True, read_only=True)
-    rooms = serializers.SerializerMethodField()
+    # eventspacebookings = EventSpaceBookingSerializer(many=True, read_only=True)
+    # rooms = serializers.SerializerMethodField()
     owner= serializers.SerializerMethodField()
     propertyimages = PropertyImageSerializer(many=True)
     
@@ -19,9 +19,9 @@ class EventSpaceSerializer(PropertySerializer):
         model = Property
         fields = "__all__"
 
-    def get_rooms(self, obj):
-        rooms = obj.propertyrooms.select_related('property').prefetch_related('amenities')
-        return EventSapceRoomSerializer(rooms, many=True).data
+    # def get_rooms(self, obj):
+    #     rooms = obj.propertyrooms.select_related('property').prefetch_related('amenities')
+    #     return EventSapceRoomSerializer(rooms, many=True).data
     
     def get_owner(self, obj):
         return {

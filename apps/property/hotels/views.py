@@ -29,14 +29,16 @@ class HotelAPIView(generics.ListAPIView):
         user = request.user
         search_filter = request.query_params.get('search')
         status_filter = request.query_params.get('status')
-
-        if user.role == 'admin':
+        if user is None or not user.is_authenticated:
             hotels = self.get_queryset()
-
-        elif user.role == "Service Provider":
-            hotels = self.get_queryset().filter(owner=user)
         else:
-            hotels = self.get_queryset().filter(user=user)
+            if user.role == 'admin':
+                hotels = self.get_queryset()
+            elif user.role == "Service Provider":
+                hotels = self.get_queryset().filter(owner=user)
+            else:
+                hotels = self.get_queryset()
+        
         if status_filter:
             hotels = hotels.filter(Q(approval_status__icontains=status_filter))
         if search_filter:
