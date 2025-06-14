@@ -65,6 +65,8 @@ class DeactivateSubscriptionAPIView(generics.UpdateAPIView):
         subscription.status = "Deactivated"
         subscription.save()
         return Response({"message": "Subscription deactivated by admin."}, status=status.HTTP_200_OK)
+    
+    
 class ActivateSubscriptionAPIView(generics.UpdateAPIView):
     queryset = Subscription.objects.all()
     serializer_class = CreateAndUpdateSubscriptionSerializer

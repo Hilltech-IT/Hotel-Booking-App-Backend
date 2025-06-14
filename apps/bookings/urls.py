@@ -21,26 +21,13 @@ from apps.bookings.apis.views import (
     UpdateEventSpaceBookingAPIView,
     UpdateRoomBookingAPIView
 )
-from apps.bookings.views import (
-    airbnb_bookings,
-    book_airbnb,
-    book_event_space,
-    bookings,
-    edit_airbnb_booking,
-    event_space_bookings,
-    make_booked_rooms_available,
-    reserve_hotel_room,
-)
+
 router = DefaultRouter()
 router.register(r'eventspace-bookings', EventSpaceBookingsModelViewSet, basename='eventspace-bookings')
 router.register(r'room-bookings', RoomBookingsModelViewSet, basename='room-bookings')
 
 urlpatterns = [
     
-    path("bookings/", bookings, name="bookings"),
-    path("reserve-room/", reserve_hotel_room, name="reserve-room"),
-
-
     #### API ENDPOINTS
     path('', include(router.urls)),
     path('metrics/revenue/', RevenueMetricsAPIView.as_view(), name='revenue-metrics'),
@@ -57,22 +44,10 @@ urlpatterns = [
     path("airbnb-booking-detail/<int:pk>/", AirBnBBookingDetailAPIView.as_view(), name="bnb-booking-details"),
     path("espace-booking-detail/<int:pk>/", EventSpaceBookingDetailAPIView.as_view(), name="espace-booking-details"),
 
-    path(
-        "calculate-booking-fee/",
-        BookingFeeCalculationAPIView.as_view(),
-        name="calculate-booking-fee",
-    ),
-    path(
-        "make-rooms-available/",
-        make_booked_rooms_available,
-        name="make-rooms-available",
-    ),
-    # path("airbnb-bookings/", airbnb_bookings, name="airbnb-bookings"),
+    path("calculate-booking-fee/", BookingFeeCalculationAPIView.as_view(), name="calculate-booking-fee"),
+   
+  
     path("airbnb-bookings/", AirBnBBookingsAPIView.as_view(), name="airbnb-bookings"),
-    path("book-airbnb/", book_airbnb, name="book-airbnb"),
-    path("edit-airbnb-booking/", edit_airbnb_booking, name="edit-airbnb-booking"),
     path("book-an-airbnb/", BookAirBnBAPIView.as_view(), name="book-an-airbnb"),
-    path("event-space-bookings/", event_space_bookings, name="event-space-bookings"),
-    path("book-event-space/", book_event_space, name="book-event-space"),
     path("book-an-event-space/", BookEventSpaceAPIView.as_view(), name="book-an-event-space"),
 ]

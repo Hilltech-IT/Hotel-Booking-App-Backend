@@ -25,7 +25,7 @@ def get_payment_method(payment_type):
 
 
 @app.task(name="payment_received_task")
-def payment_received_task(name, email, payment_type, amount):
+def payment_received_task(name, email, payment_type, amount, model, booking_id):
     try:
         context_data = {
             "name": name,
@@ -40,8 +40,10 @@ def payment_received_task(name, email, payment_type, amount):
             [email,],
             template="payment_received",
         )
-        #paystack_payment.processed = True
-        #paystack_payment.save()
+        booking = model.objects.get(id=booking_id)
+        booking.status = "Paid"
+        booking.notif_send = True
+        booking.save()
     except Exception as e:
         raise e
 

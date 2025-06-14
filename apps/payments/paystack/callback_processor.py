@@ -29,6 +29,7 @@ class PaystackCallbackProcessMixin(object):
             self.__process_bnb_booking_payment()
         else:
             print("The reference number supplied seems invalid")
+            
 
     def __process_room_booking_payment(self):
         try:
@@ -60,8 +61,15 @@ class PaystackCallbackProcessMixin(object):
             name = f"{booking.user.first_name} {booking.user.last_name}"
             email = booking.user.email
 
-            payment_received_task.delay(name, email, "Room Booking", booking.amount_expected)
-            hotel_room_booked_task.delay(booking.id)
+            payment_received_task(
+                name=name, 
+                email=email, 
+                payment_type="Room Booking", 
+                amount=booking.amount_expected, 
+                model=RoomBooking, 
+                booking_id=booking.id
+            )
+            hotel_room_booked_task(booking.id)
         except Exception as e:
             raise e
 
@@ -96,12 +104,17 @@ class PaystackCallbackProcessMixin(object):
             name = f"{booking.user.first_name} {booking.user.last_name}"
             email = booking.user.email
 
-            payment_received_task.delay(name, email, "AirBnB Booking", booking.amount_expected)
-            bnb_booked_task.delay(booking.id)
+            payment_received_task(
+                name=name, 
+                email=email, 
+                payment_type="AirBnB Booking", 
+                amount=booking.amount_expected,
+                model=BnBBooking, 
+                booking_id=booking.id
+            )
+            bnb_booked_task(booking.id)
         except Exception as e:
             raise e
-
-
 
     def __process_ticket_booking_payment(self):
         try:
@@ -132,8 +145,15 @@ class PaystackCallbackProcessMixin(object):
             name = f"{booking.user.first_name} {booking.user.last_name}"
             email = booking.user.email
 
-            payment_received_task.delay(name, email, "Event Ticket Booking", booking.amount_expected)
-            ticket_purchased_task.delay(booking.id)
+            payment_received_task(
+                name=name, 
+                email=email, 
+                payment_type="Event Ticket Booking", 
+                amount=booking.amount_expected,
+                model=EventSpaceBooking, 
+                booking_id=booking.id
+            )
+            ticket_purchased_task(booking.id)
         except Exception as e:
             raise e
 
@@ -168,8 +188,15 @@ class PaystackCallbackProcessMixin(object):
 
             name = f"{booking.user.first_name} {booking.user.last_name}"
             email = booking.user.email
-            payment_received_task.delay(name, email, "Event Space Booking", booking.amount_expected)
-            event_space_booked_task.delay(booking_id=booking.id)
+            payment_received_task(
+                name=name, 
+                email=email, 
+                payment_type="Event Space Booking", 
+                amount=booking.amount_expected,
+                model=EventSpaceBooking,
+                booking_id=booking.id
+            )
+            event_space_booked_task(booking_id=booking.id)
             
         except Exception as e:
             raise e

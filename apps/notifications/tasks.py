@@ -63,3 +63,15 @@ def room_booked_task():
 
     for booking in bookings:
         pass
+    
+def update_booking_on_payment(model, booking_id):
+    booking = model.objects.get(id=booking_id)
+    booking.status = "Paid"
+    booking.save()
+    
+    if model.__name__ == "RoomBooking":
+        pass
+    elif model.__name__ == "BnBBooking":
+        pass
+    elif model.__name__ == "EventSpaceBooking":
+        pass

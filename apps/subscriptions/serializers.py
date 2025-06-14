@@ -15,11 +15,11 @@ class UserSerializer(serializers.ModelSerializer):
         ]
 
 
-
 class PricingSerializer(serializers.ModelSerializer):
     class Meta:
         model = Pricing
         fields = "__all__"
+        
 
 class SubscriptionSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
