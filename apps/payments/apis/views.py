@@ -61,13 +61,50 @@ class PaystackCallbackAPIView(APIView):
                     "trxref": trxref,
                     "paystack_payment_id": payment.id
                 }
-                callback = PaystackCallbackProcessMixin(data=callback_data)
-                callback.run()
+                PaystackCallbackProcessMixin(
+                    data=callback_data
+                ).run()
         except Exception as e:
             raise e
 
         return Response({"payment_reference": reference})
 
+class PaystackWebhookAPIView(APIView):
+    def post(self, request, *args, **kwargs):
+        print("**********Webhook Data**************")
+        status = request.data["event"]
+        payment_reference = request.data["data"]["reference"]
+        trxref = request.data["data"]["id"]
+        
+        paystack_data = f"""
+            Reference: {payment_reference}
+            Transaction ID: {trxref}
+            Status: {status}
+        """
+        print(paystack_data)
+        try:
+            paystack = PaystackProcessorMixin()
+            verification_data = paystack.verify_transaction(reference=payment_reference)
+            
+            payment_status = verification_data["data"]["status"]
+
+            if payment_status.lower() == "success":
+                payment = PaystackPayment.objects.get(reference=payment_reference)
+                payment.verified = True
+                payment.save()
+                callback_data = {
+                    "reference": payment_reference,
+                    "trxref": trxref,
+                    "paystack_payment_id": payment.id
+                }
+                PaystackCallbackProcessMixin(
+                    data=callback_data
+                ).run()
+                return Response({"message": "Payment successful"})
+        except Exception as e:
+            print(e)
+            return Response({"error": str(e)})
+    
 
 class PaystackCallbackDataAPIView(generics.CreateAPIView):
     serializer_class = PaystackCallbackSerializer
@@ -75,7 +112,7 @@ class PaystackCallbackDataAPIView(generics.CreateAPIView):
     def post(self, request):
         data = request.data
         serializer = self.serializer_class(data=data)
-
+        
         if serializer.is_valid(raise_exception=True):
             reference = data.get("reference")
             trxref = data.get("trxref")
@@ -95,8 +132,10 @@ class PaystackCallbackDataAPIView(generics.CreateAPIView):
                         "trxref": trxref,
                         "paystack_payment_id": payment.id
                     }
-                    callback = PaystackCallbackProcessMixin(data=callback_data)
-                    callback.run()
+                    PaystackCallbackProcessMixin(
+                        data=callback_data
+                    ).run()
+                
             except Exception as e:
                 raise e
 

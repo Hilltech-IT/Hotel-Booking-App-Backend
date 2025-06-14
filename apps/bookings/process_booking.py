@@ -1,6 +1,7 @@
 from datetime import datetime
 from decimal import Decimal
 
+
 from apps.bookings.models import RoomBooking
 from apps.property.models import PropertyRoom
 from apps.users.models import User
@@ -35,7 +36,7 @@ class RoomBookingMixin(object):
             room_booked.booked += int(rooms_booked)
             room_booked.save()
 
-            amount_expected = (Decimal(rooms_booked) * Decimal(room_booked.rate) * Decimal(days_booked)
+            amount_expected = (Decimal(rooms_booked) * Decimal(room_booked.charge_per_night) * Decimal(days_booked)
             )
             booking = RoomBooking.objects.create(
                 room=room_booked,
@@ -69,7 +70,6 @@ class RoomBookingMixin(object):
             except Exception as e:
                 raise e
             
-
             print(f"User: {user.name}, Has Reserved 1 Room at {room_booked.property.name}")
         except Exception as e:
             raise e

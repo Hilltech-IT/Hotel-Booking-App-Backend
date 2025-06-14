@@ -54,8 +54,6 @@ class AirBnBAPIView(generics.ListAPIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
     
 
-    
-
 
 class AirBnBDetailAPIView(generics.RetrieveDestroyAPIView):
     queryset = Property.objects.filter(property_type=PropertyTypes.AIRBNB.value)

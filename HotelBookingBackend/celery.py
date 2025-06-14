@@ -3,7 +3,7 @@ from django.conf import settings
 from celery import Celery
 
 #settings.configure()
-BROKER_URL = "amqps://dsdldszi:1ghNImfWvudsQIm7GHjNgojjBKYl8Kx8@hummingbird.rmq.cloudamqp.com/dsdldszi"
+BROKER_URL = "amqps://ekkpeczi:3pwYtwVgBbdzBAIbeoufzljB8Uyc8GH-@hummingbird.rmq.cloudamqp.com/ekkpeczi"
 # BROKER_URL = "amqps://kxdmmrcy:EGdGPUno6zXvkRlqyL6wRb2s3FTGlS1s@hummingbird.rmq.cloudamqp.com/kxdmmrcy"
 #BROKER_URL = "amqps://rluzmvaq:aFibmXkn5MoAYoOR79NL-OBgVw4BLHKX@hummingbird.rmq.cloudamqp.com/rluzmvaq"
 #BROKER_URL = "amqp://guest:guest@localhost:5672" #http://34.16.123.89/

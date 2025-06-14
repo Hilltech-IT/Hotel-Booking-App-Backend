@@ -144,8 +144,6 @@ class BookARoomAPIView(generics.CreateAPIView):
 
 
 
-
-
 class CreateRoomBookingAPIView(generics.CreateAPIView):
     queryset = RoomBooking.objects.all()
     serializer_class = CreateAndUpdateBookRoomSerializer
@@ -547,7 +545,6 @@ class UpdateAirbnbBookingAPIView(generics.RetrieveUpdateDestroyAPIView):
                 transaction_id=booking.transaction_id
             )
            
-
             booking.save()
 
             serializer = self.get_serializer(booking)
@@ -636,8 +633,6 @@ class EventSpaceBookingDetailAPIView(generics.RetrieveAPIView):
 
         raise PermissionDenied(
             "You do not have permission to view this booking.")
-
-
 
 
 
@@ -822,7 +817,6 @@ class UpdateEventSpaceBookingAPIView(generics.RetrieveUpdateDestroyAPIView):
 
 
 """Metrics Api"""
-
 
 class RevenueMetricsAPIView(APIView):
     permission_classes = [IsAuthenticated]

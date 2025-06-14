@@ -7,7 +7,7 @@ from apps.events.models import EventTicket
 from django.conf import settings
 from apps.payments.tasks import request_booking_payment_task
 
-PAYSTACK_SECRET_KEY = "sk_test_395cc6537fad1ea454ff41bdf3ce63ba62b1261c"
+PAYSTACK_SECRET_KEY = "sk_test_3707844cb4cbcc8ca96193b6d7ebfbaab01abb98"
 PAYSTACK_BASE_URL = "https://api.paystack.co"
 
 headersList = {
@@ -101,7 +101,7 @@ class PaystackProcessorMixin:
             email = booking.user.email
             payment_link = booking.payment_link
             amount = booking.amount_expected
-            request_booking_payment_task.delay(
+            request_booking_payment_task(
                 name=name, 
                 email=email, 
                 payment_type=payment_type, 

@@ -98,7 +98,7 @@ class EventSpaceBookingSerializer(serializers.ModelSerializer):
             "email": obj.user.email,
             "phone_number": obj.user.phone_number,
             "country": obj.user.country,
-             "role": obj.user.role
+            "role": obj.user.role
              
         }
 

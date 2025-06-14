@@ -7,10 +7,7 @@ from apps.property.apis.views import (AmenityViewSet, PropertyImageDeleteAPIView
                                       PropertyRoomImageViewSet, PropertyRoomUpdateAPIView,
                                       PropertyRoomViewSet,
                                       ReviewAndRatingViewSet)
-from apps.property.views import (airbnb_details, bnb_properties, delete_room,
-                                 edit_property, edit_room, event_space_details,
-                                 event_spaces, new_property, new_room,
-                                 properties, property_details)
+
 
 router = DefaultRouter()
 router.register("property-listings", PropertyModelViewSet, basename="property-listings")
@@ -37,17 +34,4 @@ urlpatterns = [
     # path("rooms/<int:pk>/", HotelRoomDetailView.as_view(), name="hotel-room-details" ),
     # path('hotels/rooms/<int:pk>/', HotelRoomDetailView.as_view(), name='hotel-room-detail'),
 
-    path("", properties, name="properties"),
-    path("airbns/", bnb_properties, name="airbnbs"),
-    path("airbnbs/<int:airbnb_id>/", airbnb_details, name="airbnb-details"),
-    path("new-property/", new_property, name="new-property"),
-    path("property/<int:property_id>/", property_details, name="property-details"),
-    path("edit-property/", edit_property, name="edit-property"),
-    ## Rooms
-    path("new-room/", new_room, name="new-room"),
-    path("edit-room/", edit_room, name="edit-room"),
-    path("delete-room/", delete_room, name="delete-room"),
-
-    path("event-spaces/", event_spaces, name="event-spaces"),
-    path("event-spaces/<int:event_space_id>/", event_space_details, name="event-space-details"),
 ]
