@@ -6,29 +6,39 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('events', '0012_eventticket_ticket_number'),
+        ("events", "0012_eventticket_ticket_number"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='AllowedPaymentMethods',
+            name="AllowedPaymentMethods",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created', models.DateTimeField(auto_now_add=True)),
-                ('modified', models.DateTimeField(auto_now=True)),
-                ('name', models.CharField(max_length=255, unique=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created", models.DateTimeField(auto_now_add=True)),
+                ("modified", models.DateTimeField(auto_now=True)),
+                ("name", models.CharField(max_length=255, unique=True)),
             ],
             options={
-                'verbose_name_plural': 'paymentmethods',
+                "verbose_name_plural": "paymentmethods",
             },
         ),
         migrations.RemoveField(
-            model_name='event',
-            name='allowed_payment_methods',
+            model_name="event",
+            name="allowed_payment_methods",
         ),
         migrations.AddField(
-            model_name='event',
-            name='allowed_payment_methods',
-            field=models.ManyToManyField(blank=True, related_name='events', to='events.allowedpaymentmethods'),
+            model_name="event",
+            name="allowed_payment_methods",
+            field=models.ManyToManyField(
+                blank=True, related_name="events", to="events.allowedpaymentmethods"
+            ),
         ),
     ]

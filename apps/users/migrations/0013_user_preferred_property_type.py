@@ -6,13 +6,23 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('users', '0012_alter_user_role'),
+        ("users", "0012_alter_user_role"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='user',
-            name='preferred_property_type',
-            field=models.CharField(blank=True, choices=[('Hotel', 'Hotel'), ('AirBnB', 'AirBnB'), ('Lodge', 'Lodge'), ('Event Space', 'Event Space')], max_length=50, null=True),
+            model_name="user",
+            name="preferred_property_type",
+            field=models.CharField(
+                blank=True,
+                choices=[
+                    ("Hotel", "Hotel"),
+                    ("AirBnB", "AirBnB"),
+                    ("Lodge", "Lodge"),
+                    ("Event Space", "Event Space"),
+                ],
+                max_length=50,
+                null=True,
+            ),
         ),
     ]

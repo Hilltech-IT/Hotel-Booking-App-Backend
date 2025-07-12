@@ -8,6 +8,7 @@ from apps.users.models import User
 from apps.payments.paystack.paystack import PaystackProcessorMixin
 from apps.core.reference_generator import generate_payment_reference
 
+
 class EventSpaceBookingMixin(object):
     def __init__(self, booking_data):
         self.booking_data = booking_data
@@ -39,8 +40,10 @@ class EventSpaceBookingMixin(object):
             amount_paid=0,
             amount_expected=amount_expected,
         )
-        #reference = f"event_space_{user.id}_{event_space_booking.id}"
-        reference = generate_payment_reference("event_space", event_space_booking.id, user.id)
+        # reference = f"event_space_{user.id}_{event_space_booking.id}"
+        reference = generate_payment_reference(
+            "event_space", event_space_booking.id, user.id
+        )
         event_space_booking.reference = reference
         event_space_booking.save()
         amount_to_pay = int(amount_expected) * 100
@@ -50,7 +53,7 @@ class EventSpaceBookingMixin(object):
                 "email": event_space_booking.user.email,
                 "reference": reference,
                 "user_id": event_space_booking.user.id,
-                "payment_type": "event_space"
+                "payment_type": "event_space",
             }
             paystack = PaystackProcessorMixin()
             paystack.initialize_payment(payment_data=payment_data)

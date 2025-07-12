@@ -1,20 +1,23 @@
-from apps.property.apis.serializers import PropertyImageSerializer
+from apps.property.serializers import PropertyImageSerializer
 from rest_framework import serializers
 
-from apps.bookings.apis.serializers import EventSpaceBookingSerializer
+from apps.bookings.serializers import EventSpaceBookingSerializer
 from apps.property.models import Property, PropertyRoom
 from apps.property.serializers import PropertySerializer
+
 
 class EventSapceRoomSerializer(serializers.ModelSerializer):
     class Meta:
         model = PropertyRoom
         fields = "__all__"
+
+
 class EventSpaceSerializer(PropertySerializer):
     # eventspacebookings = EventSpaceBookingSerializer(many=True, read_only=True)
     # rooms = serializers.SerializerMethodField()
-    owner= serializers.SerializerMethodField()
+    owner = serializers.SerializerMethodField()
     propertyimages = PropertyImageSerializer(many=True)
-    
+
     class Meta:
         model = Property
         fields = "__all__"
@@ -22,7 +25,7 @@ class EventSpaceSerializer(PropertySerializer):
     # def get_rooms(self, obj):
     #     rooms = obj.propertyrooms.select_related('property').prefetch_related('amenities')
     #     return EventSapceRoomSerializer(rooms, many=True).data
-    
+
     def get_owner(self, obj):
         return {
             "id": obj.owner.id,
@@ -32,12 +35,14 @@ class EventSpaceSerializer(PropertySerializer):
             "email": obj.owner.email,
             "phone_number": obj.owner.phone_number,
             "country": obj.owner.country,
-             "role": obj.owner.role
-             
+            "role": obj.owner.role,
         }
-   
+
+
 class EventSpaceCreateAndUpdateSerializer(serializers.ModelSerializer):
-    profile_image = serializers.ImageField(max_length=255, allow_null=True, required=False)
+    profile_image = serializers.ImageField(
+        max_length=255, allow_null=True, required=False
+    )
 
     class Meta:
         model = Property

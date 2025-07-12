@@ -1,301 +1,212 @@
-from decimal import Decimal
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import status, generics
 
-from django.contrib.auth.decorators import login_required
-from django.core.paginator import Paginator
+from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.filters import OrderingFilter, SearchFilter
+from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly
+from rest_framework.response import Response
+from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
+from django.shortcuts import get_object_or_404
+from apps.constants import IsAdminOrAuthenticated
+from apps.core.constants import PropertyTypes
+from apps.core.custom_permissions import IsOwnerOrReadOnly
+from apps.property.methods.filter_airbnbs import filter_airbnb
+from apps.property.methods.filter_event_space import filter_event_space
+from apps.property.methods.filter_hotels import filter_hotels
+from apps.property.methods.filters import PropertyFilter
+from apps.property.serializers import (
+    AmenitySerializer,
+    CreatePropertyRoomSerializer,
+    PropertyImageSerializer,
+    PropertyRoomImageSerializer,
+    PropertyRoomSerializer,
+    PropertySerializer,
+    ReviewAndRatingSerializer,
+)
+from apps.property.models import (
+    Amenity,
+    Property,
+    PropertyImage,
+    PropertyRoom,
+    PropertyRoomImage,
+    ReviewAndRating,
+)
+
 from django.db.models import Q
-from django.shortcuts import redirect, render
-
-from apps.bookings.models import RoomBooking
-from apps.property.models import Property, PropertyRoom
-from apps.users.models import User
 
 
-# Create your views here.
-@login_required(login_url="/users/user-login/")
-def properties(request):
-    user = request.user
-    properties = Property.objects.filter(property_type="Hotel").order_by("-created")
+class PropertyModelViewSet(ModelViewSet):
+    queryset = Property.objects.all().order_by("-created")
+    serializer_class = PropertySerializer
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    search_fields = ["name", "location", "city", "country", "property_type", "cost"]
+
+    permission_classes = [IsOwnerOrReadOnly]
+    # permission_classes = [ IsAdminOrAuthenticated]
+    # permission_classes = [AllowAny]
+
+    def get_permissions(self):
+        if self.request.method == "GET":
+            return [AllowAny()]
+        return super().get_permissions()
+
+    def get_queryset(self):
+
+        queryset = super().get_queryset()
+
+        start_date = self.request.query_params.get("start_date")
+        end_date = self.request.query_params.get("end_date")
+        property_type = self.request.query_params.get("property_type")
+        min_cost = self.request.query_params.get("min_cost")
+        max_cost = self.request.query_params.get("max_cost")
+        status_filter = self.request.query_params.get("status")
+
+        if property_type:
+            if property_type.lower() == "hotel":
+                queryset = self.queryset.filter(property_type="Hotel")
+                if start_date and end_date:
+                    ids = filter_hotels(queryset, start_date, end_date)
+                    return queryset.filter(id__in=ids)
+                return queryset
+
+            elif property_type.lower() == "airbnb":
+                property_type = "AirBnB"
+                queryset = self.queryset.filter(property_type=property_type)
+                return filter_airbnb(queryset, min_cost, max_cost, start_date, end_date)
+
+            elif property_type.lower() == "event space":
+                queryset = self.queryset.filter(
+                    property_type__in=["Event Space", "Event", "Event_Space"]
+                )
+                return filter_event_space(
+                    queryset, min_cost, max_cost, start_date, end_date
+                )
+        if status_filter:
+            queryset = self.queryset.filter(Q(approval_status__icontains=status_filter))
+            return queryset
+        print(f"Start Date: {start_date}, End Date: {end_date}")
+
+        return queryset
+        # return super().get_queryset()
 
 
-    if request.method == "POST":
-        search_text = request.POST.get("search_text")
+class PropertyImageViewSet(ModelViewSet):
+    queryset = PropertyImage.objects.all()
+    serializer_class = PropertyImageSerializer
 
-        properties = Property.objects.filter(
-            Q(name__icontains=search_text)
-            | Q(city__icontains=search_text)
-            | Q(country__icontains=search_text)
-        ).filter(property_type="Hotel")
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    search_fields = ["property__name", "id"]
 
-    if not user.is_superuser:
-        properties = Property.objects.filter(property_type="Hotel", owner=user).order_by("-created")
-    users = User.objects.filter(role="service_provider")
-
-    paginator = Paginator(properties, 10)
-    page_number = request.GET.get("page")
-    page_obj = paginator.get_page(page_number)
-    context = {"properties": properties, "users": users, "page_obj": page_obj}
-
-    return render(request, "properties/hotels.html", context)
+    # permission_classes = [IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
+    permission_classes = [AllowAny]
 
 
+class PropertyImageUploadAPIView(generics.CreateAPIView):
+    serializer_class = PropertyImageSerializer
+    parser_classes = [MultiPartParser, FormParser]
+    permission_classes = [AllowAny]
 
-@login_required(login_url="/users/user-login/")
-def new_property(request):
-    if request.method == "POST":
-        owner_id = request.POST.get("owner_id")
-        profile_image = request.FILES["profile_image"]
-        name = request.POST.get("name")
-        address = request.POST.get("address")
-        city = request.POST.get("city")
-        country = request.POST.get("country")
-        email = request.POST.get("email")
-        contact_number = request.POST.get("contact_number")
-        property_type = request.POST.get("property_type")
-        cost_per_night = request.POST.get("cost_per_night")
+    def create(self, request, *args, **kwargs):
+        property_id = self.kwargs.get("pk")
+        property_instance = get_object_or_404(Property, id=property_id)
 
-        if cost_per_night:
-            cost_per_night = Decimal(cost_per_night)
+        images = request.FILES.getlist("images")
+        if not images:
+            return Response(
+                {"error": "No images uploaded."}, status=status.HTTP_400_BAD_REQUEST
+            )
 
-        property = Property.objects.create(
-            owner_id=owner_id,
-            name=name,
-            profile_image=profile_image,
-            address=address,
-            city=city,
-            country=country,
-            email=email,
-            contact_number=contact_number,
-            property_type=property_type,
-            cost=cost_per_night,
+        created_images = []
+        for img in images:
+            image_obj = PropertyImage.objects.create(
+                property=property_instance, image=img
+            )
+            created_images.append(self.get_serializer(image_obj).data)
+
+        return Response(created_images, status=status.HTTP_201_CREATED)
+
+
+class PropertyImageDeleteAPIView(generics.DestroyAPIView):
+    queryset = PropertyImage.objects.all()
+    serializer_class = PropertyImageSerializer
+    permission_classes = [AllowAny]
+    lookup_field = "pk"
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        return Response(
+            {"message": "Image deleted successfully."}, status=status.HTTP_200_OK
         )
 
-        if property_type == "AirBnB":
-            return redirect("airbnbs")
 
-        return redirect("properties")
+class PropertyRoomImageUploadAPIView(generics.CreateAPIView):
+    serializer_class = PropertyRoomImageSerializer
+    parser_classes = [MultiPartParser, FormParser]
+    permission_classes = [AllowAny]
 
-    return render(request, "properties/new_property.html")
+    def create(self, request, *args, **kwargs):
+        room_id = self.kwargs.get("pk")
+        room_instance = get_object_or_404(PropertyRoom, id=room_id)
+
+        images = request.FILES.getlist("images")
+        if not images:
+            return Response(
+                {"error": "No images uploaded."}, status=status.HTTP_400_BAD_REQUEST
+            )
+
+        created_images = []
+        for img in images:
+            image_obj = PropertyRoomImage.objects.create(room=room_instance, image=img)
+            created_images.append(self.get_serializer(image_obj).data)
+
+        return Response(created_images, status=status.HTTP_201_CREATED)
 
 
-@login_required(login_url="/users/user-login/")
-def edit_property(request):
-    if request.method == "POST":
-        property_id = request.POST.get("property_id")
-        profile_image = request.FILES.get("profile_image")
-        name = request.POST.get("name")
-        address = request.POST.get("address")
-        city = request.POST.get("city")
-        country = request.POST.get("country")
+class PropertyRoomImageDeleteAPIView(generics.DestroyAPIView):
+    queryset = PropertyRoomImage.objects.all()
+    serializer_class = PropertyRoomImageSerializer
+    permission_classes = [AllowAny]
+    lookup_field = "pk"
 
-        email = request.POST.get("email")
-        contact_number = request.POST.get("contact_number")
-        property_type = request.POST.get("property_type")
-        cost_per_night = request.POST.get("cost_per_night")
-
-        property = Property.objects.get(id=property_id)
-        property.profile_image = (
-            profile_image if profile_image else property.profile_image
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        return Response(
+            {"message": "Image deleted successfully."}, status=status.HTTP_200_OK
         )
-        property.name = name
-        property.address = address
-        property.city = city
-        property.country = country
-        property.email = email
-        property.contact_number = contact_number
-        property.property_type = property_type
-        property.cost = cost_per_night
-        property.save()
-
-        if property_type == "AirBnB":
-            return redirect("airbnbs")
-        elif property_type == "Event Space":
-            return redirect("event-spaces")
-
-        return redirect(f"/properties/property/{property_id}/")
-
-    return render(request, "properties/edit_property.html")
 
 
-@login_required(login_url="/users/user-login/")
-def property_details(request, property_id=None):
-    property = Property.objects.get(id=property_id)
-    rooms = PropertyRoom.objects.filter(property=property)
+class PropertyRoomViewSet(ReadOnlyModelViewSet):
+    queryset = PropertyRoom.objects.all()
+    serializer_class = PropertyRoomSerializer
 
-    bookings = RoomBooking.objects.filter(room__property=property).order_by("-created")
-
-    paginator = Paginator(bookings, 10)
-    page_number = request.GET.get("page")
-    page_obj = paginator.get_page(page_number)
-
-    context = {
-        "property": property, 
-        "rooms": rooms,
-        "bookings_list": bookings,
-        "page_obj": page_obj
-    }
-    return render(request, "properties/property_details.html", context)
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    search_fields = ["property__name", "room_type"]
 
 
-### ROOMS ####
-@login_required(login_url="/users/user-login/")
-def new_room(request):
-    if request.method == "POST":
-        property_id = request.POST.get("property_id")
-        occupation_capacity = request.POST.get("capacity")
-        smooking_room = request.POST.get("smooking_room")
-        amenities = request.POST.get("amenities")
-        view = request.POST.get("view")
-        room_type = request.POST.get("room_type")
-        check_in_time = request.POST.get("check_in_time")
-        check_out_time = request.POST.get("check_out_time")
-        rate = request.POST.get("rate")
-        rooms_number = request.POST.get("rooms_number")
-
-        room = PropertyRoom.objects.create(
-            property_id=property_id,
-            room_type=room_type,
-            occupancy_capacity=occupation_capacity,
-            smoking_room=True if smooking_room == "Yes" else False,
-            amenities=amenities,
-            view=view,
-            check_in_time=check_in_time,
-            check_out_time=check_out_time,
-            rooms_number=rooms_number,
-            booked=0,
-            rate=rate,
-            charge_per_night=rate,
-        )
-        return redirect(f"/properties/property/{property_id}/")
-
-    return render(request, "properties/rooms/new_room.html")
+class PropertyRoomCreateAPIView(generics.CreateAPIView):
+    serializer_class = CreatePropertyRoomSerializer
 
 
-@login_required(login_url="/users/user-login/")
-def edit_room(request):
-    if request.method == "POST":
-        property_id = request.POST.get("property_id")
-        room_id = request.POST.get("room_id")
-        occupation_capacity = int(request.POST.get("capacity"))
-        smooking_room = request.POST.get("smooking_room")
-        amenities = request.POST.get("amenities")
-        view = request.POST.get("view")
-        room_type = request.POST.get("room_type")
-        check_in_time = request.POST.get("check_in_time")
-        check_out_time = request.POST.get("check_out_time")
-        rate = request.POST.get("rate")
-
-        room = PropertyRoom.objects.get(id=room_id)
-        room.room_type = room_type
-        room.occupancy_capacity = occupation_capacity
-        room.smoking_room = True if smooking_room == "Yes" else False
-        room.amenities = amenities
-        room.view = view
-        room.check_in_time = check_in_time if check_in_time else room.check_in_time
-        room.check_out_time = check_out_time if check_out_time else room.check_out_time
-        room.rate = rate
-        room.save()
-
-        return redirect(f"/properties/property/{property_id}/")
-
-    return render(request, "properties/rooms/edit_room.html")
+class PropertyRoomUpdateAPIView(generics.UpdateAPIView):
+    serializer_class = CreatePropertyRoomSerializer
+    queryset = PropertyRoom.objects.filter(
+        property__property_type=PropertyTypes.HOTEL.value
+    )
+    lookup_field = "pk"
 
 
-@login_required(login_url="/users/user-login/")
-def delete_room(request):
-    return render(request, "properties/rooms/delete_room.html")
+class PropertyRoomImageViewSet(ModelViewSet):
+    queryset = PropertyRoomImage.objects.all()
+    serializer_class = PropertyRoomImageSerializer
 
 
-
-##################AIRBNBs###############
-@login_required(login_url="/users/user-login/")
-def bnb_properties(request):
-    user = request.user
-    properties = Property.objects.filter(property_type="AirBnB").order_by("-created")
-
-    if request.method == "POST":
-        search_text = request.POST.get("search_text")
-
-        properties = Property.objects.filter(
-            Q(name__icontains=search_text)
-            | Q(city__icontains=search_text)
-            | Q(country__icontains=search_text)
-        ).filter(property_type="AirBnB")
-
-    if not user.is_superuser:
-        properties = Property.objects.filter(property_type="AirBnB", owner=user).order_by("-created")
-    users = User.objects.filter(role="service_provider")
-
-    paginator = Paginator(properties, 10)
-    page_number = request.GET.get("page")
-    page_obj = paginator.get_page(page_number)
-    context = {"properties": properties, "users": users, "page_obj": page_obj}
-
-    return render(request, "airbnbs/airbnbs.html", context)
+class ReviewAndRatingViewSet(ModelViewSet):
+    queryset = ReviewAndRating.objects.all()
+    serializer_class = ReviewAndRatingSerializer
 
 
-@login_required(login_url="/users/user-login/")
-def airbnb_details(request, airbnb_id=None):
-    property = Property.objects.get(id=airbnb_id)
-   
-
-    bookings_list = property.bnbbookings.all().order_by("-created")
-
-    paginator = Paginator(bookings_list, 8)
-    page_number = request.GET.get("page")
-    page_obj = paginator.get_page(page_number)
-
-    context = {
-        "property": property, 
-        "bookings_list": bookings_list,
-        "page_obj": page_obj
-    }
-    return render(request, "airbnbs/airbnb_details.html", context)
-
-
-
-## EVENT SPACES
-@login_required(login_url="/users/user-login/")
-def event_spaces(request):
-    user = request.user
-    properties = Property.objects.filter(property_type__in=["Event Space", "Event", "Event_Space"]).order_by("-created")
-
-
-    if request.method == "POST":
-        search_text = request.POST.get("search_text")
-
-        properties = Property.objects.filter(
-            Q(name__icontains=search_text)
-            | Q(city__icontains=search_text)
-            | Q(country__icontains=search_text)
-        ).filter(owner=user).filter(property_type__in=["Event Space", "Event", "Event_Space"])
-
-    if not user.is_superuser:
-        properties = Property.objects.filter(owner=user).filter(property_type__in=["Event Space", "Event", "Event_Space"]).order_by("-created")
-
-    users = User.objects.filter(role="service_provider")
-
-    paginator = Paginator(properties, 10)
-    page_number = request.GET.get("page")
-    page_obj = paginator.get_page(page_number)
-    context = {"properties": properties, "users": users, "page_obj": page_obj}
-
-    return render(request, "event_spaces/event_spaces.html", context)
-
-
-@login_required(login_url="/users/user-login/")
-def event_space_details(request, event_space_id=None):
-    property = Property.objects.get(id=event_space_id)
-   
-
-    bookings_list = property.eventspacebookings.all().order_by("-created")
-
-    paginator = Paginator(bookings_list, 8)
-    page_number = request.GET.get("page")
-    page_obj = paginator.get_page(page_number)
-
-    context = {
-        "property": property, 
-        "bookings_list": bookings_list,
-        "page_obj": page_obj
-    }
-    return render(request, "event_spaces/event_space_details.html", context)
+class AmenityViewSet(ModelViewSet):
+    queryset = Amenity.objects.all()
+    serializer_class = AmenitySerializer

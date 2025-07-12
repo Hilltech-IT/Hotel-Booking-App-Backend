@@ -14,6 +14,7 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
@@ -25,7 +26,7 @@ schema_view = get_schema_view(
     openapi.Info(
         title="HillTech Backend API",
         default_version="v2",
-         description="HillTech Backend API",
+        description="HillTech Backend API",
         terms_of_service="",
         contact=openapi.Contact(email="paulkadabo@gmail.com"),
         license=openapi.License(name="MIT"),
@@ -41,15 +42,19 @@ urlpatterns = [
     path("payments/", include("apps.payments.urls")),
     path("bookings/", include("apps.bookings.urls")),
     path("service-providers/", include("apps.users.service_providers.urls")),
-    path("customers/", include("apps.users.customers.urls")),
     path("staff/", include("apps.users.staff.urls")),
-
     path("airbnbs/", include("apps.property.airbnbs.urls")),
     path("event-spaces/", include("apps.property.event_spaces.urls")),
     path("hotels/", include("apps.property.hotels.urls")),
-
-    path('swagger<format>/', schema_view.without_ui(cache_timeout=0), name='schema-json'),
-    path('docs/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
-    path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
+    path("reports/", include("apps.reports.urls")),
+    path(
+        "swagger<format>/", schema_view.without_ui(cache_timeout=0), name="schema-json"
+    ),
+    path(
+        "docs/",
+        schema_view.with_ui("swagger", cache_timeout=0),
+        name="schema-swagger-ui",
+    ),
+    path("redoc/", schema_view.with_ui("redoc", cache_timeout=0), name="schema-redoc"),
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

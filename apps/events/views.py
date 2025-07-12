@@ -1,279 +1,262 @@
-from django.contrib.auth.decorators import login_required
-from django.core.paginator import Paginator
-from django.shortcuts import redirect, render
-
-from apps.bookings.tasks import create_payment_link_task
-from apps.events.models import Event, EventTicket, EventTicketComponent
-from apps.users.models import User
-from apps.payments.paystack.paystack import PaystackProcessorMixin
-from apps.core.reference_generator import generate_payment_reference
-
-
-# Create your views here.
-@login_required(login_url="/users/user-login/")
-def events(request):
-    user = request.user
-    events = Event.objects.all()
-
-    if user.role == "service_provider":
-        events = Event.objects.filter(owner=user)
-
-    paginator = Paginator(events, 10)
-    page_number = request.GET.get("page")
-    page_obj = paginator.get_page(page_number)
-
-    context = {"events": events, "page_obj": page_obj}
-    return render(request, "events/events.html", context)
-
-@login_required(login_url="/users/user-login/")
-def new_event(request):
-    if request.method == "POST":
-        owner_id = request.POST.get("owner_id")
-        title = request.POST.get("title")
-        event_date = request.POST.get("event_date")
-        event_time = request.POST.get("event_time")
-        regular_ticket_price = request.POST.get("regular_ticket")
-        vip_ticket_price = request.POST.get("vip_ticket")
-        vvip_ticket_price = request.POST.get("vvip_ticket")
-        children_ticket_price = request.POST.get("children_ticket")
-        age_limit = request.POST.get("age_limit")
-        children_allowed = request.POST.get("children_allowed")
-        description = request.POST.get("description")
-        location = request.POST.get("location")
-        event_banner = request.POST.get("event_banner")
-        allowed_payment_methods = request.POST.get("payment_methods")
-        total_tickets = request.POST.get("total_tickets")
-
-        user = User.objects.get(id=owner_id)
-
-        Event.objects.create(
-            owner=user,
-            title=title,
-            event_date=event_date,
-            event_time=event_time,
-            regular_ticket_price=regular_ticket_price,
-            vip_ticket_price=vip_ticket_price,
-            vvip_ticket_price=vvip_ticket_price,
-            children_ticket_price=children_ticket_price,
-            age_limit=age_limit,
-            children_allowed=True if children_allowed == "Yes" else False,
-            description=description,
-            location=location,
-            event_banner=event_banner,
-            allowed_payment_methods=allowed_payment_methods,
-            total_tickets=total_tickets,
-        )
-
-        return redirect("events")
-
-    return render(request, "events/new_event.html")
-
-@login_required(login_url="/users/user-login/")
-def edit_event(request):
-    if request.method == "POST":
-        event_id = request.POST.get("event_id")
-        title = request.POST.get("title")
-        event_date = request.POST.get("event_date")
-        regular_ticket_price = request.POST.get("regular_ticket")
-        vip_ticket_price = request.POST.get("vip_ticket")
-        vvip_ticket_price = request.POST.get("vvip_ticket")
-        children_ticket_price = request.POST.get("children_ticket")
-        age_limit = request.POST.get("age_limit")
-        children_allowed = request.POST.get("children_allowed")
-        description = request.POST.get("description")
-        location = request.POST.get("location")
-        event_banner = request.POST.get("event_banner")
-        allowed_payment_methods = request.POST.get("payment_methods")
-        total_tickets = request.POST.get("total_tickets")
-
-        event = Event.objects.get(id=event_id)
-        event.title = title if title else event.title
-        event.event_date = event_date if event_date else event.event_date
-        event.regular_ticket_price = (
-            regular_ticket_price if regular_ticket_price else event.regular_ticket_price
-        )
-        event.vip_ticket_price = (
-            vip_ticket_price if vip_ticket_price else event.vip_ticket_price
-        )
-        event.vvip_ticket_price = (
-            vvip_ticket_price if vvip_ticket_price else event.vvip_ticket_price
-        )
-        event.children_ticket_price = (
-            children_ticket_price
-            if children_ticket_price
-            else event.children_ticket_price
-        )
-        event.age_limit = age_limit if age_limit else event.age_limit
-        event.children_allowed = True if children_allowed == "Yes" else False
-        event.description = description if description else event.description
-        event.location = location if location else event.location
-        event.event_banner = event_banner if event_banner else event.event_banner
-        event.allowed_payment_methods = (
-            allowed_payment_methods
-            if allowed_payment_methods
-            else event.allowed_payment_methods
-        )
-        event.total_tickets = total_tickets if total_tickets else event.total_tickets
-        event.save()
-
-        return redirect("events")
-
-    return render(request, "events/edit_event.html")
+from apps.bookings.filters import EventTicketFilter
+from apps.payments.models import Payment
+from rest_framework import generics, status
+from rest_framework.response import Response
+from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
+from rest_framework.pagination import PageNumberPagination
+from apps.constants import IsAdminOrAuthenticated
+from django.db.models import Q
+from rest_framework.exceptions import PermissionDenied
+from django.utils import timezone
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
 
-@login_required(login_url="/users/user-login/")
-def event_details(request, event_id=None):
-    event = Event.objects.get(id=event_id)
-    event_tickets = event.eventtickets.all().order_by("-created")
-
-    paginator = Paginator(event_tickets, 10)
-    page_number = request.GET.get("page")
-    page_obj = paginator.get_page(page_number)
-
-    context = {"event": event, "event_tickets": event_tickets, "page_obj": page_obj}
-
-    return render(request, "events/event_details.html", context)
-
-
-@login_required(login_url="/users/user-login/")
-def event_tickets(request):
-    tickets = EventTicket.objects.all().order_by("-created")
-
-    user = request.user
-    if not user.is_superuser:
-        tickets = EventTicket.objects.filter(event__owner=user).order_by("-created")
-    
-
-    paginator = Paginator(tickets, 10)
-    page_number = request.GET.get("page")
-    page_obj = paginator.get_page(page_number)
-
-    context = {"tickets": tickets, "page_obj": page_obj}
-    return render(request, "events/tickets.html", context)
+from apps.events.serializers import (
+    AllowedEventPaymentMethodsSerializer,
+    BuyEventTicketSerializer,
+    CancelTicketSerializer,
+    EventCreateAndUpdateSerializer,
+    EventSerializer,
+    EventTicketSerializer,
+    PayTicketSerializer,
+)
+from apps.events.models import AllowedPaymentMethods, Event, EventTicket
+from apps.events.ticket_booking_mixin import EventTicketBookingMixin
 
 
-@login_required(login_url="/users/user-login/")
-def delete_event(request):
-    if request.method == "POST":
-        event_id = int(request.POST.get("event_id"))
-        event = Event.objects.get(id=event_id)
-        event.delete()
-        return redirect("events")
-
-    return render(request, "events/delete_event.html")
+class AllowedEventPaymentMethodsAPIView(generics.ListAPIView):
+    queryset = AllowedPaymentMethods.objects.all()
+    serializer_class = AllowedEventPaymentMethodsSerializer
 
 
-@login_required(login_url="/users/user-login/")
-def new_event_ticket(request):
-    if request.method == "POST":
-        event_id = request.POST.get("event_id")
+class EventListAPIView(generics.ListAPIView):
+    serializer_class = EventSerializer
+    # permission_classes = [IsAdminOrAuthenticated]
 
-        regular_ticket = int(request.POST.get("regular_ticket"))
-        vip_ticket = int(request.POST.get("vip_ticket"))
-        vvip_ticket = int(request.POST.get("vvip_ticket"))
-        payment_method = request.POST.get("payment_method")
+    def get_queryset(self):
+        user = self.request.user
 
-        email = request.POST.get("email")
-        first_name = request.POST.get("first_name")
-        last_name = request.POST.get("last_name")
-        phone_number = request.POST.get("phone_number")
+        if user.is_anonymous:
+            return Event.objects.none()
 
-        user = User.objects.filter(email=email).first()
+        queryset = Event.objects.all()
 
-        if not user:
-            user = User.objects.create(
-                email=email,
-                first_name=first_name,
-                last_name=last_name,
-                username=email,
-                phone_number=phone_number,
-                role="customer",
+        if user.role == "admin":
+            return queryset
+        elif user.role == "Service Provider":
+            return queryset.filter(owner=user)
+        else:
+            return queryset.filter(user=user)
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        search_filter = request.query_params.get("search")
+
+        if search_filter:
+            queryset = queryset.filter(
+                Q(title__icontains=search_filter) | Q(location__icontains=search_filter)
             )
 
-        event = Event.objects.get(id=event_id)
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
 
-        ticket_type = "Single"
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
-        if (
-            regular_ticket
-            and vip_ticket
-            or regular_ticket
-            and vvip_ticket
-            or vip_ticket
-            and vvip_ticket
-        ):
-            ticket_type = "Multiple"
 
-        regular_tickets_charge = event.regular_ticket_price * regular_ticket
-        vip_tickets_charge = event.vip_ticket_price * vip_ticket
-        vvip_tickets_charge = event.vvip_ticket_price * vvip_ticket
+class EventListAPIView(generics.ListAPIView):
+    serializer_class = EventSerializer
+    pagination_class = PageNumberPagination
 
-        amount_expected = (
-            regular_tickets_charge + vip_tickets_charge + vvip_tickets_charge
-        )
+    def get_queryset(self):
+        queryset = Event.objects.all().order_by("-created")
+        return queryset
 
-        ticket = EventTicket.objects.create(
-            user=user,
-            event=event,
-            amount_expected=amount_expected,
-            ticket_type=ticket_type,
-            amount_paid=-abs(amount_expected),
-            payment_method=payment_method,
-            ticket_status="Pending Payment",
-        )
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        search_filter = request.query_params.get("search")
 
-        #reference = f"ticket_{user.id}_{ticket.id}"
-        reference = generate_payment_reference("ticket", ticket.id, user.id)
-        ticket.ticket_number = f"ETN_{user.id}_{ticket.id}"
-        ticket.reference = reference
-        ticket.save()
-
-        if regular_ticket:
-            EventTicketComponent.objects.create(
-                ticket=ticket, ticket_type="Regular", number_of_tickets=regular_ticket
+        if search_filter:
+            queryset = queryset.filter(
+                Q(title__icontains=search_filter) | Q(location__icontains=search_filter)
             )
 
-        if vip_ticket:
-            EventTicketComponent.objects.create(
-                ticket=ticket, ticket_type="VIP", number_of_tickets=vip_ticket
-            )
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
 
-        if vvip_ticket:
-            EventTicketComponent.objects.create(
-                ticket=ticket, ticket_type="VVIP", number_of_tickets=vvip_ticket
-            )
-        amount_to_pay = int(amount_expected) * 100
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class EventDetailAPIView(generics.RetrieveAPIView):
+    queryset = Event.objects.all().order_by("-created")
+    serializer_class = EventSerializer
+    # permission_classes = [IsAdminOrAuthenticated]
+    lookup_field = "pk"
+
+
+class EventCreateAPIViIew(generics.CreateAPIView):
+    serializer_class = EventCreateAndUpdateSerializer
+
+
+class EventUpdateAPIVIew(generics.UpdateAPIView):
+    serializer_class = EventCreateAndUpdateSerializer
+    queryset = Event.objects.all()
+    print("queryset", queryset)
+    lookup_field = "pk"
+
+
+class EventDeleteAPIView(generics.DestroyAPIView):
+    queryset = Event.objects.all()
+    serializer_class = EventSerializer
+    lookup_field = "pk"
+
+
+class EventTicketListAPIView(generics.ListAPIView):
+    serializer_class = EventTicketSerializer
+    pagination_class = PageNumberPagination
+    permission_classes = [IsAdminOrAuthenticated]
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = EventTicketFilter
+
+    def get_queryset(self):
+        user = self.request.user
+
+        if user.role == "admin":
+            return EventTicket.objects.all()
+        elif user.role == "Service Provider":
+            return EventTicket.objects.filter(event__owner=user)
+        else:
+            return EventTicket.objects.filter(user=user)
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class EventTickedBookingDetailAPIView(generics.RetrieveAPIView):
+    serializer_class = EventTicketSerializer
+    permission_classes = [IsAdminOrAuthenticated]
+    queryset = EventTicket.objects.all()
+    lookup_field = "pk"
+
+    def get_object(self):
+        ticket = super().get_object()
+        user = self.request.user
+
+        # Admins can see all
+        if user.role == "admin":
+            return ticket
+
+        # Service Providers can see their own property bookings
+        if user.role == "Service Provider" and ticket.event.owner == user:
+            return ticket
+
+        # Customers can see their own bookings
+        if ticket.user == user:
+            return ticket
+
+        raise PermissionDenied("You do not have permission to view this booking.")
+
+
+class BuyEventTicketAPIView(generics.CreateAPIView):
+    serializer_class = BuyEventTicketSerializer
+
+    def post(self, request, *args, **kwargs):
+        data = request.data
+        serializer = self.serializer_class(data=data)
+
+        if serializer.is_valid(raise_exception=True):
+            booking_mixin = EventTicketBookingMixin(booking_data=data)
+            booking_mixin.run()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class PayEventTicketAPIView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = EventTicket.objects.all()
+    serializer_class = PayTicketSerializer
+    lookup_field = "pk"
+
+    def update(self, request, *args, **kwargs):
         try:
-            payment_data = {
-                "amount": amount_to_pay,
-                "email": ticket.user.email,
-                "reference": reference,
-                "user_id": ticket.user.id,
-                "payment_type": "ticket"
-            }
-            paystack = PaystackProcessorMixin()
-            paystack.initialize_payment(payment_data=payment_data)
+            booking = self.get_object()
+
+            if "amount_paid" in request.data:
+                print("Incoming amount_paid:", request.data.get("amount_paid"))
+                try:
+                    amount = float(request.data["amount_paid"])
+                    booking.amount_paid = amount
+
+                except ValueError:
+                    return Response(
+                        {"error": "Invalid value for amount_paid."},
+                        status=status.HTTP_400_BAD_REQUEST,
+                    )
+
+                booking.update_payment_status()
+                Payment.objects.create(
+                    ticket=booking,
+                    paid_by=booking.user,
+                    paid_to=booking.event.owner,
+                    payment_reason="Event ticket Booking",
+                    amount=amount,
+                    payment_link=booking.payment_link,
+                    reference=booking.reference,
+                    transaction_id=booking.transaction_id,
+                )
+
+            booking.save()
+
+            serializer = self.get_serializer(booking)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
         except Exception as e:
-            raise e
+            return Response(
+                {"error": f"Unexpected error: {str(e)}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
 
-        return redirect(f"/events/events/{event.id}/")
 
-    return render(request, "events/new_event_ticket.html")
+class CancelTicketAPIView(generics.UpdateAPIView):
+    serializer_class = CancelTicketSerializer
+    queryset = EventTicket.objects.all()
+    lookup_field = "pk"
 
+    def patch(self, request, *args, **kwargs):
+        ticket_id = kwargs.get("pk")
+        try:
+            ticket = self.get_queryset().get(id=ticket_id)
+        except EventTicket.DoesNotExist:
+            return Response(
+                {"detail": "Ticket not found or access denied."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
 
-@login_required(login_url="/users/user-login/")
-def cancel_event_ticket(request):
-    if request.method == "POST":
-        ticket_id = request.POST.get("ticket_id")
-        ticket = EventTicket.objects.get(id=ticket_id)
+        if ticket.ticket_status == "Cancelled":
+            return Response(
+                {"message": "This ticket is already cancelled."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
         ticket.ticket_status = "Cancelled"
+        ticket.cancelled_at = timezone.now()
         ticket.save()
-        return redirect("event-tickets")
 
-
-def print_event_ticket(request, ticket_id=None):
-    ticket = EventTicket.objects.get(id=ticket_id)
-    tickt_components = ticket.ticketcomponents.all()
-
-    context = {"ticket": ticket, "ticket_components": tickt_components}
-    return render(request, "events/event_ticket.html", context)
+        serializer = self.get_serializer(ticket)
+        return Response(
+            {"message": "Ticket cancelled successfully.", "ticket": serializer.data},
+            status=status.HTTP_200_OK,
+        )

@@ -1,5 +1,6 @@
 from enum import Enum
 
+
 class UserRoles(Enum):
     ADMIN = "Admin"
     SERVICE_PROVIDER = "Service Provider"
@@ -9,7 +10,7 @@ class UserRoles(Enum):
     @classmethod
     def choices(cls):
         return [(choice.name, choice.value) for choice in cls]
-    
+
 
 class PropertyTypes(Enum):
     HOTEL = "Hotel"

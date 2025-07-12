@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('events', '0014_eventticket_cancelled_at'),
+        ("events", "0014_eventticket_cancelled_at"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='event',
-            name='age_limit',
+            model_name="event",
+            name="age_limit",
             field=models.FloatField(default=0, null=True),
         ),
     ]

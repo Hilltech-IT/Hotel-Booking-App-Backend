@@ -9,13 +9,15 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.tokens import RefreshToken, TokenError
 from drf_yasg.utils import swagger_auto_schema
-from apps.users.serializers import (ChangePasswordSerializer,
-                                         EditUserProfileSerializer,
-                                         ForgotPasswordSerializer,
-                                         RegisterSerializer,
-                                         UserActivationSerializer,
-                                         UserListSerializer,
-                                         CustomTokenObtainPairSerializer)
+from apps.users.serializers import (
+    ChangePasswordSerializer,
+    EditUserProfileSerializer,
+    ForgotPasswordSerializer,
+    RegisterSerializer,
+    UserActivationSerializer,
+    UserListSerializer,
+    CustomTokenObtainPairSerializer,
+)
 from apps.users.models import User
 
 
@@ -63,10 +65,10 @@ class UserLogoutAPIView(APIView):
         try:
             refresh_token = request.data.get("refresh")
             # print("Received refresh token:", refresh_token[:20] + "..." if refresh_token else None)
-            
+
             if not refresh_token:
                 return Response({"error": "Refresh token is missing"}, status=400)
-            
+
             try:
                 token = RefreshToken(refresh_token)
                 # print("Token validated successfully")
@@ -76,7 +78,7 @@ class UserLogoutAPIView(APIView):
             except TokenError as te:
                 # print("Token Error:", str(te))
                 return Response({"error": f"Token Error: {str(te)}"}, status=400)
-            
+
         except Exception as e:
             print("Unexpected error:", str(e))
             return Response({"error": f"Unexpected error: {str(e)}"}, status=400)
@@ -88,18 +90,21 @@ class UserRetrieveUpdateDeleteAPIView(generics.RetrieveUpdateDestroyAPIView):
 
     lookup_field = "pk"
 
+
 class LoggedInUserProfileAPIView(generics.RetrieveUpdateAPIView):
     serializer_class = EditUserProfileSerializer
     permission_classes = [IsAdminOrAuthenticated]
+
     def get_object(self):
         return self.request.user
+
 
 class ForgotPasswordAPIView(APIView):
     serializer_class = ForgotPasswordSerializer
     permission_classes = [
         AllowAny,
     ]
-   
+
     # def get_serializer_class(self):
     #     return self.serializer_class()
 

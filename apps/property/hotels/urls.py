@@ -1,5 +1,15 @@
 from django.urls import path
-from apps.property.hotels.views import ApproveHotelAPIView, CreateHotelRoomView, HotelAPIView, HotelCreateAPIView, HotelDetailAPIView, HotelRoomDetailView, HotelRoomListView,HotelUpdateAPIView, UpdateHotelRoomView
+from apps.property.hotels.views import (
+    ApproveHotelAPIView,
+    CreateHotelRoomView,
+    HotelAPIView,
+    HotelCreateAPIView,
+    HotelDetailAPIView,
+    HotelRoomDetailView,
+    HotelRoomListView,
+    HotelUpdateAPIView,
+    UpdateHotelRoomView,
+)
 
 urlpatterns = [
     path("", HotelAPIView.as_view(), name="hotels"),
@@ -11,6 +21,10 @@ urlpatterns = [
     # path('rooms/<int:pk>/', HotelRoomDetailView.as_view(), name='hotel-room-detail'),
     path("rooms/<int:pk>/", HotelRoomDetailView.as_view(), name="hotel-room-detail"),
     path("rooms/", HotelRoomListView.as_view(), name="hotel-rooms"),
-    path("rooms/create/",CreateHotelRoomView.as_view(),name="hotel-rooms-create" ),
-    path("rooms/update/<int:pk>/",UpdateHotelRoomView.as_view(),name="hotel-rooms-update" ),
+    path("rooms/create/", CreateHotelRoomView.as_view(), name="hotel-rooms-create"),
+    path(
+        "rooms/update/<int:pk>/",
+        UpdateHotelRoomView.as_view(),
+        name="hotel-rooms-update",
+    ),
 ]

@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('events', '0015_alter_event_age_limit'),
+        ("events", "0015_alter_event_age_limit"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='event',
-            name='age_limit',
+            model_name="event",
+            name="age_limit",
             field=models.FloatField(blank=True, default=0, null=True),
         ),
     ]

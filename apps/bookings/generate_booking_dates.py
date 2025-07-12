@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 
+
 def generate_booked_dates(start_date_str, end_date_str):
     start = datetime.strptime(start_date_str, "%Y-%m-%d").date()
     end = datetime.strptime(end_date_str, "%Y-%m-%d").date()
@@ -11,6 +12,7 @@ def generate_booked_dates(start_date_str, end_date_str):
         current += timedelta(days=1)
 
     return date_list
+
 
 def calculate_days_booked(start_date_str, end_date_str):
     start = datetime.strptime(start_date_str, "%Y-%m-%d").date()

@@ -1,0 +1,39 @@
+# Redirect all HTTP requests to HTTPS
+server {
+    if ($host = www.stayzhub.com) {
+        return 301 https://$host$request_uri;
+    } # managed by Certbot
+
+    if ($host = stayzhub.com) {
+        return 301 https://$host$request_uri;
+    } # managed by Certbot
+
+    listen 80;
+    server_name stayzhub.com www.stayzhub.com;
+    return 301 https://stayzhub.com$request_uri;
+}
+
+# Main HTTPS Server Block (Frontend + Backend API)
+server {
+    listen 443 ssl;
+    server_name stayzhub.com www.stayzhub.com;
+
+    # SSL Certificates (Generated via Certbot)
+    ssl_certificate /etc/letsencrypt/live/stayzhub.com/fullchain.pem; # managed by Certbot
+    ssl_certificate_key /etc/letsencrypt/live/stayzhub.com/privkey.pem; # managed by Certbot
+    ssl_trusted_certificate /etc/letsencrypt/live/stayzhub.com/chain.pem;
+
+    # Security Enhancements
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers HIGH:!aNULL:!MD5;
+    ssl_prefer_server_ciphers on;
+
+    # React Frontend (Built Static Files)
+    root /var/www/dist;
+    index index.html index.htm;
+
+    location / {
+        try_files $uri /index.html;
+    }
+
+}

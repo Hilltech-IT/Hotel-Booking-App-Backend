@@ -42,7 +42,7 @@ class AirBnBBookingMixin(object):
             amount_paid=0,
             amount_expected=amount_expected,
         )
-        #reference = f"bnb_{user.id}_{bnb_booking.id}"
+        # reference = f"bnb_{user.id}_{bnb_booking.id}"
         reference = generate_payment_reference("bnb", bnb_booking.id, user.id)
         bnb_booking.reference = reference
         bnb_booking.save()
@@ -53,7 +53,7 @@ class AirBnBBookingMixin(object):
                 "email": bnb_booking.user.email,
                 "reference": reference,
                 "user_id": bnb_booking.user.id,
-                "payment_type": "bnb"
+                "payment_type": "bnb",
             }
             paystack = PaystackProcessorMixin()
             paystack.initialize_payment(payment_data=payment_data)

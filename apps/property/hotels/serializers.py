@@ -1,25 +1,37 @@
 from rest_framework import serializers
 
-from apps.bookings.apis.serializers import RoomBookingSerializer
+from apps.bookings.serializers import RoomBookingSerializer
 from apps.bookings.models import RoomBooking
-from apps.property.apis.serializers import AmenitySerializer, PropertyImageSerializer, PropertyRoomImageSerializer, PropertyRoomSerializer, PropertySerializer
+from apps.property.serializers import (
+    AmenitySerializer,
+    PropertyImageSerializer,
+    PropertyRoomImageSerializer,
+    PropertyRoomSerializer,
+    PropertySerializer,
+)
 from apps.property.models import Amenity, Property, PropertyRoom
+
 # from apps.property.serializers import PropertySerializer
 
 
 class HotelRoomSerializer(serializers.ModelSerializer):
-    amenities=AmenitySerializer(many=True)
-    property_name=serializers.CharField(source='property.name')
+    amenities = AmenitySerializer(many=True)
+    property_name = serializers.CharField(source="property.name")
     roomimages = PropertyRoomImageSerializer(many=True, read_only=True)
+
     class Meta:
         model = PropertyRoom
         fields = "__all__"
+
+
 class CreateAndUpdateRoomSerializer(serializers.ModelSerializer):
     amenities = serializers.PrimaryKeyRelatedField(
-        queryset=Amenity.objects.all(),
-        many=True
+        queryset=Amenity.objects.all(), many=True
     )
-    profile_image = serializers.ImageField(max_length=255, allow_null=True, required=False)
+    profile_image = serializers.ImageField(
+        max_length=255, allow_null=True, required=False
+    )
+
     class Meta:
         model = PropertyRoom
         fields = [
@@ -40,8 +52,7 @@ class CreateAndUpdateRoomSerializer(serializers.ModelSerializer):
             "rate",
             "booked_dates",
             "booked",
-            "profile_image"
-
+            "profile_image",
         ]
         extra_kwargs = {
             "amenities": {"required": False},
@@ -54,7 +65,9 @@ class CreateAndUpdateRoomSerializer(serializers.ModelSerializer):
 
 
 class HotelCreateSerializer(serializers.ModelSerializer):
-    profile_image = serializers.ImageField(max_length=255, allow_null=True, required=False)
+    profile_image = serializers.ImageField(
+        max_length=255, allow_null=True, required=False
+    )
 
     class Meta:
         model = Property
@@ -86,7 +99,6 @@ class HotelCreateSerializer(serializers.ModelSerializer):
             "approval_status": {"required": False},
         }
         partial = True
-    
 
 
 class HotelSerializer(PropertySerializer):
@@ -96,20 +108,22 @@ class HotelSerializer(PropertySerializer):
 
     class Meta:
         model = Property
-        fields = '__all__'
+        fields = "__all__"
 
     # def get_rooms(self, obj):
     #     rooms = obj.propertyrooms.select_related('property').prefetch_related('amenities')
     #     return PropertyRoomSerializer(rooms, many=True).data
     def get_rooms(self, obj):
         """Returns the rooms with available_rooms added."""
-        rooms = obj.propertyrooms.select_related('property').prefetch_related('amenities')
+        rooms = obj.propertyrooms.select_related("property").prefetch_related(
+            "amenities"
+        )
         # Serialize each room and include available_rooms
         rooms_data = PropertyRoomSerializer(rooms, many=True).data
-        
+
         # Add available_rooms to each room
         for room, room_data in zip(rooms, rooms_data):
-            room_data['available_rooms'] = room.available_rooms()
+            room_data["available_rooms"] = room.available_rooms()
 
         return rooms_data
 

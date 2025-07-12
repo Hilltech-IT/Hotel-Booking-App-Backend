@@ -28,6 +28,6 @@ def ticket_purchased_task(booking_id):
         )
         booking.notif_send = True
         booking.save()
-            
+
     except Exception as e:
         raise e

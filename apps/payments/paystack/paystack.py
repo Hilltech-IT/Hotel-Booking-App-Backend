@@ -12,24 +12,26 @@ PAYSTACK_BASE_URL = "https://api.paystack.co"
 
 headersList = {
     "Accept": "*/*",
-    "Authorization":f"Bearer {PAYSTACK_SECRET_KEY}",
-    "Content-Type": "application/json"
+    "Authorization": f"Bearer {PAYSTACK_SECRET_KEY}",
+    "Content-Type": "application/json",
 }
 
+
 class PaystackProcessorMixin:
-    
+
     def __init__(self):
         pass
 
     def verify_transaction(self, reference):
         verification_url = f"{PAYSTACK_BASE_URL}/transaction/verify/{reference}/"
         payload = ""
-        response = requests.request("GET", verification_url, data=payload,  headers=headersList)
+        response = requests.request(
+            "GET", verification_url, data=payload, headers=headersList
+        )
         response_data = response.json()
 
         print(f"Verification Data: {response_data}")
         return response_data
-
 
     def initialize_payment(self, payment_data):
         initialize_url = f"{PAYSTACK_BASE_URL}/transaction/initialize"
@@ -41,16 +43,20 @@ class PaystackProcessorMixin:
         payment_type = payment_data.get("payment_type")
         user_id = payment_data.get("user_id")
 
-        payload = json.dumps({
-            "email": email,
-            "amount": amount,
-            "reference": reference,
-            "callback_url": callback_url
-        })
+        payload = json.dumps(
+            {
+                "email": email,
+                "amount": amount,
+                "reference": reference,
+                "callback_url": callback_url,
+            }
+        )
 
-        response = requests.request("POST", initialize_url, data=payload,  headers=headersList)
+        response = requests.request(
+            "POST", initialize_url, data=payload, headers=headersList
+        )
         json_data = response.json()
-        
+
         if json_data["status"] == True:
             print("The initialization was successful!!")
 
@@ -63,38 +69,46 @@ class PaystackProcessorMixin:
                 amount=Decimal(amount),
                 email=email,
                 user_id=user_id,
-                payment_type=payment_type
+                payment_type=payment_type,
             )
 
             if payment_type.lower() == "room":
                 booking = RoomBooking.objects.get(reference=reference)
                 booking.payment_link = data["authorization_url"]
                 booking.save()
-                self.request_booking_payment(booking=booking, payment_type="Hotel Room Booking")
+                self.request_booking_payment(
+                    booking=booking, payment_type="Hotel Room Booking"
+                )
 
             elif payment_type.lower() == "ticket":
                 booking = EventTicket.objects.get(reference=reference)
                 booking.payment_link = data["authorization_url"]
                 booking.save()
-                self.request_booking_payment(booking=booking, payment_type="Event Ticket Booking")
+                self.request_booking_payment(
+                    booking=booking, payment_type="Event Ticket Booking"
+                )
 
             elif payment_type.lower() == "bnb":
                 booking = BnBBooking.objects.get(reference=reference)
                 booking.payment_link = data["authorization_url"]
                 booking.save()
-                self.request_booking_payment(booking=booking, payment_type="AirBnB Booking")
+                self.request_booking_payment(
+                    booking=booking, payment_type="AirBnB Booking"
+                )
 
             elif payment_type.lower() == "event_space":
                 booking = EventSpaceBooking.objects.get(reference=reference)
                 booking.payment_link = data["authorization_url"]
                 booking.save()
 
-                self.request_booking_payment(booking=booking, payment_type="Event Space Booking")
+                self.request_booking_payment(
+                    booking=booking, payment_type="Event Space Booking"
+                )
 
         else:
             print("Initialization failed!!")
             print(json_data)
-    
+
     def request_booking_payment(self, booking, payment_type):
         try:
             name = f"{booking.user.first_name} {booking.user.last_name}"
@@ -102,11 +116,11 @@ class PaystackProcessorMixin:
             payment_link = booking.payment_link
             amount = booking.amount_expected
             request_booking_payment_task(
-                name=name, 
-                email=email, 
-                payment_type=payment_type, 
-                payment_link=payment_link, 
-                amount=amount
+                name=name,
+                email=email,
+                payment_type=payment_type,
+                payment_link=payment_link,
+                amount=amount,
             )
         except Exception as e:
             raise e

@@ -2,7 +2,11 @@ from apps.payments.models import PaystackPayment, Payment
 from apps.bookings.models import RoomBooking, EventSpaceBooking, BnBBooking
 from apps.events.models import EventTicket
 from apps.payments.tasks import payment_received_task
-from apps.bookings.tasks import event_space_booked_task, bnb_booked_task, hotel_room_booked_task
+from apps.bookings.tasks import (
+    event_space_booked_task,
+    bnb_booked_task,
+    hotel_room_booked_task,
+)
 from apps.events.tasks import ticket_purchased_task
 
 
@@ -29,13 +33,12 @@ class PaystackCallbackProcessMixin(object):
             self.__process_bnb_booking_payment()
         else:
             print("The reference number supplied seems invalid")
-            
 
     def __process_room_booking_payment(self):
         try:
             reference = self.data.get("reference")
             transaction_id = self.data.get("trxref")
-            
+
             booking = RoomBooking.objects.get(reference=reference)
             booking.amount_paid = booking.amount_expected
             booking.status = "Paid"
@@ -50,7 +53,7 @@ class PaystackCallbackProcessMixin(object):
                 amount=booking.amount_expected,
                 reference=reference,
                 transaction_id=transaction_id,
-                payment_reason="Room Booking"
+                payment_reason="Room Booking",
             )
             paystack_payment = PaystackPayment.objects.get(reference=reference)
             paystack_payment.payment = payment
@@ -62,17 +65,16 @@ class PaystackCallbackProcessMixin(object):
             email = booking.user.email
 
             payment_received_task(
-                name=name, 
-                email=email, 
-                payment_type="Room Booking", 
-                amount=booking.amount_expected, 
-                model=RoomBooking, 
-                booking_id=booking.id
+                name=name,
+                email=email,
+                payment_type="Room Booking",
+                amount=booking.amount_expected,
+                model=RoomBooking,
+                booking_id=booking.id,
             )
             hotel_room_booked_task(booking.id)
         except Exception as e:
             raise e
-
 
     def __process_bnb_booking_payment(self):
         try:
@@ -92,7 +94,7 @@ class PaystackCallbackProcessMixin(object):
                 amount=booking.amount_expected,
                 reference=reference,
                 transaction_id=transaction_id,
-                payment_reason="AirBnB Booking"
+                payment_reason="AirBnB Booking",
             )
 
             paystack_payment = PaystackPayment.objects.get(reference=reference)
@@ -105,12 +107,12 @@ class PaystackCallbackProcessMixin(object):
             email = booking.user.email
 
             payment_received_task(
-                name=name, 
-                email=email, 
-                payment_type="AirBnB Booking", 
+                name=name,
+                email=email,
+                payment_type="AirBnB Booking",
                 amount=booking.amount_expected,
-                model=BnBBooking, 
-                booking_id=booking.id
+                model=BnBBooking,
+                booking_id=booking.id,
             )
             bnb_booked_task(booking.id)
         except Exception as e:
@@ -134,7 +136,7 @@ class PaystackCallbackProcessMixin(object):
                 amount=booking.amount_expected,
                 reference=reference,
                 transaction_id=transaction_id,
-                payment_reason="Ticket Booking"
+                payment_reason="Ticket Booking",
             )
             paystack_payment = PaystackPayment.objects.get(reference=reference)
             paystack_payment.payment = payment
@@ -146,17 +148,16 @@ class PaystackCallbackProcessMixin(object):
             email = booking.user.email
 
             payment_received_task(
-                name=name, 
-                email=email, 
-                payment_type="Event Ticket Booking", 
+                name=name,
+                email=email,
+                payment_type="Event Ticket Booking",
                 amount=booking.amount_expected,
-                model=EventSpaceBooking, 
-                booking_id=booking.id
+                model=EventSpaceBooking,
+                booking_id=booking.id,
             )
             ticket_purchased_task(booking.id)
         except Exception as e:
             raise e
-
 
     def __process_event_space_booking_payment(self):
         try:
@@ -176,7 +177,7 @@ class PaystackCallbackProcessMixin(object):
                 amount=booking.amount_expected,
                 reference=reference,
                 transaction_id=transaction_id,
-                payment_reason="Event Space Booking"
+                payment_reason="Event Space Booking",
             )
 
             paystack_payment = PaystackPayment.objects.get(reference=reference)
@@ -185,18 +186,17 @@ class PaystackCallbackProcessMixin(object):
             paystack_payment.processed = True
             paystack_payment.save()
 
-
             name = f"{booking.user.first_name} {booking.user.last_name}"
             email = booking.user.email
             payment_received_task(
-                name=name, 
-                email=email, 
-                payment_type="Event Space Booking", 
+                name=name,
+                email=email,
+                payment_type="Event Space Booking",
                 amount=booking.amount_expected,
                 model=EventSpaceBooking,
-                booking_id=booking.id
+                booking_id=booking.id,
             )
             event_space_booked_task(booking_id=booking.id)
-            
+
         except Exception as e:
             raise e

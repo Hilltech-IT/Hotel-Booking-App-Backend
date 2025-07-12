@@ -2,12 +2,13 @@ from HotelBookingBackend.celery import app
 from apps.payments.models import Payment, PaystackPayment
 from apps.notifications.mixins import SendMessage
 
+
 def get_payment_method(payment_type):
     payment_method = "Service Booking"
 
     if not payment_type:
         payment_method = payment_method
-    
+
     else:
         if payment_type.lower() == "ticket":
             payment_method = "Event Ticket Booking"
@@ -31,13 +32,15 @@ def payment_received_task(name, email, payment_type, amount, model, booking_id):
             "name": name,
             "subject": f"{payment_type} - Payment Received",
             "payment_type": payment_type,
-            "amount": int(amount)
+            "amount": int(amount),
         }
 
         send_message = SendMessage({}, asynchronous=False)
         send_message.send_mail(
             context_data,
-            [email,],
+            [
+                email,
+            ],
             template="payment_received",
         )
         booking = model.objects.get(id=booking_id)
@@ -56,13 +59,15 @@ def request_booking_payment_task(name, email, payment_type, payment_link, amount
             "subject": f"{payment_type} - Payment Request",
             "payment_type": payment_type,
             "amount": int(amount),
-            "payment_link": payment_link
+            "payment_link": payment_link,
         }
 
         send_message = SendMessage({}, asynchronous=False)
         send_message.send_mail(
             context_data,
-            [email,],
+            [
+                email,
+            ],
             template="payment_request",
         )
     except Exception as e:

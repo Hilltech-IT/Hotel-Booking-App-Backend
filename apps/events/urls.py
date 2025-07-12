@@ -1,7 +1,6 @@
 from django.urls import include, path
-from rest_framework.routers import DefaultRouter
 
-from apps.events.apis.views import (
+from apps.events.views import (
     AllowedEventPaymentMethodsAPIView,
     BuyEventTicketAPIView,
     CancelTicketAPIView,
@@ -9,10 +8,8 @@ from apps.events.apis.views import (
     EventDeleteAPIView,
     EventDetailAPIView,
     EventListAPIView,
-   
     EventTickedBookingDetailAPIView,
     EventTicketListAPIView,
-   
     EventUpdateAPIVIew,
     PayEventTicketAPIView,
 )

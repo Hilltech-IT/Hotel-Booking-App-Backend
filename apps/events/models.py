@@ -31,13 +31,17 @@ EVENT_TICKET_TYPE_CHOICES = (
     ("Multiple", "Multiple"),
 )
 
+
 class AllowedPaymentMethods(AbstractBaseModel):
     name = models.CharField(max_length=255, unique=True)
+
     def __str__(self):
         return self.name
-    
+
     class Meta:
         verbose_name_plural = "paymentmethods"
+
+
 class Event(AbstractBaseModel):
     owner = models.ForeignKey(
         "users.User", on_delete=models.CASCADE, related_name="userevents"
@@ -45,12 +49,20 @@ class Event(AbstractBaseModel):
     title = models.CharField(max_length=500)
     event_date = models.DateField(null=True)
     event_time = models.TimeField(null=True)
-    regular_ticket_price = models.DecimalField(max_digits=20, decimal_places=2, default=0)
+    regular_ticket_price = models.DecimalField(
+        max_digits=20, decimal_places=2, default=0
+    )
     vip_ticket_price = models.DecimalField(max_digits=20, decimal_places=2, default=0)
     vvip_ticket_price = models.DecimalField(max_digits=20, decimal_places=2, default=0)
-    children_ticket_price = models.DecimalField(max_digits=20, decimal_places=2, default=0)
-    couples_ticket_price = models.DecimalField(max_digits=20, decimal_places=2, default=0)
-    students_ticket_price = models.DecimalField(max_digits=20, decimal_places=2, default=0)
+    children_ticket_price = models.DecimalField(
+        max_digits=20, decimal_places=2, default=0
+    )
+    couples_ticket_price = models.DecimalField(
+        max_digits=20, decimal_places=2, default=0
+    )
+    students_ticket_price = models.DecimalField(
+        max_digits=20, decimal_places=2, default=0
+    )
     group_ticket_price = models.DecimalField(max_digits=20, decimal_places=2, default=0)
     age_limit = models.FloatField(default=0, null=True, blank=True)
     children_allowed = models.BooleanField(default=True)
@@ -58,7 +70,9 @@ class Event(AbstractBaseModel):
     location = models.CharField(max_length=1000)
     event_banner = models.ImageField(upload_to="event_banners/", null=True)
     # allowed_payment_methods = models.JSONField(default=list)
-    allowed_payment_methods = models.ManyToManyField(AllowedPaymentMethods, related_name="events", blank=True)
+    allowed_payment_methods = models.ManyToManyField(
+        AllowedPaymentMethods, related_name="events", blank=True
+    )
     total_tickets = models.IntegerField(default=1)
 
     def __str__(self):
@@ -66,18 +80,32 @@ class Event(AbstractBaseModel):
 
     @property
     def booked_tickets(self):
-        components = sum(list(EventTicketComponent.objects.filter(ticket__event__id=self.id).values_list('number_of_tickets', flat=True)))
+        components = sum(
+            list(
+                EventTicketComponent.objects.filter(
+                    ticket__event__id=self.id
+                ).values_list("number_of_tickets", flat=True)
+            )
+        )
         return components
 
     @property
     def pending_tickets(self):
-        components = sum(list(EventTicketComponent.objects.filter(ticket__event__id=self.id).values_list('number_of_tickets', flat=True)))
+        components = sum(
+            list(
+                EventTicketComponent.objects.filter(
+                    ticket__event__id=self.id
+                ).values_list("number_of_tickets", flat=True)
+            )
+        )
         return self.total_tickets - components
 
 
 class EventTicket(AbstractBaseModel):
     ticket_number = models.CharField(max_length=255, null=True)
-    user = models.ForeignKey("users.User", on_delete=models.CASCADE, related_name="usereventtickets")
+    user = models.ForeignKey(
+        "users.User", on_delete=models.CASCADE, related_name="usereventtickets"
+    )
     event = models.ForeignKey(
         Event, on_delete=models.CASCADE, related_name="eventtickets"
     )
@@ -94,24 +122,22 @@ class EventTicket(AbstractBaseModel):
     payment_notif_send = models.BooleanField(default=False)
     notif_send = models.BooleanField(default=False)
 
-
-
     cancelled_at = models.DateTimeField(null=True, blank=True)
-
 
     def __str__(self):
         return f"{self.user.username} has purchased a {self.ticket_type} for {self.event.title}"
+
     def update_payment_status(self):
         if self.amount_paid == 0:
-            self.ticket_status = "Pending Payment"  
+            self.ticket_status = "Pending Payment"
         elif 0 < self.amount_paid < self.amount_expected:
-            self.ticket_status = "Pending Payment" 
+            self.ticket_status = "Pending Payment"
         elif self.amount_paid >= self.amount_expected:
-            self.ticket_status = "Active" 
+            self.ticket_status = "Active"
+
     @property
     def is_fully_paid(self):
         return True if self.amount_paid == self.amount_expected else False
-
 
 
 class EventTicketComponent(AbstractBaseModel):

@@ -5,10 +5,10 @@ from apps.users.models import User
 from apps.payments.paystack.paystack import PaystackProcessorMixin
 from apps.core.reference_generator import generate_payment_reference
 
+
 class EventTicketBookingMixin(object):
     def __init__(self, booking_data):
         self.booking_data = booking_data
-
 
     def run(self):
         self.__process_event_ticket_booking()
@@ -32,7 +32,15 @@ class EventTicketBookingMixin(object):
         event = Event.objects.get(id=event_id)
         user = User.objects.filter(email=email).first()
 
-        tickets_count = regular_tickets + vip_tickets + vvip_tickets + children_tickets + couples_tickets + group_tickets + students_tickets
+        tickets_count = (
+            regular_tickets
+            + vip_tickets
+            + vvip_tickets
+            + children_tickets
+            + couples_tickets
+            + group_tickets
+            + students_tickets
+        )
 
         if not user:
             user = User.objects.create(
@@ -43,7 +51,7 @@ class EventTicketBookingMixin(object):
                 phone_number=phone_number,
                 role="customer",
             )
-        
+
         regular = event.regular_ticket_price * regular_tickets
         vip = event.vip_ticket_price * vip_tickets
         vvip = event.vvip_ticket_price * vvip_tickets
@@ -52,7 +60,7 @@ class EventTicketBookingMixin(object):
         group = event.group_ticket_price * group_tickets
         students = event.students_ticket_price * students_tickets
 
-        amount_expected = sum([regular,vip,vvip,children,couples,group,students])
+        amount_expected = sum([regular, vip, vvip, children, couples, group, students])
 
         ticket = EventTicket.objects.create(
             user=user,
@@ -63,7 +71,7 @@ class EventTicketBookingMixin(object):
             payment_method=payment_method,
             ticket_status="Pending Payment",
         )
-        #reference = f"ticket_{user.id}_{ticket.id}"
+        # reference = f"ticket_{user.id}_{ticket.id}"
         reference = generate_payment_reference("ticket", ticket.id, user.id)
         ticket.ticket_number = f"ETN_{user.id}_{ticket.id}"
         ticket.reference = reference
@@ -83,7 +91,7 @@ class EventTicketBookingMixin(object):
             EventTicketComponent.objects.create(
                 ticket=ticket, ticket_type="VVIP", number_of_tickets=vvip_tickets
             )
-        
+
         if couples_tickets:
             EventTicketComponent.objects.create(
                 ticket=ticket, ticket_type="Couple", number_of_tickets=couples_tickets
@@ -91,12 +99,16 @@ class EventTicketBookingMixin(object):
 
         if children_tickets:
             EventTicketComponent.objects.create(
-                ticket=ticket, ticket_type="Children", number_of_tickets=children_tickets
+                ticket=ticket,
+                ticket_type="Children",
+                number_of_tickets=children_tickets,
             )
 
         if students_tickets:
             EventTicketComponent.objects.create(
-                ticket=ticket, ticket_type="Students", number_of_tickets=students_tickets
+                ticket=ticket,
+                ticket_type="Students",
+                number_of_tickets=students_tickets,
             )
 
         if group_tickets:
@@ -111,7 +123,7 @@ class EventTicketBookingMixin(object):
                 "email": ticket.user.email,
                 "reference": reference,
                 "user_id": ticket.user.id,
-                "payment_type": "ticket"
+                "payment_type": "ticket",
             }
             paystack = PaystackProcessorMixin()
             paystack.initialize_payment(payment_data=payment_data)

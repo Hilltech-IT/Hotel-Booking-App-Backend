@@ -20,12 +20,11 @@ from apps.users.staff.serializers import StaffSerializer
 from apps.core.constants import UserRoles
 
 
-
 # Create your views here.
 class StaffAPIView(generics.ListCreateAPIView):
     queryset = User.objects.filter(role=UserRoles.STAFF.value)
     serializer_class = StaffSerializer
-    
+
     permission_classes = [IsAdminUser]
 
     def post(self, request, *args, **kwargs):

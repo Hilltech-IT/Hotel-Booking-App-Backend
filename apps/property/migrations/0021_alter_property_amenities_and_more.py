@@ -6,18 +6,22 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('property', '0020_amenity_remove_property_pets_allowed_and_more'),
+        ("property", "0020_amenity_remove_property_pets_allowed_and_more"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='property',
-            name='amenities',
-            field=models.ManyToManyField(blank=True, related_name='properties', to='property.amenity'),
+            model_name="property",
+            name="amenities",
+            field=models.ManyToManyField(
+                blank=True, related_name="properties", to="property.amenity"
+            ),
         ),
         migrations.AlterField(
-            model_name='propertyroom',
-            name='amenities',
-            field=models.ManyToManyField(blank=True, related_name='rooms', to='property.amenity'),
+            model_name="propertyroom",
+            name="amenities",
+            field=models.ManyToManyField(
+                blank=True, related_name="rooms", to="property.amenity"
+            ),
         ),
     ]

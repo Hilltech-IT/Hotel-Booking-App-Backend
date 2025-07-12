@@ -37,7 +37,6 @@ class FlutterwavePaymentProcessMixin(object):
     def run(self):
         self.__initiate_payment()
 
-    
     def __initiate_payment(self):
         headers = {
             "Authorization": f"Bearer {FLUTTERWAVE_SECRET_KEY}"  # Replace with your actual secret key
@@ -46,7 +45,7 @@ class FlutterwavePaymentProcessMixin(object):
             "tx_ref": self.tx_ref,
             "amount": self.amount,
             "currency": "KES",
-            #"payment_options": "mpesa",
+            # "payment_options": "mpesa",
             "redirect_url": "http://127.0.0.1:8000/payments/confirm-payment",
             "meta": {
                 "consumer_id": self.customer_id,

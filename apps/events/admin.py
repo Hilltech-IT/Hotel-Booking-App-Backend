@@ -1,14 +1,20 @@
 from django.contrib import admin
 
-from apps.events.models import AllowedPaymentMethods, Event, EventTicket, EventTicketComponent
+from apps.events.models import (
+    AllowedPaymentMethods,
+    Event,
+    EventTicket,
+    EventTicketComponent,
+)
+
 
 @admin.register(AllowedPaymentMethods)
 class AllowedPaymentMethodsAdmin(admin.ModelAdmin):
     list_display = [
         "id",
         "name",
-        
     ]
+
 
 # Register your models here.
 @admin.register(EventTicket)

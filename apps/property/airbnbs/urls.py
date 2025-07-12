@@ -1,5 +1,10 @@
 from django.urls import path
-from apps.property.airbnbs.views import AirBnBAPIView, AirBnBCreateAPIView, AirBnBDetailAPIView, AirBnBUpdateView
+from apps.property.airbnbs.views import (
+    AirBnBAPIView,
+    AirBnBCreateAPIView,
+    AirBnBDetailAPIView,
+    AirBnBUpdateView,
+)
 
 urlpatterns = [
     path("", AirBnBAPIView.as_view(), name="airbnbs"),

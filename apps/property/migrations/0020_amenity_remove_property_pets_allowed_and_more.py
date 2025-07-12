@@ -6,46 +6,58 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('property', '0019_alter_property_owner'),
+        ("property", "0019_alter_property_owner"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Amenity',
+            name="Amenity",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created', models.DateTimeField(auto_now_add=True)),
-                ('modified', models.DateTimeField(auto_now=True)),
-                ('name', models.CharField(max_length=255, unique=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created", models.DateTimeField(auto_now_add=True)),
+                ("modified", models.DateTimeField(auto_now=True)),
+                ("name", models.CharField(max_length=255, unique=True)),
             ],
             options={
-                'verbose_name_plural': 'Amenities',
+                "verbose_name_plural": "Amenities",
             },
         ),
         migrations.RemoveField(
-            model_name='property',
-            name='pets_allowed',
+            model_name="property",
+            name="pets_allowed",
         ),
         migrations.RemoveField(
-            model_name='property',
-            name='smoking_allowed',
+            model_name="property",
+            name="smoking_allowed",
         ),
         migrations.RemoveField(
-            model_name='property',
-            name='amenities',
+            model_name="property",
+            name="amenities",
         ),
         migrations.RemoveField(
-            model_name='propertyroom',
-            name='amenities',
+            model_name="propertyroom",
+            name="amenities",
         ),
         migrations.AddField(
-            model_name='property',
-            name='amenities',
-            field=models.ManyToManyField(blank=True, null=True, related_name='properties', to='property.amenity'),
+            model_name="property",
+            name="amenities",
+            field=models.ManyToManyField(
+                blank=True, null=True, related_name="properties", to="property.amenity"
+            ),
         ),
         migrations.AddField(
-            model_name='propertyroom',
-            name='amenities',
-            field=models.ManyToManyField(blank=True, null=True, related_name='rooms', to='property.amenity'),
+            model_name="propertyroom",
+            name="amenities",
+            field=models.ManyToManyField(
+                blank=True, null=True, related_name="rooms", to="property.amenity"
+            ),
         ),
     ]

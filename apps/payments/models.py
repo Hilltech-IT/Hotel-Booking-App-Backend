@@ -22,25 +22,32 @@ WALLET_TRANSACTION_TYPES = (
     ("Subscription Payment", "Subscription Payment"),
 )
 
+
 class ServiceProviderWallet(AbstractBaseModel):
     user = models.OneToOneField("users.User", on_delete=models.CASCADE)
     balance = models.DecimalField(max_digits=100, decimal_places=2, default=0)
 
 
 class WalletLog(AbstractBaseModel):
-    wallet = models.ForeignKey(ServiceProviderWallet, on_delete=models.SET_NULL, null=True)
+    wallet = models.ForeignKey(
+        ServiceProviderWallet, on_delete=models.SET_NULL, null=True
+    )
     actioned_by = models.ForeignKey("users.User", on_delete=models.SET_NULL, null=True)
     amount = models.DecimalField(max_digits=100, decimal_places=2, default=0)
-    transaction_type = models.CharField(max_length=255, choices=WALLET_TRANSACTION_TYPES)
+    transaction_type = models.CharField(
+        max_length=255, choices=WALLET_TRANSACTION_TYPES
+    )
 
 
 class Payment(AbstractBaseModel):
-    bnb_booking = models.ForeignKey("bookings.BnBBooking",
+    bnb_booking = models.ForeignKey(
+        "bookings.BnBBooking",
         related_name="bnbbookingpayments",
         on_delete=models.SET_NULL,
         null=True,
     )
-    event_space_booking = models.ForeignKey("bookings.EventSpaceBooking",
+    event_space_booking = models.ForeignKey(
+        "bookings.EventSpaceBooking",
         related_name="eventspacebookingpayments",
         on_delete=models.SET_NULL,
         null=True,
@@ -57,11 +64,15 @@ class Payment(AbstractBaseModel):
         null=True,
         related_name="roombookingpayments",
     )
-    room_booking = models.ForeignKey("bookings.RoomBooking", on_delete=models.SET_NULL, null=True)
+    room_booking = models.ForeignKey(
+        "bookings.RoomBooking", on_delete=models.SET_NULL, null=True
+    )
     paid_by = models.ForeignKey(
         "users.User", on_delete=models.PROTECT, related_name="customerpayments"
     )
-    paid_to = models.ForeignKey("users.User", on_delete=models.PROTECT, related_name="collections")
+    paid_to = models.ForeignKey(
+        "users.User", on_delete=models.PROTECT, related_name="collections"
+    )
     payment_reason = models.CharField(max_length=255, choices=PAYMENT_REASON_CHOICES)
     amount = models.DecimalField(max_digits=100, decimal_places=2)
     payment_link = models.URLField(null=True)
@@ -81,7 +92,6 @@ class MpesaResponseData(models.Model):
         return self.response_code
 
 
-
 class MpesaTransaction(models.Model):
     MerchantRequestID = models.CharField(max_length=255, null=True)
     CheckoutRequestID = models.CharField(max_length=255, null=True)
@@ -92,7 +102,6 @@ class MpesaTransaction(models.Model):
     TransactionDate = models.DateTimeField(null=True)
     PhoneNumber = models.CharField(max_length=255, null=True)
     MpesaReceiptNumber = models.CharField(max_length=255, null=True)
-    
 
     def __str__(self):
         return self.MpesaReceiptNumber

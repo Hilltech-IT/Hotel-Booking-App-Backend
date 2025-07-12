@@ -16,7 +16,12 @@ class WalletManagementMixin(object):
             if self.action_type in ["Withdraw", "Subscription Payment"]:
                 self.__process_withdrawal()
 
-            elif self.action_type in ["Refund", "AirBnB Booking", "Ticket Booking", "Room Booking"]:
+            elif self.action_type in [
+                "Refund",
+                "AirBnB Booking",
+                "Ticket Booking",
+                "Room Booking",
+            ]:
                 self.__process_deposit()
         except Exception as e:
             raise e
@@ -27,8 +32,9 @@ class WalletManagementMixin(object):
             wallet.balance -= self.amount_transacted
             wallet.save()
 
-            self.write_wallet_log(wallet, self.action_user,
-                                self.amount_transacted, self.action_type)
+            self.write_wallet_log(
+                wallet, self.action_user, self.amount_transacted, self.action_type
+            )
         except Exception as e:
             raise e
 
@@ -39,8 +45,9 @@ class WalletManagementMixin(object):
             wallet.balance += self.amount_transacted
             wallet.save()
 
-            self.write_wallet_log(wallet, self.action_user,
-                                self.amount_transacted, self.action_type)
+            self.write_wallet_log(
+                wallet, self.action_user, self.amount_transacted, self.action_type
+            )
 
         except Exception as e:
             raise e
@@ -51,7 +58,7 @@ class WalletManagementMixin(object):
                 wallet=wallet,
                 actioned_by=actioned_by,
                 amount=amount,
-                transaction_type=transaction_type
+                transaction_type=transaction_type,
             )
         except Exception as e:
             raise e

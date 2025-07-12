@@ -6,24 +6,32 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('users', '0013_user_preferred_property_type'),
+        ("users", "0013_user_preferred_property_type"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='PropertyType',
+            name="PropertyType",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=50, unique=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=50, unique=True)),
             ],
         ),
         migrations.RemoveField(
-            model_name='user',
-            name='preferred_property_type',
+            model_name="user",
+            name="preferred_property_type",
         ),
         migrations.AddField(
-            model_name='user',
-            name='preferred_property_types',
-            field=models.ManyToManyField(blank=True, to='users.propertytype'),
+            model_name="user",
+            name="preferred_property_types",
+            field=models.ManyToManyField(blank=True, to="users.propertytype"),
         ),
     ]

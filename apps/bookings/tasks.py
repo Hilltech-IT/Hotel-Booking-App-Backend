@@ -46,7 +46,7 @@ def event_space_booked_task(booking_id):
             "date_to": booking.booked_to,
             "property_name": booking.event_space.name,
             "subject": "Event Space Booking",
-            "payment_status": booking.status
+            "payment_status": booking.status,
         }
         send_message = SendMessage({}, asynchronous=False)
         send_message.send_mail(
@@ -66,7 +66,7 @@ def event_space_booked_task(booking_id):
 def hotel_room_booked_task(booking_id):
     try:
         booking = RoomBooking.objects.get(id=booking_id)
-       
+
         context_data = {
             "name": f"{booking.user.first_name} {booking.user.last_name}",
             "payment_link": booking.payment_link,
@@ -75,7 +75,7 @@ def hotel_room_booked_task(booking_id):
             "property_name": booking.room.property.name,
             "subject": "Hotel Room Booking",
             "room_type": booking.room.room_type,
-            "payment_status": booking.status
+            "payment_status": booking.status,
         }
         send_message = SendMessage({}, asynchronous=False)
         send_message.send_mail(
@@ -103,7 +103,7 @@ def bnb_booked_task(booking_id):
             "date_to": booking.booked_to,
             "property_name": booking.airbnb.name,
             "subject": "AirBnB Booking",
-            "payment_status": booking.status
+            "payment_status": booking.status,
         }
         send_message = SendMessage({}, asynchronous=False)
         send_message.send_mail(

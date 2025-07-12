@@ -20,8 +20,15 @@ BOOKING_STATUS_CHOICES = (
 
 # Create your models here.
 class RoomBooking(AbstractBaseModel):
-    user = models.ForeignKey("users.User", on_delete=models.CASCADE, related_name="customerbookings")
-    room = models.ForeignKey("property.PropertyRoom", on_delete=models.SET_NULL, null=True, related_name="roombookings")
+    user = models.ForeignKey(
+        "users.User", on_delete=models.CASCADE, related_name="customerbookings"
+    )
+    room = models.ForeignKey(
+        "property.PropertyRoom",
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name="roombookings",
+    )
     booked_from = models.DateField()
     booked_to = models.DateField()
     amount_expected = models.DecimalField(max_digits=100, decimal_places=2, default=0)
@@ -47,7 +54,7 @@ class RoomBooking(AbstractBaseModel):
         return str(self.id)
 
     def update_payment_status(self):
-       
+
         self.fully_paid = self.amount_paid >= self.amount_expected
 
         if self.amount_paid == 0:
@@ -57,9 +64,6 @@ class RoomBooking(AbstractBaseModel):
         elif self.fully_paid:
             self.status = "Paid"
 
-
-    
-    
 
 # Create your models here.
 class BnBBooking(AbstractBaseModel):
@@ -84,14 +88,20 @@ class BnBBooking(AbstractBaseModel):
     reference = models.CharField(max_length=255, null=True)
     transaction_id = models.CharField(max_length=255, null=True)
     is_over = models.BooleanField(default=False)
-    status = models.CharField(max_length=255, null=True, default="Pending Payment", choices=BOOKING_STATUS_CHOICES)
+    status = models.CharField(
+        max_length=255,
+        null=True,
+        default="Pending Payment",
+        choices=BOOKING_STATUS_CHOICES,
+    )
     payment_notif_send = models.BooleanField(default=False)
     notif_send = models.BooleanField(default=False)
 
     def __str__(self):
         return str(self.id)
+
     def update_payment_status(self):
-       
+
         self.fully_paid = self.amount_paid >= self.amount_expected
 
         if self.amount_paid == 0:
@@ -103,7 +113,11 @@ class BnBBooking(AbstractBaseModel):
 
 
 class EventSpaceBooking(AbstractBaseModel):
-    user = models.ForeignKey("users.User", on_delete=models.CASCADE, related_name="customereventspacebookings",)
+    user = models.ForeignKey(
+        "users.User",
+        on_delete=models.CASCADE,
+        related_name="customereventspacebookings",
+    )
     event_space = models.ForeignKey(
         "property.Property",
         on_delete=models.SET_NULL,
@@ -133,9 +147,9 @@ class EventSpaceBooking(AbstractBaseModel):
 
     def __str__(self):
         return str(self.id)
-    
+
     def update_payment_status(self):
-       
+
         self.fully_paid = self.amount_paid >= self.amount_expected
 
         if self.amount_paid == 0:

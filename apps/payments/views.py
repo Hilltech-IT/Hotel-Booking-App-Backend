@@ -1,188 +1,247 @@
-from decimal import Decimal
+from apps.constants import IsAdminOrAuthenticated
+from rest_framework import generics, status
+from rest_framework.permissions import AllowAny
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
-from django.contrib.auth.decorators import login_required
-from django.core.paginator import Paginator
-from django.shortcuts import redirect, render
+from apps.payments.serializers import (
+    LipaNaMpesaCallbackSerializer,
+    LipaNaMpesaSerializer,
+    PaymentsSerializer,
+    PaystackSerializer,
+    PaystackCallbackSerializer,
+)
+from apps.payments.models import MpesaTransaction, Payment, PaystackPayment
+from apps.payments.mpesa.mpesa_callback_data import mpesa_callback_data_distructure
+from apps.payments.mpesa.utils import MpesaGateWay
+from apps.payments.paystack.paystack import PaystackProcessorMixin
+from apps.payments.paystack.callback_processor import PaystackCallbackProcessMixin
+from django.db.models import Q
 
-from apps.bookings.models import BnBBooking, RoomBooking
-from apps.events.models import Event, EventTicket
-from apps.payments.models import Payment, PaystackPayment
-
-
-# Create your views here.
-@login_required(login_url="/users/user-login/")
-def payments(request):
-    user = request.user
-    payments = Payment.objects.all().order_by("-created")
-
-    if not user.is_superuser:
-        payments = Payment.objects.filter(paid_to=user)
-
-    paginator = Paginator(payments, 10)
-    page_number = request.GET.get("page")
-    page_obj = paginator.get_page(page_number)
-
-    context = {"payments": payments, "page_obj": page_obj}
-    return render(request, "payments/payments.html", context)
+BASE_BACKEND_URL = ""
 
 
-def process_event_ticket_payment(request, ticket_id=None):
-    ticket = EventTicket.objects.get(id=ticket_id)
+class PaystackAPIView(generics.CreateAPIView):
+    serializer_class = PaystackSerializer
+    permission_classes = [AllowAny]
 
-    if request.method == "POST":
-        payment_method = request.POST.get("payment_method")
-        event_ticket_id = request.POST.get("ticket_id")
-        amount = Decimal(request.POST.get("amount"))
-        phone_number = request.POST.get("phone_number")
+    def post(self, request):
+        data = request.data
 
-        if ticket.amount_expected == amount:
-            ticket.amount_paid = amount
-            ticket.ticket_status = "Active"
-            ticket.payment_method = payment_method
-            ticket.save()
+        print(f"Paystack Data: {data}")
+
+        serializer = self.serializer_class(data=data)
+
+        if serializer.is_valid(raise_exception=True):
+            try:
+                paystack = PaystackProcessorMixin()
+                paystack.initialize_payment(payment_data=data)
+            except Exception as e:
+                raise e
+
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class PaystackCallbackAPIView(APIView):
+    def get(self, request, *args, **kwargs):
+        reference = request.query_params.get("reference")
+        trxref = request.query_params.get("trxref")
+
+        try:
+            paystack = PaystackProcessorMixin()
+            verification_data = paystack.verify_transaction(reference=reference)
+
+            payment_status = verification_data["data"]["status"]
+
+            if payment_status.lower() == "success":
+                payment = PaystackPayment.objects.get(reference=reference)
+                payment.verified = True
+                payment.save()
+                callback_data = {
+                    "reference": reference,
+                    "trxref": trxref,
+                    "paystack_payment_id": payment.id,
+                }
+                PaystackCallbackProcessMixin(data=callback_data).run()
+        except Exception as e:
+            raise e
+
+        return Response({"payment_reference": reference})
+
+
+class PaystackWebhookAPIView(APIView):
+    def post(self, request, *args, **kwargs):
+        print("**********Webhook Data**************")
+        status = request.data["event"]
+        payment_reference = request.data["data"]["reference"]
+        trxref = request.data["data"]["id"]
+
+        paystack_data = f"""
+            Reference: {payment_reference}
+            Transaction ID: {trxref}
+            Status: {status}
+        """
+        print(paystack_data)
+        try:
+            paystack = PaystackProcessorMixin()
+            verification_data = paystack.verify_transaction(reference=payment_reference)
+
+            payment_status = verification_data["data"]["status"]
+
+            if payment_status.lower() == "success":
+                payment = PaystackPayment.objects.get(reference=payment_reference)
+                payment.verified = True
+                payment.save()
+                callback_data = {
+                    "reference": payment_reference,
+                    "trxref": trxref,
+                    "paystack_payment_id": payment.id,
+                }
+                PaystackCallbackProcessMixin(data=callback_data).run()
+                return Response({"message": "Payment successful"})
+        except Exception as e:
+            print(e)
+            return Response({"error": str(e)})
+
+
+class PaystackCallbackDataAPIView(generics.CreateAPIView):
+    serializer_class = PaystackCallbackSerializer
+
+    def post(self, request):
+        data = request.data
+        serializer = self.serializer_class(data=data)
+
+        if serializer.is_valid(raise_exception=True):
+            reference = data.get("reference")
+            trxref = data.get("trxref")
+
+            try:
+                paystack = PaystackProcessorMixin()
+                verification_data = paystack.verify_transaction(reference=reference)
+
+                payment_status = verification_data["data"]["status"]
+
+                if payment_status.lower() == "success":
+                    payment = PaystackPayment.objects.get(reference=reference)
+                    payment.verified = True
+                    payment.save()
+                    callback_data = {
+                        "reference": reference,
+                        "trxref": trxref,
+                        "paystack_payment_id": payment.id,
+                    }
+                    PaystackCallbackProcessMixin(data=callback_data).run()
+
+            except Exception as e:
+                raise e
+
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class LipaNaMpesaCallbackAPIView(generics.CreateAPIView):
+    serializer_class = LipaNaMpesaCallbackSerializer
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        data = request.data
+
+        print(f"Mpesa Data: {data}")
+
+        serializer = self.serializer_class(data=data)
+
+        if serializer.is_valid(raise_exception=True):
+
+            callback_data = mpesa_callback_data_distructure(data)
+            mpesa_transaction = MpesaTransaction.objects.create(**callback_data)
+            mpesa_transaction.save()
+
+            print(serializer.validated_data)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class LipaNaMpesaAPIView(generics.CreateAPIView):
+    serializer_class = LipaNaMpesaSerializer
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        data = request.data
+
+        serializer = self.serializer_class(data=data)
+        if serializer.is_valid(raise_exception=True):
+
+            mpesa = MpesaGateWay()
+            mpesa.stk_push(
+                phone_number=data.get("phone_number"),
+                amount=int(data.get("amount")),
+                callback_url="https://api.stayzhubprovider.com/payments/lipa-na-mpesa-callback/",
+                account_reference="Booking Payments",
+                transaction_desc="This is a booking payment",
+            )
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+"""payments listing"""
+
+
+class PaymentListAPIView(generics.ListAPIView):
+    queryset = Payment.objects.all()
+    serializer_class = PaymentsSerializer
+    permission_classes = [IsAdminOrAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        transc_code = self.request.query_params.get("transaction_code")
+        reference_no = self.request.query_params.get("reference")
+
+        if hasattr(user, "role") and user.role == "admin":
+            payments = self.queryset
+
+        elif user.role == "Service Provider":
+            payments = self.queryset.filter(
+                Q(room_booking__room__property__owner=user)
+                | Q(bnb_booking__airbnb__owner=user)
+                | Q(event_space_booking__event_space__owner=user)
+                | Q(ticket__event__owner=user)
+                | Q(paid_to=user)
+            ).distinct()
+
         else:
-            ticket.amount_paid += amount
-            ticket.ticket_status = "Pending Payment"
-            ticket.payment_method = payment_method
-            ticket.save()
 
-        payment = Payment.objects.create(
-            ticket=ticket,
-            paid_by=ticket.user,
-            paid_to=ticket.event.owner,
-            payment_reason="Ticket Booking",
-            amount=amount,
-        )
+            payments = self.queryset.none()
 
-        print(f"Event Ticket ID: {event_ticket_id}, Ticket ID: {ticket_id}")
-        return redirect("/events/tickets/")
+        if transc_code:
+            payments = payments.filter(transaction_id__icontains=transc_code)
+        if reference_no:
+            payments = payments.filter(reference__icontains=reference_no)
 
-    return render(request, "events/ticket_payment_options.html")
+        return payments
 
 
-def hotel_booking_payment(request):
-    if request.method == "POST":
-        booking_id = request.POST.get("booking")
-        amount = Decimal(request.POST.get("amount"))
-        payment_method = request.POST.get("payment_method")
-        booking_type = request.POST.get("booking_type")
+class PaymentDetailAPIView(generics.RetrieveAPIView):
+    queryset = Payment.objects.all()
+    serializer_class = PaymentsSerializer
+    permission_classes = [IsAdminOrAuthenticated]
+    lookup_field = "pk"
 
-        if booking_type.lower() == "airbnb":
-            bnb_booking = BnBBooking.objects.get(id=booking_id)
-            bnb_booking.amount_paid += amount
-            bnb_booking.save()
+    def get_queryset(self):
+        user = self.request.user
 
-            payment = Payment.objects.create(
-                bnb_booking=bnb_booking,
-                paid_by=bnb_booking.user,
-                paid_to=bnb_booking.airbnb.owner,
-                payment_reason="AirBnB Booking",
-                amount=amount,
-            )
-            return redirect("airbnb-bookings")
+        if hasattr(user, "role") and user.role == "admin":
+            return self.queryset
 
-        elif booking_type.lower() == "hotel":
-            booking = RoomBooking.objects.get(id=booking_id)
-            booking.amount_paid += amount
-            booking.save()
+        elif user.role == "Service Provider":
+            return self.queryset.filter(
+                Q(room_booking__room__property__owner=user)
+                | Q(bnb_booking__airbnb__owner=user)
+                | Q(event_space_booking__event_space__owner=user)
+                | Q(ticket__event__owner=user)
+                | Q(paid_to=user)
+            ).distinct()
 
-            booking.fully_paid = (
-                True if booking.amount_expected == booking.amount_paid else False
-            )
-            booking.save()
-
-            payment = Payment.objects.create(
-                room=booking.room,
-                paid_by=booking.user,
-                paid_to=booking.room.property.owner,
-                payment_reason="Room Booking",
-                amount=amount,
-            )
-
-            return redirect("bookings")
-
-    return render(request, "booking/pay_booking.html")
-
-
-def process_flutterwave_payment(request):
-    status = request.GET.get("status")
-    tx_ref = request.GET.get("tx_ref")
-    transaction_id = request.GET.get("transaction_id")
-
-    if status.lower() == "successful":
-        if tx_ref.startswith("ticket_"):
-            ticket = EventTicket.objects.get(tx_ref=tx_ref)
-            ticket.amount_paid = ticket.amount_expected
-            ticket.transaction_id = transaction_id
-            ticket.ticket_status = "Paid"
-            ticket.save()
-
-            payment = Payment.objects.create(
-                ticket=ticket,
-                paid_by=ticket.user,
-                paid_to=ticket.event.owner,
-                payment_reason="Ticket Booking",
-                amount=ticket.amount_expected,
-                payment_link=ticket.payment_link,
-                tx_ref=tx_ref,
-                transaction_id=transaction_id,
-            )
-
-        elif tx_ref.startswith("room_"):
-            booking = RoomBooking.objects.get(tx_ref=tx_ref)
-            booking.amount_paid = booking.amount_expected
-            booking.transaction_id = transaction_id
-            booking.status = "Completed"
-            booking.save()
-
-            payment = Payment.objects.create(
-                room=booking.room,
-                paid_by=booking.user,
-                paid_to=booking.room.property.owner,
-                payment_reason="Room Booking",
-                amount=booking.amount_expected,
-                payment_link=booking.payment_link,
-                tx_ref=tx_ref,
-                transaction_id=transaction_id,
-            )
-        elif tx_ref.startswith("bnb_"):
-            bnb_booking = BnBBooking.objects.get(tx_ref=tx_ref)
-            bnb_booking.amount_paid = bnb_booking.amount_expected
-            bnb_booking.transaction_id = transaction_id
-            bnb_booking.status = "Completed"
-            bnb_booking.save()
-
-            payment = Payment.objects.create(
-                bnb_booking=bnb_booking,
-                paid_by=bnb_booking.user,
-                paid_to=bnb_booking.airbnb.owner,
-                payment_reason="AirBnB Booking",
-                amount=bnb_booking.amount_expected,
-                payment_link=bnb_booking.payment_link,
-                tx_ref=tx_ref,
-                transaction_id=transaction_id,
-            )
-
-    else:
-        print("Payment failed!!!!!!!!!")
-
-    context = {
-        "payment_status": status,
-        "tx_ref": tx_ref,
-        "transaction_id": transaction_id,
-    }
-    print(context)
-
-    return render(request, "payments/confirm_payment.html", context)
-
-
-def paystack_payments(request):
-    paystack_payments = PaystackPayment.objects.all().order_by("-created")
-    paginator = Paginator(paystack_payments, 12)
-    page_number = request.GET.get("page")
-    page_obj = paginator.get_page(page_number)
-
-    context = {
-        "page_obj": page_obj
-    }
-    return render(request, "payments/paystack_payments.html", context)
+        return self.queryset.none()
