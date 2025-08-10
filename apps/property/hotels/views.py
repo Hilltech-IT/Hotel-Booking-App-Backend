@@ -14,7 +14,7 @@ from apps.core.constants import PropertyTypes
 
 
 class HotelAPIView(generics.ListAPIView):
-    queryset = Property.objects.filter(property_type=PropertyTypes.HOTEL.value)
+    queryset = Property.objects.filter(property_type=PropertyTypes.HOTEL.value).order_by("-created")
     serializer_class = HotelSerializer
     permission_classes = [IsAdminOrAuthenticated]
 
@@ -40,10 +40,20 @@ class HotelAPIView(generics.ListAPIView):
             )
         page = self.paginate_queryset(hotels)
         if page is not None:
-            serializer = self.serializer_class(instance=page, many=True)
+            # FIX: Pass context with request to serializer
+            serializer = self.serializer_class(
+                instance=page, 
+                many=True, 
+                context={'request': request}
+            )
             return self.get_paginated_response(serializer.data)
 
-        serializer = self.serializer_class(instance=hotels, many=True)
+        # FIX: Pass context with request to serializer
+        serializer = self.serializer_class(
+            instance=hotels, 
+            many=True, 
+            context={'request': request}
+        )
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
@@ -87,7 +97,7 @@ class HotelDetailAPIView(generics.RetrieveDestroyAPIView):
     serializer_class = HotelSerializer
 
     lookup_field = "pk"
-
+ 
 
 class CreateHotelRoomView(generics.CreateAPIView):
     queryset = PropertyRoom.objects.all()
@@ -141,6 +151,9 @@ class HotelRoomDetailView(generics.RetrieveAPIView):
     serializer_class = HotelRoomSerializer
     lookup_field = "pk"
     permission_classes = [IsAdminOrAuthenticated]
+    
+    def get_serializer_context(self):
+        return {"request": self.request}
 
 
 class HotelRoomListView(generics.ListAPIView):

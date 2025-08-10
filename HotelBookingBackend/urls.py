@@ -42,6 +42,7 @@ urlpatterns = [
     path("payments/", include("apps.payments.urls")),
     path("bookings/", include("apps.bookings.urls")),
     path("service-providers/", include("apps.users.service_providers.urls")),
+    path("customers/", include("apps.users.customers.urls")),
     path("staff/", include("apps.users.staff.urls")),
     path("airbnbs/", include("apps.property.airbnbs.urls")),
     path("event-spaces/", include("apps.property.event_spaces.urls")),

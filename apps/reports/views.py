@@ -14,8 +14,6 @@ from drf_yasg import openapi
 
 
 """Metrics Api"""
-
-
 class RevenueMetricsAPIView(APIView):
     permission_classes = [IsAuthenticated]
 

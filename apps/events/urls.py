@@ -18,7 +18,7 @@ from apps.events.views import (
 urlpatterns = [
     path("list/", EventListAPIView.as_view(), name="events-list"),
     path("details/<int:pk>/", EventDetailAPIView.as_view(), name="event-details"),
-    path("tickets/", EventTicketListAPIView.as_view, name="events-tickets"),
+    path("tickets/", EventTicketListAPIView.as_view(), name="events-tickets"),
     path("create/", EventCreateAPIViIew.as_view(), name="create-event"),
     path(
         "allowed-payment-methods/",

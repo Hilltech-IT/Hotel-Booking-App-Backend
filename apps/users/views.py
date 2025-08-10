@@ -51,6 +51,12 @@ class RegisterUserAPIView(generics.CreateAPIView):
     permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
+        phone_number = request.data.get("phone_number")
+        if User.objects.filter(phone_number=phone_number).exists():
+            return Response(
+                {"erro": "A user with this phone number already exists."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
             serializer.save()

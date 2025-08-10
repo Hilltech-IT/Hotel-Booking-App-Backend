@@ -28,7 +28,9 @@ from apps.users.models import User
 class UserBaseSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = "__all__"
+        # fields = "__all__"
+        exclude = ["password","token", "token_expiration_date"]
+        
 
 
 class UserListSerializer(UserBaseSerializer):
@@ -176,6 +178,8 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
             "preferred_property_types": list(
                 user.preferred_property_types.values("id", "name")
             ),
+            "activated": user.activated,
+
         }
 
         return token
@@ -202,6 +206,7 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
             "preferred_property_types": list(
                 self.user.preferred_property_types.values("id", "name")
             ),
+            "activated": self.user.activated,
         }
         # try:
         #     subscription = Subscription.objects.get(user=self.user)
